@@ -13,7 +13,7 @@
         .radar-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(251, 191, 36, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(251, 191, 36, 0.03) 1px, transparent 1px); background-size: 35px 35px; z-index: -1; }
         .glass-card { background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(251, 191, 36, 0.15); }
         .whale-input { width: 100%; padding: 1.1rem 3.5rem 1.1rem 1.1rem; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.2rem; color: white; outline: none; transition: 0.3s; }
-        .whale-input:focus { border-color: var(--whale-amber); shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
+        .whale-input:focus { border-color: var(--whale-amber); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
         .action-btn { background: var(--whale-amber); color: #020617; font-weight: 900; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); transition: 0.3s; }
         .action-btn:active { transform: scale(0.95); }
         .hidden { display: none; }
@@ -47,6 +47,14 @@
                            class="whale-input text-center font-black tracking-widest text-lg">
                 </div>
 
+                <div id="regFields" class="hidden space-y-4 pt-2">
+                    <div class="relative">
+                        <i class="fas fa-user absolute right-4 top-1/2 -translate-y-1/2 text-amber-500"></i>
+                        <input type="text" id="driverName" placeholder="الاسم الثلاثي" 
+                               class="whale-input text-center font-bold">
+                    </div>
+                </div>
+
                 <button type="submit" id="mainBtn" class="w-full py-5 action-btn mt-6 flex items-center justify-center gap-3 italic">
                     <span id="btnText">تفعيل الرادار</span>
                     <i class="fas fa-crosshairs"></i>
@@ -57,13 +65,12 @@
         <div id="statusMessage" class="hidden text-center py-12">
             <div id="statusIcon" class="text-6xl mb-6">🛰️</div>
             <h3 id="statusTitle" class="text-xl font-black text-amber-500 italic uppercase">بانتظار الإشارة</h3>
-            <p id="statusDesc" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">سيتم تفعيل الرادار لك فور مراجعة حسابك.</p>
-            <button onclick="logout()" class="mt-10 text-[9px] text-red-500/70 underline font-black">إعادة محاولة</button>
+            <p id="statusDesc" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">تم استلام طلبك. سيتم تفعيل الرادار لك فور مراجعة الإدارة.</p>
+            <button onclick="logout()" class="mt-10 text-[9px] text-red-500/70 underline font-black">إلغاء الطلب والعودة</button>
         </div>
     </div>
 
     <script>
-        // الرابط الخاص بـ "الحوت" V3
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyYL0NRSg1V9xL62JyL5MQfP2jNO3sNU6lDl1xf_GcmOAZXWBg8G7YpdFdJjxpEDcpDhQ/exec';
 
         window.onload = () => {
@@ -72,7 +79,6 @@
             
             setTimeout(() => {
                 document.getElementById('loader').classList.add('hidden');
-                // إذا كان مسجل دخول وحالته فعالة، نوجهه فوراً للدشبورد
                 if (savedStatus === 'active' && savedPhone) {
                     window.location.href = 'driver_dashboard.html';
                 } else if (savedStatus && savedStatus !== 'active') {
@@ -86,14 +92,16 @@
         document.getElementById('loginForm').onsubmit = async function(e) {
             e.preventDefault();
             const phone = document.getElementById('driverPhone').value;
+            const name = document.getElementById('driverName').value;
             const btn = document.getElementById('mainBtn');
+            const regFields = document.getElementById('regFields');
             
             btn.disabled = true;
-            btn.innerText = "جاري الاتصال بالقمر الصناعي... 🛰️";
+            btn.innerText = "جاري التحقق... 📡";
 
             try {
-                // استدعاء الأكشن الجديد driver_login
-                const response = await fetch(`${scriptURL}?action=driver_login&phone=${phone}`);
+                // الأكشن يدعم الآن التحقق أو التسجيل التلقائي
+                const response = await fetch(`${scriptURL}?action=driver_login&phone=${phone}&name=${encodeURIComponent(name)}`);
                 const result = await response.json();
 
                 if (result.status === 'active') {
@@ -101,17 +109,21 @@
                     localStorage.setItem('whale_driver_name', result.name);
                     localStorage.setItem('whale_driver_status', 'active');
                     window.location.href = 'driver_dashboard.html';
-                } else if (result.status === 'not_found') {
-                    alert("⚠️ هذا الرقم غير مسجل في المنظومة. يرجى التواصل مع الإدارة لإضافتك ككابتن.");
+                } else if (result.status === 'not_found' && regFields.classList.contains('hidden')) {
+                    // إذا لم يوجد، نفتح حقل الاسم للتسجيل
+                    regFields.classList.remove('hidden');
+                    document.getElementById('driverName').required = true;
                     btn.disabled = false;
-                    btn.innerText = "تفعيل الرادار";
+                    btn.innerText = "تقديم طلب انضمام";
+                    alert("الرقم غير مسجل. يرجى إدخال اسمك لتقديم طلب انضمام.");
                 } else {
-                    // حالات pending أو banned
-                    localStorage.setItem('whale_driver_status', result.status);
-                    showStatusView(result.status);
+                    // حالة pending أو بعد إرسال الطلب الجديد
+                    localStorage.setItem('whale_driver_status', 'pending');
+                    localStorage.setItem('whale_driver_phone', phone);
+                    showStatusView('pending');
                 }
             } catch (e) {
-                alert("فشل الاتصال بالرادار، تأكد من الإنترنت");
+                alert("فشل الاتصال بالرادار");
                 btn.disabled = false;
                 btn.innerText = "تفعيل الرادار";
             }
@@ -120,19 +132,14 @@
         function showStatusView(status) {
             document.getElementById('authUI').classList.add('hidden');
             document.getElementById('statusMessage').classList.remove('hidden');
-            
             const title = document.getElementById('statusTitle');
-            const desc = document.getElementById('statusDesc');
             const icon = document.getElementById('statusIcon');
 
             if (status === 'banned') {
                 title.innerText = "الحساب محظور";
-                title.className = "text-xl font-black text-red-500 italic uppercase";
-                desc.innerText = "تم إيقاف صلاحياتك من قبل الإدارة. يرجى مراجعة المكتب الرئيسي.";
                 icon.innerText = "🚫";
             } else {
                 title.innerText = "بانتظار التفعيل";
-                desc.innerText = "حسابك قيد المراجعة. سيفتح الرادار تلقائياً فور الموافقة.";
                 icon.innerText = "🛰️";
             }
         }
