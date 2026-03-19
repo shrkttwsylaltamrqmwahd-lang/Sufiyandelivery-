@@ -15,6 +15,8 @@
         #lockScreen { background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); transition: all 0.6s; }
         .master-font { font-family: 'Orbitron', sans-serif; }
         .status-badge { font-size: 8px; padding: 2px 8px; border-radius: 99px; font-weight: 900; text-transform: uppercase; }
+        .pulse-red { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     </style>
 </head>
 <body class="min-h-screen">
@@ -49,24 +51,31 @@
 
         <main class="max-w-7xl mx-auto">
             <div class="flex flex-wrap gap-4 mb-10">
-                <button onclick="showTab('orders')" id="btn-orders" class="tab-btn flex-1 bg-emerald-600 p-6 rounded-3xl font-black text-white text-lg italic">📡 الرادار الحي</button>
+                <button onclick="showTab('orders')" id="btn-orders" class="tab-btn flex-1 bg-emerald-600 p-6 rounded-3xl font-black text-white text-lg italic shadow-lg">📡 الرادار الحي</button>
+                <button onclick="showTab('approvals')" id="btn-approvals" class="tab-btn flex-1 glass p-6 rounded-3xl font-black text-amber-500 text-lg italic relative">
+                    🔔 طلبات الانضمام
+                    <span id="reqCount" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center hidden">0</span>
+                </button>
                 <button onclick="showTab('restaurants')" id="btn-restaurants" class="tab-btn flex-1 glass p-6 rounded-3xl font-black text-emerald-500 text-lg italic">🏢 المحافظ والديون</button>
             </div>
 
             <div id="orders" class="tab-content active glass p-8 rounded-[3.5rem] border-t-4 border-emerald-500">
-                <div class="flex justify-between items-center mb-10 border-b border-white/5 pb-4">
-                    <h2 class="text-2xl font-black text-emerald-400 italic uppercase flex items-center gap-3">
-                        <span class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></span> مراقبة الطلبات النشطة
-                    </h2>
+                <h2 class="text-2xl font-black text-emerald-400 italic mb-10 flex items-center gap-3">
+                    <span class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></span> مراقبة الطلبات النشطة
+                </h2>
+                <div id="ordersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <div id="approvals" class="tab-content glass p-8 rounded-[3.5rem] border-t-4 border-amber-500">
+                <h2 class="text-2xl font-black text-amber-500 italic mb-10 italic">الموافقة على الأعضاء الجدد</h2>
+                <div id="pendingList" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center italic opacity-50">
+                    جاري فحص طلبات الانتظار...
                 </div>
-                <div id="ordersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    </div>
             </div>
 
             <div id="restaurants" class="tab-content glass p-8 rounded-[3.5rem] border-t-4 border-red-500">
-                <h2 class="text-2xl font-black text-red-500 italic uppercase mb-10 italic">إدارة الأموال والديون</h2>
-                <div id="entitiesList" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    </div>
+                <h2 class="text-2xl font-black text-red-500 italic mb-10 italic text-center">إدارة الأموال والديون</h2>
+                <div id="entitiesList" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
             </div>
         </main>
     </div>
@@ -78,95 +87,111 @@
         function unlockMaster() {
             const pass = document.getElementById('adminPass').value;
             if (pass === MASTER_PASS) {
-                document.getElementById('lockScreen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('lockScreen').classList.add('hidden');
-                    document.getElementById('mainDashboard').classList.remove('hidden');
-                    fetchData();
-                    setInterval(fetchData, 15000); // تحديث آلي كل 15 ثانية
-                }, 600);
+                document.getElementById('lockScreen').classList.add('hidden');
+                document.getElementById('mainDashboard').classList.remove('hidden');
+                fetchData();
+                setInterval(fetchData, 15000); 
             } else { alert("⚠️ رمز السيادة غير صحيح!"); }
         }
 
         async function fetchData() {
             try {
-                // ملاحظة: تأكد أن السكريبت يحتوي على أكشن لجلب كل البيانات
                 const response = await fetch(scriptURL + "?action=get_master_data");
                 const data = await response.json();
                 
                 renderOrders(data.orders || []);
                 renderEntities(data.restaurants || [], 'Restaurants', 'emerald');
                 renderEntities(data.drivers || [], 'Drivers', 'red', true);
+                renderPending(data.pending || []);
             } catch (e) { console.log("Master Sync Error"); }
         }
 
         function renderOrders(orders) {
             const container = document.getElementById('ordersList');
-            container.innerHTML = orders.map(ord => {
-                const statusColor = ord.status === 'delivered' ? 'bg-emerald-500' : 'bg-blue-500';
-                return `
-                    <div class="bg-white/5 p-6 rounded-[2rem] border border-white/10 relative overflow-hidden">
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="text-emerald-500 font-mono text-[10px] font-bold">${ord.id}</span>
-                            <span class="${statusColor} text-slate-900 status-badge italic">${ord.status}</span>
-                        </div>
-                        <h3 class="font-black italic text-lg text-white mb-1">${ord.restaurantName}</h3>
-                        <p class="text-[11px] text-gray-400 mb-4 line-clamp-2">${ord.details}</p>
-                        <div class="pt-4 border-t border-white/5 flex justify-between items-center">
-                            <span class="text-[9px] text-gray-500 uppercase font-black italic">الكابتن:</span>
-                            <span class="text-[10px] text-emerald-400 font-bold italic">${ord.driverPhone || 'بدون سائق'}</span>
-                        </div>
+            container.innerHTML = orders.map(ord => `
+                <div class="bg-white/5 p-6 rounded-[2rem] border border-white/10">
+                    <div class="flex justify-between mb-4">
+                        <span class="text-emerald-500 font-mono text-[10px]">${ord.id}</span>
+                        <span class="bg-blue-500 text-slate-900 status-badge italic">${ord.status}</span>
                     </div>
-                `;
-            }).join('') || '<p class="text-center col-span-full opacity-20 py-20 italic">الرادار نظيف تماماً الآن 🐋</p>';
+                    <h3 class="font-black italic text-lg text-white">${ord.restaurantName}</h3>
+                    <p class="text-[11px] text-gray-400 my-3">${ord.details}</p>
+                    <div class="pt-3 border-t border-white/5 text-[10px] text-emerald-400 italic">الكابتن: ${ord.driverPhone || 'بانتظار سائق...'}</div>
+                </div>
+            `).join('') || '<p class="col-span-full text-center opacity-30 italic">لا توجد طلبات نشطة</p>';
+        }
+
+        function renderPending(pending) {
+            const container = document.getElementById('pendingList');
+            const badge = document.getElementById('reqCount');
+            
+            if (pending.length > 0) {
+                badge.innerText = pending.length;
+                badge.classList.remove('hidden');
+                container.innerHTML = pending.map(user => `
+                    <div class="bg-amber-500/10 border border-amber-500/20 p-6 rounded-3xl flex flex-col items-center">
+                        <div class="text-amber-500 text-3xl mb-2 font-black italic uppercase">${user.type === 'Driver' ? 'كابتن' : 'مطعم'}</div>
+                        <h4 class="text-xl font-black">${user.name}</h4>
+                        <p class="font-mono text-gray-400 mb-6">${user.phone}</p>
+                        <button onclick="approveUser('${user.phone}', '${user.type}')" 
+                                class="w-full bg-amber-500 text-slate-900 py-3 rounded-xl font-black hover:scale-105 transition-all pulse-red">تفعيل الحساب الآن ✅</button>
+                    </div>
+                `).join('');
+            } else {
+                badge.classList.add('hidden');
+                container.innerHTML = '<p class="col-span-full opacity-30 italic py-10">لا توجد طلبات انضمام جديدة</p>';
+            }
+        }
+
+        async function approveUser(phone, type) {
+            if(!confirm(`هل توافق على منح [${phone}] صلاحية الدخول للمنظومة؟`)) return;
+            try {
+                const res = await fetch(scriptURL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'approve_user', phone: phone, type: type, pass: MASTER_PASS })
+                });
+                const result = await res.json();
+                if(result.status === "ok") { 
+                    alert("تم تفعيل العضو بنجاح! يمكنه الدخول الآن 🐋"); 
+                    fetchData(); 
+                }
+            } catch (e) { alert("حدث خطأ في عملية التفعيل"); }
         }
 
         function renderEntities(items, type, color, append = false) {
             const container = document.getElementById('entitiesList');
             if (!append) container.innerHTML = "";
-            
             container.innerHTML += items.map(item => `
-                <div class="bg-white/[0.02] border border-white/5 p-8 rounded-[3rem] hover:border-${color}-500/30 transition-all shadow-xl">
-                    <div class="flex justify-between items-start mb-6">
+                <div class="bg-white/[0.02] border border-white/5 p-8 rounded-[3rem] shadow-xl">
+                    <div class="flex justify-between items-start mb-6 text-right">
                         <div>
-                            <span class="text-[9px] text-gray-500 uppercase font-black mb-1 block tracking-widest">${type === 'Drivers' ? 'كابتن ميداني' : 'شريك مطعم'}</span>
+                            <span class="text-[9px] text-gray-500 uppercase font-black">${type === 'Drivers' ? 'كابتن' : 'مطعم'}</span>
                             <h3 class="text-xl font-black text-white italic">${item.name}</h3>
                         </div>
-                        <div class="text-right">
-                            <p class="text-[10px] text-gray-500 font-bold font-mono uppercase">المبلغ الحالي</p>
+                        <div>
                             <p class="text-${color}-500 text-2xl font-black italic">${item.wallet} <span class="text-[10px]">د.ع</span></p>
                         </div>
                     </div>
                     <button onclick="clearWallet('${item.name}', '${type}')" 
-                            class="w-full bg-${color}-500/10 text-${color}-500 py-4 rounded-2xl font-black italic border border-${color}-500/20 hover:bg-${color}-500 hover:text-slate-900 transition-all">
-                        تسوية وتصفير الحساب 💰
-                    </button>
+                            class="w-full bg-${color}-500/10 text-${color}-500 py-4 rounded-2xl font-black italic border border-${color}-500/20 hover:bg-${color}-500 hover:text-slate-900 transition-all">تصفير الحساب 💰</button>
                 </div>
             `).join('');
         }
 
         async function clearWallet(name, targetSheet) {
-            if(!confirm(`تأكيد السيادة: هل استلمت المبالغ من [${name}] وتريد تصفير محفظته الآن؟`)) return;
-            
-            try {
-                const response = await fetch(scriptURL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'clear_wallet', name: name, targetSheet: targetSheet, pass: MASTER_PASS })
-                });
-                const result = await response.json();
-                if(result.status === "ok") { alert("تم تصفير الحساب وتحديث السجلات ✅"); fetchData(); }
-            } catch (e) { alert("حدث خطأ في عملية التسوية"); }
+            if(!confirm(`تصفير محفظة ${name}؟`)) return;
+            const res = await fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'clear_wallet', name, targetSheet, pass: MASTER_PASS })
+            });
+            if(res.ok) { fetchData(); }
         }
 
         function showTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.className = "tab-btn flex-1 glass p-6 rounded-3xl font-black text-emerald-500 text-lg italic";
-            });
-            const activeBtn = document.getElementById('btn-' + tabId);
-            activeBtn.className = "tab-btn flex-1 bg-emerald-600 p-6 rounded-3xl font-black text-white text-lg italic shadow-[0_10px_30px_rgba(16,185,129,0.3)]";
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.className = "tab-btn flex-1 glass p-6 rounded-3xl font-black text-emerald-500 text-lg italic");
+            document.getElementById('btn-' + tabId).className = "tab-btn flex-1 bg-emerald-600 p-6 rounded-3xl font-black text-white text-lg italic shadow-lg";
         }
 
         function lockDashboard() { location.reload(); }
