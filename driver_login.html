@@ -11,11 +11,12 @@
         :root { --whale-amber: #fbbf24; --whale-navy: #020617; }
         body { font-family: 'Tajawal', sans-serif; background: #010409; color: white; overflow-x: hidden; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
         .radar-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(251, 191, 36, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(251, 191, 36, 0.03) 1px, transparent 1px); background-size: 35px 35px; z-index: -1; }
-        .glass-card { background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(251, 191, 36, 0.15); }
+        .glass-card { background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(251, 191, 36, 0.15); box-shadow: 0 0 50px rgba(251, 191, 36, 0.05); }
         .whale-input { width: 100%; padding: 1.1rem 3.5rem 1.1rem 1.1rem; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.2rem; color: white; outline: none; transition: 0.3s; }
         .whale-input:focus { border-color: var(--whale-amber); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
-        .action-btn { background: var(--whale-amber); color: #020617; font-weight: 900; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); transition: 0.3s; }
+        .action-btn { background: var(--whale-amber); color: #020617; font-weight: 900; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); transition: 0.3s; cursor: pointer; }
         .action-btn:active { transform: scale(0.95); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .hidden { display: none; }
     </style>
 </head>
@@ -27,7 +28,7 @@
         
         <div id="loader" class="text-center py-12">
             <div class="w-14 h-14 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-            <p class="text-[10px] text-amber-500 font-black italic uppercase">Checking Identity...</p>
+            <p class="text-[10px] text-amber-500 font-black italic uppercase tracking-widest">Scanning Bio-Metrics...</p>
         </div>
 
         <div id="authUI" class="hidden text-center">
@@ -38,24 +39,25 @@
                 <h2 class="text-2xl font-black tracking-widest uppercase italic" style="font-family: 'Orbitron', sans-serif;">
                     WHALE <span class="text-amber-500">PILOT</span>
                 </h2>
+                <p class="text-[9px] text-gray-500 mt-2 font-bold italic uppercase">Sector: Kirkuk Delivery</p>
             </header>
 
             <form id="loginForm" class="space-y-4">
                 <div class="relative">
                     <i class="fas fa-phone absolute right-4 top-1/2 -translate-y-1/2 text-amber-500"></i>
                     <input type="tel" id="driverPhone" required placeholder="رقم الهاتف" 
-                           class="whale-input text-center font-black tracking-widest text-lg">
+                           class="whale-input text-center font-black tracking-[0.2em] text-lg">
                 </div>
 
                 <div id="regFields" class="hidden space-y-4 pt-2">
                     <div class="relative">
                         <i class="fas fa-user absolute right-4 top-1/2 -translate-y-1/2 text-amber-500"></i>
-                        <input type="text" id="driverName" placeholder="الاسم الثلاثي" 
+                        <input type="text" id="driverName" placeholder="الاسم الثلاثي واللقب" 
                                class="whale-input text-center font-bold">
                     </div>
                 </div>
 
-                <button type="submit" id="mainBtn" class="w-full py-5 action-btn mt-6 flex items-center justify-center gap-3 italic">
+                <button type="submit" id="mainBtn" class="w-full py-5 action-btn mt-6 flex items-center justify-center gap-3 italic shadow-lg shadow-amber-500/10">
                     <span id="btnText">تفعيل الرادار</span>
                     <i class="fas fa-crosshairs"></i>
                 </button>
@@ -65,13 +67,14 @@
         <div id="statusMessage" class="hidden text-center py-12">
             <div id="statusIcon" class="text-6xl mb-6">🛰️</div>
             <h3 id="statusTitle" class="text-xl font-black text-amber-500 italic uppercase">بانتظار الإشارة</h3>
-            <p id="statusDesc" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">تم استلام طلبك. سيتم تفعيل الرادار لك فور مراجعة الإدارة.</p>
-            <button onclick="logout()" class="mt-10 text-[9px] text-red-500/70 underline font-black">إلغاء الطلب والعودة</button>
+            <p id="statusDesc" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">طلب انضمامك قيد المعالجة الآن.<br>سيتم فتح الرادار لك فور موافقة الإدارة.</p>
+            <button onclick="logout()" class="mt-10 text-[9px] text-red-500 font-black border-b border-red-500/30 pb-1 italic">خروج / تغيير الرقم</button>
         </div>
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyYL0NRSg1V9xL62JyL5MQfP2jNO3sNU6lDl1xf_GcmOAZXWBg8G7YpdFdJjxpEDcpDhQ/exec';
+        // الرابط الجديد الخاص بك
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzNazBaQ32kAKmHz3d4-aHWVBXlNvDif19JmiaiT9vBUBceXZh6_YeNtj_Dhu2NvGLpLw/exec';
 
         window.onload = () => {
             const savedStatus = localStorage.getItem('whale_driver_status');
@@ -79,6 +82,7 @@
             
             setTimeout(() => {
                 document.getElementById('loader').classList.add('hidden');
+                
                 if (savedStatus === 'active' && savedPhone) {
                     window.location.href = 'driver_dashboard.html';
                 } else if (savedStatus && savedStatus !== 'active') {
@@ -86,7 +90,7 @@
                 } else {
                     document.getElementById('authUI').classList.remove('hidden');
                 }
-            }, 1000);
+            }, 1200);
         };
 
         document.getElementById('loginForm').onsubmit = async function(e) {
@@ -94,38 +98,41 @@
             const phone = document.getElementById('driverPhone').value;
             const name = document.getElementById('driverName').value;
             const btn = document.getElementById('mainBtn');
+            const btnText = document.getElementById('btnText');
             const regFields = document.getElementById('regFields');
             
             btn.disabled = true;
-            btn.innerText = "جاري التحقق... 📡";
+            btnText.innerText = "جاري التحقق... 📡";
 
             try {
-                // الأكشن يدعم الآن التحقق أو التسجيل التلقائي
+                // إرسال طلب تسجيل أو دخول للسكريبت الشامل
                 const response = await fetch(`${scriptURL}?action=driver_login&phone=${phone}&name=${encodeURIComponent(name)}`);
                 const result = await response.json();
 
                 if (result.status === 'active') {
                     localStorage.setItem('whale_driver_phone', phone);
-                    localStorage.setItem('whale_driver_name', result.name);
+                    localStorage.setItem('whale_driver_name', result.name || name);
                     localStorage.setItem('whale_driver_status', 'active');
                     window.location.href = 'driver_dashboard.html';
                 } else if (result.status === 'not_found' && regFields.classList.contains('hidden')) {
-                    // إذا لم يوجد، نفتح حقل الاسم للتسجيل
+                    // السائق غير مسجل، نطلب الاسم للتقديم
                     regFields.classList.remove('hidden');
                     document.getElementById('driverName').required = true;
                     btn.disabled = false;
-                    btn.innerText = "تقديم طلب انضمام";
-                    alert("الرقم غير مسجل. يرجى إدخال اسمك لتقديم طلب انضمام.");
-                } else {
-                    // حالة pending أو بعد إرسال الطلب الجديد
+                    btnText.innerText = "إرسال طلب الانضمام";
+                    alert("الرقم غير مسجل في المنظومة. يرجى إدخال اسمك الكامل لتقديم طلب انضمام.");
+                } else if (result.status === 'pending') {
                     localStorage.setItem('whale_driver_status', 'pending');
                     localStorage.setItem('whale_driver_phone', phone);
                     showStatusView('pending');
+                } else if (result.status === 'banned') {
+                    localStorage.setItem('whale_driver_status', 'banned');
+                    showStatusView('banned');
                 }
             } catch (e) {
-                alert("فشل الاتصال بالرادار");
+                alert("حدث خطأ في الاتصال بالقاعدة المركزية.");
                 btn.disabled = false;
-                btn.innerText = "تفعيل الرادار";
+                btnText.innerText = "تفعيل الرادار";
             }
         };
 
@@ -134,10 +141,13 @@
             document.getElementById('statusMessage').classList.remove('hidden');
             const title = document.getElementById('statusTitle');
             const icon = document.getElementById('statusIcon');
+            const desc = document.getElementById('statusDesc');
 
             if (status === 'banned') {
-                title.innerText = "الحساب محظور";
+                title.innerText = "تم حظر الدخول";
+                title.classList.replace('text-amber-500', 'text-red-500');
                 icon.innerText = "🚫";
+                desc.innerText = "لقد تم تقييد وصولك إلى الرادار من قبل الإدارة.\nيرجى مراجعة الدعم الفني.";
             } else {
                 title.innerText = "بانتظار التفعيل";
                 icon.innerText = "🛰️";
