@@ -40,11 +40,19 @@
                 </h2>
             </header>
 
-            <form id="smartForm" class="space-y-4">
+            <form id="smartForm" class="space-y-4 text-center">
                 <div class="relative">
-                    <i class="fas fa-id-card absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
-                    <input type="text" id="managerID" required placeholder="معرف المطعم (الاسم المسجل)" 
+                    <i class="fas fa-store absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
+                    <input type="text" id="resName" required placeholder="اسم المطعم" 
                            class="whale-input text-center font-black tracking-tight text-lg">
+                </div>
+
+                <div id="regFields" class="hidden space-y-4 pt-2">
+                    <div class="relative">
+                        <i class="fas fa-phone absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
+                        <input type="tel" id="resPhone" placeholder="رقم الهاتف للتواصل" 
+                               class="whale-input text-center font-bold">
+                    </div>
                 </div>
 
                 <button type="submit" id="mainBtn" class="w-full py-5 action-btn mt-6 flex items-center justify-center gap-3 italic">
@@ -58,13 +66,12 @@
         <div id="waitMessage" class="hidden text-center py-12">
             <div class="text-6xl mb-6">⏳</div>
             <h3 class="text-xl font-black text-amber-500 italic uppercase">بانتظار الموافقة</h3>
-            <p class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">مطعمك مسجل ولكنه بانتظار تفعيل الإدارة.<br>يرجى التواصل مع منظومة الحوت الميدانية.</p>
+            <p class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">طلب انضمام مطعمك قيد المراجعة الآن.<br>سيتم التفعيل من قبل الإدارة فوراً.</p>
             <button onclick="logout()" class="mt-10 text-[9px] text-red-500/70 underline font-black">إعادة محاولة</button>
         </div>
     </div>
 
     <script>
-        // الرابط الخاص بك يا طه
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyYL0NRSg1V9xL62JyL5MQfP2jNO3sNU6lDl1xf_GcmOAZXWBg8G7YpdFdJjxpEDcpDhQ/exec';
 
         window.onload = () => {
@@ -85,33 +92,39 @@
 
         document.getElementById('smartForm').onsubmit = async function(e) {
             e.preventDefault();
-            const id = document.getElementById('managerID').value;
+            const name = document.getElementById('resName').value;
+            const phone = document.getElementById('resPhone').value;
             const btn = document.getElementById('mainBtn');
+            const regFields = document.getElementById('regFields');
             
             btn.disabled = true;
-            btn.innerText = "جاري التحقق من التراخيص... 📡";
+            btn.innerText = "جاري الاتصال بالقاعدة... 📡";
 
             try {
-                // استخدام أكشن restaurant_login للتحقق من وجود المطعم في شيت Restaurants
-                const response = await fetch(`${scriptURL}?action=restaurant_login&id=${encodeURIComponent(id)}`);
+                // إرسال طلب تسجيل أو دخول
+                const response = await fetch(`${scriptURL}?action=restaurant_login&id=${encodeURIComponent(name)}&phone=${phone}`);
                 const result = await response.json();
 
                 if (result.status === 'active') {
                     localStorage.setItem('whale_res_name', result.name);
                     localStorage.setItem('whale_res_status', 'active');
                     window.location.href = 'restaurant.html';
-                } else if (result.status === 'not_found') {
-                    alert("⚠️ اسم المطعم هذا غير موجود في المنظومة. يرجى مراجعة الإدارة لإضافة مطعمك.");
+                } else if (result.status === 'not_found' && regFields.classList.contains('hidden')) {
+                    // المطعم غير مسجل، نطلب رقم الهاتف للتقديم
+                    regFields.classList.remove('hidden');
+                    document.getElementById('resPhone').required = true;
                     btn.disabled = false;
-                    btn.innerText = "تفعيل الدخول";
+                    btn.innerText = "تقديم طلب انضمام";
+                    alert("هذا المطعم غير مسجل. يرجى إدخال رقم الهاتف لتقديم طلب انضمام للإدارة.");
                 } else {
-                    // حالة الـ pending
+                    // حالة الـ pending (سواء كان مسجل سابقاً أو سجل الآن)
                     localStorage.setItem('whale_res_status', 'pending');
+                    localStorage.setItem('whale_res_name', name);
                     document.getElementById('authUI').classList.add('hidden');
                     document.getElementById('waitMessage').classList.remove('hidden');
                 }
             } catch (e) {
-                alert("فشل الاتصال بالرادار المركزي، تأكد من جودة الإنترنت");
+                alert("فشل الاتصال بالرادار، تأكد من الإنترنت");
                 btn.disabled = false;
                 btn.innerText = "تفعيل الدخول";
             }
