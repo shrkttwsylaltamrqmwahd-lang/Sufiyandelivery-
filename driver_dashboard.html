@@ -10,7 +10,6 @@
         body { font-family: 'Tajawal', sans-serif; background: #000; color: #fff; overflow-x: hidden; }
         .receipt-card { background: linear-gradient(145deg, #0f172a, #020617); border: 1px solid rgba(255,255,255,0.05); }
         .hidden { display: none; }
-        /* أنيميشن نبض الرادار للطلبات الجديدة */
         .new-order-glow { animation: pulseGlow 2s infinite; border: 1px solid #10b981; }
         @keyframes pulseGlow { 
             0% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.1); } 
@@ -24,7 +23,7 @@
     <header class="p-6 bg-slate-900 rounded-b-[3rem] border-b border-emerald-500/30 shadow-2xl flex justify-between items-center">
         <div>
             <h1 class="text-sm font-black text-emerald-500 italic uppercase font-mono">Whale Radar</h1>
-            <p id="welcomeName" class="text-[10px] text-gray-400 mt-1 italic">كابتن: جاري التحقق...</p>
+            <p id="welcomeName" class="text-[10px] text-gray-400 mt-1 italic">كابتن: جاري التحميل...</p>
         </div>
         <button onclick="logout()" class="text-[10px] bg-red-500/10 text-red-500 px-3 py-2 rounded-xl font-black italic border border-red-500/20">خروج</button>
     </header>
@@ -45,7 +44,7 @@
             <div id="receiptOnlyView" class="hidden space-y-4">
                 <div class="flex justify-between items-center mb-4">
                     <span class="bg-amber-500 text-black px-4 py-1 rounded-full text-[9px] font-black italic">وصل مصور 📸</span>
-                    <span id="orderID_photo" class="text-[10px] font-mono text-gray-500 italic">#HK-000</span>
+                    <span id="orderID_photo" class="text-[10px] font-mono text-gray-500 italic">#---</span>
                 </div>
                 <div class="rounded-[2rem] overflow-hidden border border-white/10 shadow-lg">
                     <img id="receiptImg" src="" class="w-full h-auto" alt="Receipt">
@@ -55,13 +54,13 @@
             <div id="manualInfoView" class="hidden space-y-6">
                 <div class="flex justify-between items-center mb-4">
                     <span class="bg-emerald-600 text-black px-4 py-1 rounded-full text-[9px] font-black uppercase italic">بيانات يدوية ✍️</span>
-                    <span id="orderID_manual" class="text-[10px] font-mono text-gray-500 italic">#HK-000</span>
+                    <span id="orderID_manual" class="text-[10px] font-mono text-gray-500 italic">#---</span>
                 </div>
                 <div class="bg-white/5 p-5 rounded-2xl border border-white/5">
-                    <p class="text-[8px] text-gray-500 font-black uppercase italic mb-1">📍 موقع التوصيل</p>
+                    <p class="text-[8px] text-gray-500 font-black uppercase italic mb-1">📍 تفاصيل الطلب والموقع</p>
                     <p id="locationTxt" class="text-lg font-black text-white italic">...</p>
                 </div>
-                <div class="bg-white/5 p-5 rounded-2xl border border-white/5 flex justify-between items-center">
+                <div id="customerPhoneSection" class="bg-white/5 p-5 rounded-2xl border border-white/5 flex justify-between items-center hidden">
                     <div>
                         <p class="text-[8px] text-gray-500 font-black uppercase italic mb-1">📞 هاتف الزبون</p>
                         <p id="phoneTxt" class="text-lg font-black text-blue-400 font-mono tracking-widest italic">...</p>
@@ -92,75 +91,113 @@
     </main>
 
     <script>
-        // --- نظام الحماية والترابط (The Whale Guard) ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const driverID = localStorage.getItem('whale_driver_id');
-            const status = localStorage.getItem('whale_driver_status');
+        // --- إعدادات المحرك (Al-Hut Core) ---
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz2Q28bDhfpg3DVhDfCrWWk8fkS-pVvUa5guZXfZJ-cqGEEoJ2t08SxK8KdFZbxR-OVSg/exec';
+        const driverPhone = localStorage.getItem('whale_driver_phone'); 
+        let currentOrderID = null;
 
-            if (!driverID || status !== 'active') {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!driverPhone) {
                 alert("يرجى تسجيل الدخول أولاً.");
                 window.location.href = 'driver_login.html';
                 return;
             }
 
-            document.getElementById('welcomeName').innerText = "كابتن: " + (localStorage.getItem('whale_driver_name') || driverID);
+            document.getElementById('welcomeName').innerText = "كابتن: " + (localStorage.getItem('whale_driver_name') || "مجهول");
             
-            // محاكاة وصول طلب بعد 2.5 ثانية
-            setTimeout(loadMockOrder, 2500);
+            // بدء بث الموقع الجغرافي
+            startLiveTracking();
+            
+            // فحص الطلبات كل 10 ثوانٍ
+            setInterval(checkOrders, 10000);
+            checkOrders();
         });
 
-        function loadMockOrder() {
-            // محاكاة بيانات قادمة (جرب تغيير type إلى "manual" لتجربة العرض الآخر)
-            let orderData = {
-                id: "#HK-2290",
-                restaurantName: "كرز الشام - كركوك",
-                type: "photo", // 'photo' أو 'manual'
-                location: "حي الواسطي - قرب الجامع",
-                phone: "077XXXXXXXX",
-                img: "https://via.placeholder.com/500x700?text=Whale+Receipt+Image"
-            };
-
-            document.getElementById('noOrders').classList.add('hidden');
-            document.getElementById('searchingStatus').classList.add('opacity-30');
-            
-            const card = document.getElementById('orderCard');
-            card.classList.remove('hidden');
-            card.classList.add('new-order-glow');
-
-            document.getElementById('restaurantTitle').innerText = orderData.restaurantName;
-            
-            const photoView = document.getElementById('receiptOnlyView');
-            const manualView = document.getElementById('manualInfoView');
-
-            if (orderData.type === "photo") {
-                // تفعيل وضع الصورة وإخفاء البيانات اليدوية تماماً
-                photoView.classList.remove('hidden');
-                manualView.classList.add('hidden');
-                document.getElementById('receiptImg').src = orderData.img;
-                document.getElementById('orderID_photo').innerText = orderData.id;
-            } else {
-                // تفعيل وضع البيانات اليدوية وإخفاء الصورة تماماً
-                photoView.classList.add('hidden');
-                manualView.classList.remove('hidden');
-                document.getElementById('locationTxt').innerText = orderData.location;
-                document.getElementById('phoneTxt').innerText = orderData.phone;
-                document.getElementById('phoneCall').href = "tel:" + orderData.phone;
-                document.getElementById('orderID_manual').innerText = orderData.id;
+        // بث الموقع GPS
+        function startLiveTracking() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(position => {
+                    fetch(scriptURL + "?action=update_driver_location", {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                            phone: driverPhone
+                        })
+                    }).catch(e => console.log("GPS Sync Delay"));
+                }, null, { enableHighAccuracy: true });
             }
         }
 
-        function confirmDelivery() {
-            if(confirm("هل تم تسليم الطلب للزبون؟")) {
-                alert("تم إكمال المهمة! شكراً كابتن ✅");
-                location.reload(); 
+        // جلب الطلبات الموجهة لهذا السائق
+        async function checkOrders() {
+            try {
+                const response = await fetch(`${scriptURL}?action=get_my_orders&phone=${driverPhone}`);
+                const data = await response.json();
+
+                if (data.status === "found") {
+                    renderOrder(data.order);
+                } else {
+                    document.getElementById('orderCard').classList.add('hidden');
+                    document.getElementById('noOrders').classList.remove('hidden');
+                    currentOrderID = null;
+                }
+            } catch (e) { console.log("Connection lost"); }
+        }
+
+        function renderOrder(order) {
+            currentOrderID = order.id;
+            document.getElementById('noOrders').classList.add('hidden');
+            document.getElementById('orderCard').classList.remove('hidden');
+            document.getElementById('restaurantTitle').innerText = order.restaurantName;
+
+            if (order.type === "photo") {
+                document.getElementById('receiptOnlyView').classList.remove('hidden');
+                document.getElementById('manualInfoView').classList.add('hidden');
+                document.getElementById('receiptImg').src = order.img;
+                document.getElementById('orderID_photo').innerText = order.id;
+            } else {
+                document.getElementById('receiptOnlyView').classList.add('hidden');
+                document.getElementById('manualInfoView').classList.remove('hidden');
+                document.getElementById('locationTxt').innerText = order.details;
+                document.getElementById('orderID_manual').innerText = order.id;
+                // إظهار الهاتف إذا وجد
+                if(order.customerPhone) {
+                    document.getElementById('customerPhoneSection').classList.remove('hidden');
+                    document.getElementById('phoneTxt').innerText = order.customerPhone;
+                    document.getElementById('phoneCall').href = "tel:" + order.customerPhone;
+                }
+            }
+        }
+
+        async function confirmDelivery() {
+            if (!currentOrderID || !confirm("هل تم تسليم الطلب بنجاح؟")) return;
+
+            const res = await fetch(scriptURL + "?action=driver_status_update", {
+                method: 'POST',
+                body: JSON.stringify({
+                    orderID: currentOrderID,
+                    status: 'delivered'
+                })
+            });
+            
+            if (res.ok) {
+                alert("تم التسليم بنجاح! الرزق يحب السعي ✅");
+                location.reload();
             }
         }
 
         function requestCancel() {
-            const reason = prompt("ما هو سبب إلغاء الطلبية؟");
-            if(reason) {
-                alert("تم إرسال الطلب للإدارة للمراجعة.");
-                location.reload();
+            const reason = prompt("لماذا تريد إلغاء الطلب؟");
+            if (reason && currentOrderID) {
+                fetch(scriptURL + "?action=driver_status_update", {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        orderID: currentOrderID,
+                        status: 'canceled',
+                        note: reason
+                    })
+                }).then(() => location.reload());
             }
         }
 
