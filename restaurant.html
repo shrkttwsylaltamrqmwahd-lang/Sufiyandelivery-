@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة المطعم | منظومة الحوت</title>
+    <title>بوابة المطعم | منظومة الحوت 🐋</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -24,14 +24,14 @@
                 <h1 id="displayResName" class="text-sm font-black text-slate-900 italic tracking-tight">جاري التحميل...</h1>
             </div>
         </div>
-        <button onclick="logout()" class="text-[9px] font-black text-red-500 border border-red-100 px-3 py-2 rounded-xl hover:bg-red-50 transition-colors">تسجيل خروج</button>
+        <button onclick="logout()" class="text-[9px] font-black text-red-500 border border-red-100 px-3 py-2 rounded-xl hover:bg-red-50 transition-colors">خروج</button>
     </header>
 
     <div class="max-w-xl mx-auto bg-white p-6 md:p-10 rounded-[3rem] shadow-2xl border border-slate-100 relative overflow-hidden">
         
         <div class="text-center mb-8">
             <h2 class="text-2xl font-black text-slate-900 italic">بث طلبية جديدة 🚀</h2>
-            <p class="text-[10px] text-emerald-600 mt-2 font-bold uppercase tracking-widest italic font-bold">رادار الحوت الميداني - كركوك</p>
+            <p class="text-[10px] text-emerald-600 mt-2 font-bold uppercase tracking-widest italic">رادار الحوت - كركوك</p>
         </div>
 
         <div class="flex gap-2 mb-8 bg-slate-100 p-1.5 rounded-2xl">
@@ -40,12 +40,12 @@
         </div>
         
         <form id="orderForm" class="space-y-8">
-            <div id="manualSection" class="space-y-6">
-                <div>
-                    <label class="text-[11px] font-black text-slate-500 uppercase mb-3 mr-2 block italic">💰 سعر الوجبات (يدفعه السائق للمطعم)</label>
-                    <input type="number" id="foodPrice" placeholder="مثلاً: 15000" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 font-bold text-lg" required>
-                </div>
+            <div>
+                <label class="text-[11px] font-black text-slate-500 uppercase mb-3 mr-2 block italic">💰 سعر الوجبات (يدفعه السائق للمطعم)</label>
+                <input type="number" id="foodPrice" placeholder="مثلاً: 15000" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 font-bold text-lg" required>
+            </div>
 
+            <div id="manualSection" class="space-y-6">
                 <div>
                     <label class="text-[11px] font-black text-slate-500 uppercase mb-3 mr-2 block italic">📍 وجهة التوصيل</label>
                     <input type="text" id="details" placeholder="المنطقة أو معلم دال..." class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 font-bold">
@@ -53,7 +53,7 @@
 
                 <div>
                     <label class="text-[11px] font-black text-slate-500 uppercase mb-3 mr-2 block italic">📞 هاتف الزبون</label>
-                    <input type="tel" id="customerPhone" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 font-mono tracking-widest" placeholder="077XXXXXXXX">
+                    <input type="tel" id="customerPhone" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 font-mono tracking-widest" placeholder="07XXXXXXXXX">
                 </div>
             </div>
 
@@ -61,7 +61,6 @@
                 <div onclick="document.getElementById('receiptImage').click()" class="border-4 border-dashed border-slate-200 rounded-[2.5rem] p-12 cursor-pointer hover:bg-slate-50 hover:border-emerald-300 transition-all group">
                     <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">📸</div>
                     <p class="font-black text-slate-700 italic">اضغط لفتح الكاميرا</p>
-                    <p class="text-[10px] text-gray-400 mt-2 italic">التقط صورة واضحة للوصل الورقي</p>
                     <input type="file" id="receiptImage" accept="image/*" capture="camera" class="hidden" onchange="previewImage(event)">
                 </div>
                 
@@ -77,12 +76,13 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbz2Q28bDhfpg3DVhDfCrWWk8fkS-pVvUa5guZXfZJ-cqGEEoJ2t08SxK8KdFZbxR-OVSg/exec';
+        // الرابط الخاص بك يا طه
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyYL0NRSg1V9xL62JyL5MQfP2jNO3sNU6lDl1xf_GcmOAZXWBg8G7YpdFdJjxpEDcpDhQ/exec';
         let currentMode = 'manual';
         let base64Image = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            const resName = localStorage.getItem('whale_res_name') || "مطعم تجريبي";
+            const resName = localStorage.getItem('whale_res_name') || "مجهول";
             document.getElementById('displayResName').innerText = resName;
         });
 
@@ -92,6 +92,9 @@
             document.getElementById('cameraSection').classList.toggle('hidden-input', type !== 'camera');
             document.getElementById('manualBtn').classList.toggle('active', type === 'manual');
             document.getElementById('cameraBtn').classList.toggle('active', type === 'camera');
+            
+            // جعل الحقول غير مطلوبة إذا كنا في وضع الكاميرا
+            document.getElementById('details').required = (type === 'manual');
         }
 
         function previewImage(event) {
@@ -110,30 +113,38 @@
         document.getElementById('orderForm').onsubmit = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
+            const resName = localStorage.getItem('whale_res_name');
+
+            if (!resName) return alert("خطأ في بيانات المطعم، يرجى إعادة تسجيل الدخول");
+
             btn.disabled = true;
             btn.innerText = "جاري البث... 📡";
 
             const orderData = {
-                restName: localStorage.getItem('whale_res_name') || "مجهول",
+                action: 'restaurant_send_order', // إضافة الأكشن للتأكيد
+                restName: resName,
                 type: currentMode === 'camera' ? 'photo' : 'manual',
-                details: document.getElementById('details').value + " | السعر: " + document.getElementById('foodPrice').value,
+                details: document.getElementById('details').value + " | المطلوب للمطعم: " + document.getElementById('foodPrice').value + " دينار",
                 customerPhone: document.getElementById('customerPhone').value,
                 image: base64Image,
-                fixedFee: 1000 // عمولة المنظومة الثابتة
+                fixedFee: 1000 // عمولة المنظومة
             };
 
             try {
-                const response = await fetch(scriptURL + "?action=restaurant_send_order", {
+                const response = await fetch(scriptURL, {
                     method: 'POST',
                     body: JSON.stringify(orderData)
                 });
                 const result = await response.json();
+                
                 if(result.status === "success") {
                     alert("تم البث بنجاح! رقم الطلب: " + result.orderID);
                     location.reload();
+                } else {
+                    throw new Error(result.message);
                 }
             } catch (err) {
-                alert("حدث خطأ في الاتصال، حاول مجدداً");
+                alert("فشل البث: " + err.message);
                 btn.disabled = false;
                 btn.innerText = "بث الآن للرادار 🚀";
             }
