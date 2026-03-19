@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة المطعم | منظومة الحوت</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background: #f1f5f9; }
+        .tab-btn.active { background-color: #0f172a; color: white; box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3); }
+        .hidden-input { display: none; }
+        .btn-glow { box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.2); }
+        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="p-4 md:p-10 pb-20">
+
+    <header class="max-w-xl mx-auto mb-6 flex justify-between items-center glass-header p-5 rounded-[2rem] border border-white shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-emerald-500 font-black">ح</div>
+            <div>
+                <p class="text-[9px] text-gray-400 font-black uppercase italic">مرحباً بك في المنظومة</p>
+                <h1 id="displayResName" class="text-sm font-black text-slate-900 italic tracking-tight">تحميل بيانات المطعم...</h1>
+            </div>
+        </div>
+        <button onclick="logout()" class="text-[9px] font-black text-red-500 border border-red-100 px-3 py-2 rounded-xl hover:bg-red-50 transition-colors">تسجيل خروج</button>
+    </header>
+
+    <div class="max-w-xl mx-auto bg-white p-6 md:p-10 rounded-[3rem] shadow-2xl border border-slate-100 relative overflow-hidden">
+        
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-black text-slate-900 italic">بث طلبية جديدة 🚀</h2>
+            <p class="text-[10px] text-emerald-600 mt-2 font-bold uppercase tracking-widest italic font-bold">رادار الحوت الميداني - كركوك</p>
+        </div>
+
+        <div class="bg-amber-50 border-r-4 border-amber-500 p-4 rounded-2xl mb-8">
+            <p class="text-[11px] text-amber-900 leading-relaxed italic">
+                <strong>💰 ملاحظة مالية:</strong> يرجى التأكد من كتابة سعر الوجبة بدقة ليدفعه السائق لكم عند الاستلام.
+            </p>
+        </div>
+
+        <div class="flex gap-2 mb-8 bg-slate-100 p-1.5 rounded-2xl">
+            <button onclick="switchTab('manual')" id="manualBtn" class="tab-btn active flex-1 py-4 rounded-xl font-black text-xs transition-all italic">بيانات يدوية ✍️</button>
+            <button onclick="switchTab('camera')" id="cameraBtn" class="tab-btn flex-1 py-4 rounded-xl font-black text-xs transition-all text-slate-500 italic">تصوير وصل 📸</button>
+        </div>
+        
+        <form id="orderForm" class="space-y-8">
+            <div id="manualSection" class="space-y-6">
+                <div>
+                    <label class="text-[11px] font-black text-slate-500 uppercase mb-3 mr-2 block italic">💰 سعر الوجبات (يدفعه السائق للمطعم)</label>
+                    <input type="number" id="foodPrice" placeholder="مثلاً: 15000" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 font-bold text-lg">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-black text-slate-500 uppercase mb-3 mr-2 block italic">📍 وجهة التوصيل</label>
+                    <select id="region" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 transition-all font-bold text-slate-800">
+                        <option value="" disabled selected italic>اختر المنطقة...</option>
+                        <option value="طريق بغداد">طريق بغداد</option>
+                        <option value="الواسطي">الواسطي</option>
+                        <option value="حزيران">حزيران</option>
+                        <option value="الماس">الماس</option>
+                        <option value="عرفة">عرفة</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-black text-slate-500 uppercase mb-3 mr-2 block italic">📞 هاتف الزبون</label>
+                    <input type="tel" id="customerPhone" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-emerald-500 font-mono tracking-widest" placeholder="077XXXXXXXX">
+                </div>
+            </div>
+
+            <div id="cameraSection" class="hidden-input space-y-4 text-center">
+                <div onclick="document.getElementById('receiptImage').click()" class="border-4 border-dashed border-slate-200 rounded-[2.5rem] p-12 cursor-pointer hover:bg-slate-50 hover:border-emerald-300 transition-all group">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">📸</div>
+                    <p class="font-black text-slate-700 italic">اضغط لفتح الكاميرا</p>
+                    <p class="text-[10px] text-gray-400 mt-2 italic">التقط صورة واضحة للوصل الورقي</p>
+                    <input type="file" id="receiptImage" accept="image/*" capture="camera" class="hidden" onchange="previewImage(event)">
+                </div>
+                
+                <div id="previewContainer" class="hidden p-4 bg-emerald-50 rounded-3xl border border-emerald-100">
+                    <p class="text-[10px] text-emerald-700 font-black mb-3 italic">تم التقاط الوصل بنجاح ✅</p>
+                    <img id="imagePreview" src="#" class="mx-auto rounded-2xl max-h-48 shadow-lg border-2 border-white">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-emerald-500 text-slate-900 py-6 rounded-[2.5rem] font-black text-xl hover:bg-emerald-400 transition-all active:scale-95 btn-glow flex items-center justify-center gap-3 italic uppercase">
+                بث الآن للرادار 🚀
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // --- نظام المعاينة المرن (تم تعطيل الطرد التلقائي للمدير) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const resID = localStorage.getItem('whale_res_id');
+            const status = localStorage.getItem('whale_res_status');
+            const resName = localStorage.getItem('whale_res_name');
+
+            // إذا لم يتم العثور على بيانات، نعرض وضع "المعاينة للمدير"
+            if (!resID) {
+                console.log("وضع المعاينة نشط - الدخول بدون حساب");
+                document.getElementById('displayResName').innerText = "وضع معاينة المدير 👑";
+                document.getElementById('displayResName').classList.add('text-emerald-600');
+            } else {
+                document.getElementById('displayResName').innerText = resName || "شريك الحوت";
+            }
+        });
+
+        function switchTab(type) {
+            const manualSec = document.getElementById('manualSection');
+            const cameraSec = document.getElementById('cameraSection');
+            const manualBtn = document.getElementById('manualBtn');
+            const cameraBtn = document.getElementById('cameraBtn');
+
+            if (type === 'manual') {
+                manualSec.classList.remove('hidden-input');
+                cameraSec.classList.add('hidden-input');
+                manualBtn.classList.add('active');
+                cameraBtn.classList.remove('active');
+            } else {
+                manualSec.classList.add('hidden-input');
+                cameraSec.classList.remove('hidden-input');
+                cameraBtn.classList.add('active');
+                manualBtn.classList.remove('active');
+            }
+        }
+
+        function previewImage(event) {
+            const preview = document.getElementById('imagePreview');
+            const container = document.getElementById('previewContainer');
+            const file = event.target.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    container.classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        document.getElementById('orderForm').onsubmit = function(e) {
+            e.preventDefault();
+            // تنبيه نجاح وهمي للمعاينة
+            alert("تمت محاكاة البث بنجاح! في النظام الحقيقي، سيتم إرسال سعر الوجبة وبيانات الزبون فوراً لأقرب سائق.");
+            this.reset();
+            document.getElementById('previewContainer').classList.add('hidden');
+        };
+
+        function logout() {
+            localStorage.clear();
+            // التوجيه لصفحة تسجيل الدخول عند الخروج الفعلي
+            window.location.href = 'restaurant_login.html';
+        }
+    </script>
+</body>
+</html>
