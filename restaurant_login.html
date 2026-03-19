@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بوابة المطاعم | رادار الحوت 🐋</title>
+    <title>بوابة التسجيل | رادار الحوت 🐋</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,14 +12,13 @@
         body { font-family: 'Tajawal', sans-serif; background: #010409; color: white; overflow-x: hidden; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
         .radar-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; }
         .glass-card { background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(16, 185, 129, 0.2); box-shadow: 0 0 50px rgba(16, 185, 129, 0.1); }
-        .whale-input { width: 100%; padding: 1.1rem 3.5rem 1.1rem 1.1rem; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.2rem; color: white; outline: none; transition: 0.3s; }
-        .whale-input:focus { border-color: var(--whale-emerald); box-shadow: 0 0 15px rgba(16, 185, 129, 0.1); }
+        .whale-input { width: 100%; padding: 1.1rem 3.5rem 1.1rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 1.2rem; color: white; outline: none; transition: 0.3s; }
+        .whale-input:focus { border-color: var(--whale-emerald); background: rgba(16, 185, 129, 0.05); box-shadow: 0 0 15px rgba(16, 185, 129, 0.1); }
         .action-btn { background: var(--whale-emerald); color: #020617; font-weight: 900; clip-path: polygon(4% 0, 100% 0, 96% 100%, 0% 100%); transition: 0.3s; cursor: pointer; }
-        .action-btn:active { transform: scale(0.95); }
-        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .location-btn { background: rgba(16, 185, 129, 0.1); color: var(--whale-emerald); border: 1px dashed var(--whale-emerald); padding: 10px; border-radius: 1rem; font-size: 10px; cursor: pointer; transition: 0.3s; }
-        .location-btn.success { background: var(--whale-emerald); color: black; border-style: solid; }
+        .location-btn { background: rgba(16, 185, 129, 0.1); color: var(--whale-emerald); border: 1px dashed var(--whale-emerald); padding: 12px; border-radius: 1.2rem; transition: 0.3s; width: 100%; font-weight: bold; font-size: 13px; }
+        .location-btn.success { background: var(--whale-emerald); color: black; border-style: solid; box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
         .hidden { display: none; }
+        label { display: block; text-align: right; font-size: 11px; color: #10b981; font-weight: 900; margin-bottom: 5px; margin-right: 5px; text-transform: uppercase; }
     </style>
 </head>
 <body class="p-6">
@@ -30,49 +29,62 @@
         
         <div id="loader" class="text-center py-12">
             <div class="w-14 h-14 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-            <p class="text-[10px] text-emerald-500 font-black italic uppercase tracking-[0.2em]">Linking Kitchen Radar...</p>
+            <p class="text-[10px] text-emerald-500 font-black italic uppercase tracking-[0.2em]">Authenticating Kitchen...</p>
         </div>
 
         <div id="authUI" class="hidden">
-            <header class="text-center mb-10">
+            <header class="text-center mb-8">
                 <div class="inline-block p-4 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 mb-4">
                     <span class="text-4xl text-emerald-500"><i class="fas fa-utensils"></i></span>
                 </div>
                 <h2 class="text-2xl font-black tracking-widest uppercase italic" style="font-family: 'Orbitron', sans-serif;">
                     WHALE <span class="text-emerald-500">KITCHEN</span>
                 </h2>
-                <p class="text-[10px] text-gray-400 mt-2 font-bold italic opacity-60">مركز إدارة الطلبات - كركوك</p>
+                <p class="text-[10px] text-gray-400 mt-2 font-bold italic opacity-60">تفعيل رادار مطاعم كركوك</p>
             </header>
 
-            <form id="smartForm" class="space-y-4 text-center">
-                <div class="relative">
-                    <i class="fas fa-store absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
-                    <input type="text" id="resName" required placeholder="اسم المطعم" 
-                           class="whale-input text-center font-black tracking-tight text-lg">
+            <form id="smartForm" class="space-y-4">
+                
+                <div>
+                    <label>اسم المطعم</label>
+                    <div class="relative">
+                        <i class="fas fa-store absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
+                        <input type="text" id="resName" required placeholder="مثال: مطعم الحوت" 
+                               class="whale-input text-right font-bold">
+                    </div>
                 </div>
 
-                <div id="regFields" class="hidden space-y-4 pt-2">
-                    <div class="relative">
-                        <i class="fas fa-phone absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
-                        <input type="tel" id="resPhone" placeholder="رقم الهاتف للتفعيل" 
-                               class="whale-input text-center font-bold">
+                <div id="regFields" class="space-y-4 pt-2">
+                    <div>
+                        <label>رقم هاتف المطعم</label>
+                        <div class="relative">
+                            <i class="fas fa-phone absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
+                            <input type="tel" id="resPhone" required placeholder="07XXXXXXXXX" 
+                                   class="whale-input text-right font-bold">
+                        </div>
                     </div>
 
-                    <div class="relative">
-                        <i class="fas fa-map-marker-alt absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
-                        <input type="text" id="resAddress" placeholder="عنوان المطعم (مثلاً: حي النصر)" 
-                               class="whale-input text-center font-bold">
+                    <div>
+                        <label>العنوان الجغرافي (وصفاً)</label>
+                        <div class="relative">
+                            <i class="fas fa-map-marker-alt absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
+                            <input type="text" id="resAddress" required placeholder="مثال: كركوك - شارع المحافظة" 
+                                   class="whale-input text-right font-bold">
+                        </div>
                     </div>
 
-                    <button type="button" onclick="getLocation()" id="locBtn" class="w-full location-btn flex items-center justify-center gap-2">
-                        <i class="fas fa-crosshairs"></i>
-                        <span id="locStatus">تحديد موقع المطعم على الخريطة دقيق</span>
-                    </button>
-                    <input type="hidden" id="resCoords" value="">
+                    <div class="pt-2">
+                        <label>موقع الخريطة (GPS)</label>
+                        <button type="button" onclick="getLocation()" id="locBtn" class="location-btn flex items-center justify-center gap-2">
+                            <i class="fas fa-crosshairs"></i>
+                            <span id="locStatus">تثبيت موقع المطعم الحالي</span>
+                        </button>
+                        <input type="hidden" id="resCoords" value="">
+                    </div>
                 </div>
 
-                <button type="submit" id="mainBtn" class="w-full py-5 action-btn mt-6 flex items-center justify-center gap-3 italic shadow-xl shadow-emerald-500/10">
-                    <span id="btnText">تفعيل الرادار</span>
+                <button type="submit" id="mainBtn" class="w-full py-5 action-btn mt-6 flex items-center justify-center gap-3 italic shadow-xl">
+                    <span id="btnText">تفعيل ودخول الرادار</span>
                     <i class="fas fa-satellite-dish"></i>
                 </button>
             </form>
@@ -81,15 +93,15 @@
         <div id="waitMessage" class="hidden text-center py-12">
             <div class="text-6xl mb-6 animate-bounce">⏳</div>
             <h3 class="text-xl font-black text-amber-500 italic uppercase">بانتظار الموافقة</h3>
-            <p class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">طلب انضمام مطعمك قيد المراجعة في غرفة العمليات.<br>سيتم التفعيل من قبل الإدارة فوراً.</p>
-            <button onclick="logout()" class="mt-10 text-[9px] text-red-500 font-black uppercase border-b border-red-500/30 pb-1">تغيير البيانات / إعادة المحاولة</button>
+            <p class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">طلب انضمام مطعمك قيد المراجعة.<br>سيتم التفعيل من قبل الإدارة (طه) فوراً.</p>
+            <button onclick="logout()" class="mt-10 text-[9px] text-red-500 font-black uppercase border-b border-red-500/30 pb-1">تعديل البيانات</button>
         </div>
 
         <div id="banMessage" class="hidden text-center py-12">
             <div class="text-6xl mb-6">🚫</div>
-            <h3 class="text-xl font-black text-red-500 italic uppercase">تم تقييد الوصول</h3>
-            <p class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">نأسف، لقد تم حظر هذا الحساب من قبل الإدارة.<br>يرجى التواصل مع طه للمراجعة.</p>
-            <button onclick="logout()" class="mt-8 text-[9px] text-gray-500">العودة للرئيسية</button>
+            <h3 class="text-xl font-black text-red-500 italic uppercase">الوصول مقيد</h3>
+            <p class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">نأسف، تم حظر الحساب.<br>يرجى مراجعة الإدارة.</p>
+            <button onclick="logout()" class="mt-8 text-[9px] text-gray-500">العودة</button>
         </div>
 
     </div>
@@ -99,43 +111,36 @@
 
         window.onload = async () => {
             const savedName = localStorage.getItem('whale_res_name');
-            const savedPhone = localStorage.getItem('whale_res_phone');
-
             if (savedName) {
                 try {
-                    const response = await fetch(`${scriptURL}?action=restaurant_login&id=${encodeURIComponent(savedName)}&phone=${savedPhone || ''}`);
+                    const response = await fetch(`${scriptURL}?action=restaurant_login&id=${encodeURIComponent(savedName)}`);
                     const result = await response.json();
-                    handleStatus(result, savedName, savedPhone);
+                    handleStatus(result, savedName);
                 } catch (e) { showUI('authUI'); }
             } else { showUI('authUI'); }
         };
 
-        // دالة جلب الموقع الجغرافي
         function getLocation() {
             const locBtn = document.getElementById('locBtn');
             const locStatus = document.getElementById('locStatus');
-            
             if (navigator.geolocation) {
-                locStatus.innerText = "جاري تحديد الإحداثيات...";
+                locStatus.innerText = "جاري الاتصال بالأقمار... 🛰️";
                 navigator.geolocation.getCurrentPosition((position) => {
                     const coords = `${position.coords.latitude},${position.coords.longitude}`;
                     document.getElementById('resCoords').value = coords;
                     locBtn.classList.add('success');
-                    locStatus.innerText = "تم تحديد الموقع بنجاح ✅";
-                }, (error) => {
-                    alert("يرجى السماح بالوصول للموقع لتحديد مكان المطعم بدقة.");
-                    locStatus.innerText = "فشل التحديد - حاول مرة أخرى";
+                    locStatus.innerText = "تم تثبيت الإحداثيات بنجاح ✅";
+                }, () => {
+                    alert("يرجى تفعيل الـ GPS في هاتفك.");
+                    locStatus.innerText = "فشل التحديد - حاول مجدداً";
                 });
-            } else {
-                alert("متصفحك لا يدعم خاصية تحديد الموقع.");
             }
         }
 
-        async function handleStatus(result, name, phone) {
+        async function handleStatus(result, name) {
             document.getElementById('loader').classList.add('hidden');
             if (result.status === 'active') {
                 localStorage.setItem('whale_res_name', name);
-                localStorage.setItem('whale_res_phone', phone);
                 window.location.href = 'restaurant.html'; 
             } else if (result.status === 'pending') {
                 showUI('waitMessage');
@@ -156,41 +161,23 @@
             const phone = document.getElementById('resPhone').value;
             const address = document.getElementById('resAddress').value;
             const coords = document.getElementById('resCoords').value;
-            const regFields = document.getElementById('regFields');
             const btn = document.getElementById('mainBtn');
-            const btnText = document.getElementById('btnText');
-            
-            // التحقق من الموقع عند التسجيل
-            if (!regFields.classList.contains('hidden') && coords === "") {
-                alert("من فضلك اضغط على زر 'تحديد موقع المطعم' لضمان وصول السائقين إليك.");
+
+            if (coords === "") {
+                alert("يجب ضغط زر 'تثبيت موقع المطعم' لضمان وصول السائقين إليك.");
                 return;
             }
 
             btn.disabled = true;
-            btnText.innerText = "جاري الاتصال بالرادار... 📡";
+            document.getElementById('btnText').innerText = "جاري البث للرادار... 📡";
 
             try {
-                // نرسل كل البيانات الجديدة في حال كان تسجيلاً جديداً
-                const response = await fetch(`${scriptURL}?action=restaurant_login&id=${encodeURIComponent(name)}&phone=${phone}&name=${encodeURIComponent(name)}&address=${encodeURIComponent(address)}&coords=${coords}`);
+                const response = await fetch(`${scriptURL}?action=restaurant_login&id=${encodeURIComponent(name)}&phone=${phone}&address=${encodeURIComponent(address)}&coords=${coords}`);
                 const result = await response.json();
-
-                if (result.status === 'not_found' && regFields.classList.contains('hidden')) {
-                    regFields.classList.remove('hidden');
-                    document.getElementById('resPhone').required = true;
-                    document.getElementById('resAddress').required = true;
-                    btn.disabled = false;
-                    btnText.innerText = "ارسال طلب انضمام";
-                    alert("المطعم غير مسجل. يرجى إكمال البيانات لتقديم طلبك.");
-                } else if (result.status === 'not_found') {
-                    alert("حدث خطأ، حاول مرة أخرى.");
-                    btn.disabled = false;
-                } else {
-                    handleStatus(result, name, phone);
-                }
+                handleStatus(result, name);
             } catch (e) {
                 alert("فشل الاتصال بالخادم.");
                 btn.disabled = false;
-                btnText.innerText = "إعادة المحاولة";
             }
         };
 
