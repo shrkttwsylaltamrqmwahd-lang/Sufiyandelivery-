@@ -105,34 +105,26 @@
     </div>
 
     <script>
-        // الرابط الجديد V6.1 المحدث
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbypXnyeduY_p9Ax-BWJC-u_dYMU7q-zZ8MSv_7o3BWNtBZdYxNo3h7CX0OVR_GGbZr5ew/exec';
+        // الرابط المحدث V6.1.3
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz-Rgnwclf9OJz2uJuBhD4PqDkY9XI0KCnSDhq1bRI558bxT5YLTTozkpZHky20oX9g/exec';
         let currentMode = 'manual';
         let base64Image = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            const resName = localStorage.getItem('whale_res_name') || "مطعم غير معرف";
-            document.getElementById('displayResName').innerText = resName;
+            const resName = localStorage.getItem('whale_res_name');
+            const resPhone = localStorage.getItem('whale_res_phone');
             
-            if (!localStorage.getItem('res_lat')) {
-                alert("تنبيه: موقع المطعم غير مثبت. يرجى تسجيل الدخول مرة أخرى.");
-                logout();
+            if (!resPhone) {
+                window.location.href = 'restaurant_login.html';
+                return;
             }
+            document.getElementById('displayResName').innerText = resName || "مطعم مسجل";
         });
 
         function switchTab(type) {
             currentMode = type;
-            const manual = document.getElementById('manualSection');
-            const camera = document.getElementById('cameraSection');
-            
-            if (type === 'manual') {
-                manual.classList.remove('hidden');
-                camera.classList.add('hidden');
-            } else {
-                manual.classList.add('hidden');
-                camera.classList.remove('hidden');
-            }
-            
+            document.getElementById('manualSection').classList.toggle('hidden', type === 'camera');
+            document.getElementById('cameraSection').classList.toggle('hidden', type === 'manual');
             document.getElementById('manualBtn').classList.toggle('active', type === 'manual');
             document.getElementById('cameraBtn').classList.toggle('active', type === 'camera');
         }
@@ -162,12 +154,15 @@
             const btn = document.getElementById('submitBtn');
             const toast = document.getElementById('toast');
             const resName = localStorage.getItem('whale_res_name');
+            const fee = localStorage.getItem('whale_res_fee') || 0;
             const area = document.getElementById('locationSelect').value;
             const phone = document.getElementById('customerPhone').value || "لا يوجد";
             const userDetails = document.getElementById('details').value || "بدون ملاحظات";
 
-            const lat = localStorage.getItem('res_lat');
-            const lng = localStorage.getItem('res_lng');
+            // جلب الإحداثيات من الذاكرة (تم حفظها عند تسجيل الدخول)
+            // في حال عدم وجودها، سيتم إرسال 0,0 ليتكفل الماستر بتعديلها
+            const lat = localStorage.getItem('res_lat') || "0";
+            const lng = localStorage.getItem('res_lng') || "0";
 
             const orderData = {
                 action: 'restaurant_send_order',
@@ -175,6 +170,7 @@
                 type: currentMode === 'camera' ? 'تصوير وصل' : 'يدوي',
                 area: area,
                 details: `هاتف الزبون: ${phone} | ملاحظات: ${userDetails}`,
+                fee: fee,
                 lat: parseFloat(lat),
                 lng: parseFloat(lng),
                 image: base64Image
@@ -201,7 +197,7 @@
                 }, 3000);
 
             } catch (err) {
-                alert("حدث خطأ في الاتصال. تأكد من الإنترنت.");
+                alert("فشل البث. يرجى التحقق من اتصال الإنترنت.");
                 btn.disabled = false;
                 btn.innerHTML = `<span>بث فوري للرادار</span> <i class="fas fa-paper-plane"></i>`;
             }
