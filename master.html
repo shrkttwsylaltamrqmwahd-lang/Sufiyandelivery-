@@ -10,133 +10,65 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { 
-            --gold: #ffcc00; 
-            --bg-dark: #020617;
-            --card-glass: rgba(15, 23, 42, 0.8);
-            --border-glass: rgba(255, 255, 255, 0.1);
-        }
-        
-        body { 
-            background: var(--bg-dark); 
-            color: #f1f5f9; 
-            font-family: 'Tajawal', sans-serif; 
-            min-height: 100vh;
-            margin: 0;
-        }
-
+        :root { --gold: #ffcc00; --bg-dark: #020617; --card-glass: rgba(15, 23, 42, 0.8); --border-glass: rgba(255, 255, 255, 0.1); }
+        body { background: var(--bg-dark); color: #f1f5f9; font-family: 'Tajawal', sans-serif; min-height: 100vh; margin: 0; }
         .orbitron { font-family: 'Orbitron', sans-serif; }
 
-        /* تعديلات شاشة الدخول لضمان الظهور */
-        #login-block {
-            background: #020617;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-        }
+        /* شاشة الدخول */
+        #login-block { background: #020617; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 9999; }
+        .login-btn { width: 100%; background: #ffcc00 !important; color: #000 !important; padding: 1rem; border-radius: 1rem; font-weight: 900; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
 
-        .login-card {
-            width: 100%;
-            max-width: 350px;
-            padding: 2rem;
-            text-align: center;
-        }
+        /* التصميم العام */
+        #map { height: 400px; border-radius: 2rem; border: 1px solid var(--border-glass); margin: 1rem 0; z-index: 10; }
+        .glass-panel { background: var(--card-glass); backdrop-filter: blur(16px); border: 1px solid var(--border-glass); border-radius: 1.5rem; padding: 1.25rem; margin-bottom: 1rem; }
+        .item-row { background: rgba(255,255,255,0.03); border-radius: 1rem; padding: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+        
+        /* أزرار الإجراءات */
+        .btn-action { padding: 6px; border-radius: 8px; font-size: 0.7rem; transition: 0.2s; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; }
+        .btn-accept { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .btn-ban { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .btn-del { background: rgba(255, 255, 255, 0.05); color: #94a3b8; }
+        .btn-track { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
 
-        .master-input {
-            width: 100%;
-            background: #0f172a;
-            border: 2px solid #334155;
-            border-radius: 1rem;
-            padding: 1rem;
-            color: #ffcc00;
-            text-align: center;
-            font-size: 1.25rem;
-            outline: none;
-            margin-bottom: 1.5rem;
-        }
-
-        .master-input:focus { border-color: #ffcc00; }
-
-        /* الزر الجديد بوضوح فائق */
-        .login-btn {
-            width: 100%;
-            background: #ffcc00 !important; /* اللون الذهبي الصريح */
-            color: #000 !important; /* نص أسود للتباين */
-            padding: 1rem;
-            border-radius: 1rem;
-            font-weight: 900;
-            font-size: 1.1rem;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);
-            transition: transform 0.2s;
-        }
-
-        .login-btn:active { transform: scale(0.95); }
-
-        #map { height: 450px; border-radius: 2rem; border: 1px solid var(--border-glass); margin: 1rem 0; }
-        .glass-panel { background: var(--card-glass); backdrop-filter: blur(16px); border: 1px solid var(--border-glass); border-radius: 1.5rem; padding: 1.5rem; }
-        .item-row { background: rgba(255,255,255,0.03); border-radius: 1rem; padding: 12px; margin-bottom: 10px; }
-        .stat-card { background: rgba(255,255,255,0.05); border-radius: 1.25rem; text-align: center; padding: 1rem; border: 1px solid var(--border-glass); }
+        .status-badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 10px; font-weight: bold; text-transform: uppercase; }
+        .st-pending { background: #d97706; color: white; }
+        .st-active { background: #059669; color: white; }
+        .st-banned { background: #dc2626; color: white; }
     </style>
 </head>
 <body>
 
     <div id="login-block">
-        <div class="login-card">
+        <div class="max-w-[320px] w-full p-6 text-center">
             <i class="fas fa-crown text-5xl text-yellow-500 mb-6"></i>
-            <h1 class="orbitron text-2xl font-black text-white mb-8 tracking-tighter">SOVEREIGN ACCESS</h1>
-            
-            <input type="password" id="master-pass" placeholder="شفرة السيادة" class="master-input" onkeypress="if(event.key === 'Enter') loadMasterData()">
-            
-            <button onclick="loadMasterData()" class="login-btn">
-                <i class="fas fa-lock-open"></i>
-                فتح قفل النظام
-            </button>
-            
-            <p class="text-[10px] text-slate-500 orbitron mt-8 tracking-widest uppercase">Admin Command Only</p>
+            <h1 class="orbitron text-xl font-black text-white mb-6 uppercase">Sovereign Login</h1>
+            <input type="password" id="master-pass" placeholder="شفرة السيادة" class="w-full bg-slate-900 border-2 border-slate-700 rounded-xl p-4 text-center text-gold mb-4 outline-none focus:border-gold" onkeypress="if(event.key === 'Enter') loadMasterData()">
+            <button onclick="loadMasterData()" class="login-btn">فتح قفل النظام</button>
         </div>
     </div>
 
-    <div id="main-ui" class="hidden p-4 md:p-8 space-y-6">
-        <header class="flex justify-between items-center bg-slate-900/40 p-6 rounded-[2rem] border border-white/5 shadow-2xl">
-            <div>
-                <h1 class="orbitron text-2xl font-black text-white">WHALE <span class="text-gold">SOVEREIGN</span></h1>
-                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Kirkuk Central Command Center</p>
-            </div>
-            <div class="text-left">
-                <p id="clock" class="orbitron text-sm font-bold text-gold">00:00:00</p>
-            </div>
+    <div id="main-ui" class="hidden p-4 md:p-8">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="orbitron text-xl font-black text-white">WHALE <span class="text-gold">SOVEREIGN</span></h1>
+            <div id="clock" class="orbitron text-xs font-bold text-gold">00:00:00</div>
         </header>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="stat-card"><p class="text-[9px] text-slate-500 mb-1 italic">أرباح اليوم</p><span id="stat-profit" class="orbitron text-lg font-black text-emerald-400">0</span></div>
-            <div class="stat-card"><p class="text-[9px] text-slate-500 mb-1 italic">طلبات نشطة</p><span id="stat-count" class="orbitron text-lg font-black text-blue-400">0</span></div>
-            <div class="stat-card"><p class="text-[9px] text-slate-500 mb-1 italic">المطاعم</p><span id="stat-rests" class="orbitron text-lg font-black text-purple-400">0</span></div>
-            <div class="stat-card"><p class="text-[9px] text-slate-500 mb-1 italic">الطيارين</p><span id="stat-drivers" class="orbitron text-lg font-black text-gold">0</span></div>
-        </div>
 
         <div id="map"></div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
             <section class="glass-panel h-[500px] flex flex-col">
-                <h2 class="font-black italic text-gold mb-4 text-sm"><i class="fas fa-crosshairs"></i> رادار الطيارين</h2>
-                <div id="drivers-list" class="overflow-y-auto flex-1 pr-1"></div>
+                <h2 class="font-black text-gold mb-4 flex items-center gap-2"><i class="fas fa-motorcycle text-xs"></i> الطيارين</h2>
+                <div id="drivers-list" class="overflow-y-auto flex-1 pr-1 text-xs"></div>
             </section>
+
             <section class="glass-panel h-[500px] flex flex-col">
-                <h2 class="font-black italic text-emerald-400 mb-4 text-sm"><i class="fas fa-store"></i> المحطات</h2>
-                <div id="rests-list" class="overflow-y-auto flex-1 pr-1"></div>
+                <h2 class="font-black text-emerald-400 mb-4 flex items-center gap-2"><i class="fas fa-store text-xs"></i> المحطات</h2>
+                <div id="rests-list" class="overflow-y-auto flex-1 pr-1 text-xs"></div>
             </section>
+
             <section class="glass-panel h-[500px] flex flex-col">
-                <h2 class="font-black italic text-blue-400 mb-4 text-sm"><i class="fas fa-box"></i> الطلبات</h2>
-                <div id="orders-list" class="overflow-y-auto flex-1 pr-1"></div>
+                <h2 class="font-black text-blue-400 mb-4 flex items-center gap-2"><i class="fas fa-box text-xs"></i> تدفق الطلبات</h2>
+                <div id="orders-list" class="overflow-y-auto flex-1 pr-1 text-[10px]"></div>
             </section>
         </div>
     </div>
@@ -147,53 +79,70 @@
 
         setInterval(() => {
             const now = new Date();
-            document.getElementById('clock').innerText = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0') + ":" + now.getSeconds().toString().padStart(2,'0');
+            document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB');
         }, 1000);
 
         function initMap() {
             if (map) return;
-            map = L.map('map', { zoomControl: false }).setView([35.467, 44.392], 13); 
+            map = L.map('map', { zoomControl: false }).setView([35.467, 44.392], 13);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
         }
 
         async function loadMasterData(isSilent = false) {
             const pass = document.getElementById('master-pass').value;
-            if(!pass) return;
             try {
                 const res = await fetch(`${SCRIPT_URL}?action=get_master_data&pass=${encodeURIComponent(pass)}`);
                 const data = await res.json();
                 if (data.status === "denied") return alert("الرمز خاطئ!");
                 
-                document.getElementById('login-block').style.display = 'none';
-                document.getElementById('main-ui').classList.remove('hidden');
-                initMap();
+                if (!isSilent) {
+                    document.getElementById('login-block').style.display = 'none';
+                    document.getElementById('main-ui').classList.remove('hidden');
+                    initMap();
+                }
                 renderUI(data);
                 updateMapMarkers(data.drivers);
-            } catch (e) { console.error("Error"); }
+            } catch (e) { console.log("Sync..."); }
         }
 
-        setInterval(() => {
-            if (!document.getElementById('main-ui').classList.contains('hidden')) loadMasterData(true);
-        }, 10000);
-
         function renderUI(data) {
-            document.getElementById('stat-rests').innerText = data.restaurants.length;
-            document.getElementById('stat-drivers').innerText = data.drivers.length;
-            document.getElementById('stat-count').innerText = data.orders.filter(o => o[5] !== 'delivered').length;
-            
+            // الطيارين
             document.getElementById('drivers-list').innerHTML = data.drivers.map(d => `
-                <div class="item-row flex justify-between items-center">
-                    <div><p class="font-bold text-xs">${d[1]}</p><p class="text-[9px] text-slate-500">${d[2]}</p></div>
-                    <button onclick="trackOnMap(${d[5]}, ${d[6]})" class="text-gold"><i class="fas fa-location-dot"></i></button>
+                <div class="item-row">
+                    <div class="flex justify-between items-start mb-2">
+                        <div><p class="font-black">${d[1]}</p><p class="opacity-50">${d[2]}</p></div>
+                        <span class="status-badge st-${d[4]}">${d[4]}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="trackOnMap(${d[5]}, ${d[6]}, '${d[1]}')" class="btn-action btn-track" title="تتبع"><i class="fas fa-location-dot"></i></button>
+                        <button onclick="control('Drivers', '${d[2]}', 4, 'active')" class="btn-action btn-accept" title="قبول"><i class="fas fa-check-circle"></i></button>
+                        <button onclick="control('Drivers', '${d[2]}', 4, 'banned')" class="btn-action btn-ban" title="حظر"><i class="fas fa-user-slash"></i></button>
+                        <button onclick="deleteItem('Drivers', '${d[2]}')" class="btn-action btn-del" title="حذف"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>
             `).join('');
 
+            // المحطات
             document.getElementById('rests-list').innerHTML = data.restaurants.map(r => `
-                <div class="item-row"><p class="font-bold text-xs">${r[1]}</p></div>
+                <div class="item-row flex justify-between items-center">
+                    <div><p class="font-black">${r[1]}</p><p class="opacity-50 text-[9px]">${r[2]}</p></div>
+                    <button onclick="deleteItem('Restaurants', '${r[2]}')" class="btn-action btn-del"><i class="fas fa-trash"></i></button>
+                </div>
             `).join('');
 
+            // الطلبات
             document.getElementById('orders-list').innerHTML = data.orders.map(o => `
-                <div class="item-row text-[10px]"><p class="text-gold font-bold">#${o[0]}</p><p>${o[1]} ➔ ${o[9]}</p></div>
+                <div class="item-row">
+                    <div class="flex justify-between mb-1">
+                        <span class="text-gold font-bold">#${o[0]}</span>
+                        <span class="opacity-50 italic">${o[5]}</span>
+                    </div>
+                    <p class="mb-2">${o[1]} ➔ ${o[9]}</p>
+                    <div class="flex gap-2">
+                        <button onclick="control('Orders', '${o[0]}', 5, 'delivered')" class="bg-blue-500/10 text-blue-400 px-2 py-1 rounded text-[8px] uppercase font-bold">تسليم</button>
+                        <button onclick="deleteItem('Orders', '${o[0]}')" class="text-red-500/50"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
             `).reverse().join('');
         }
 
@@ -201,12 +150,31 @@
             drivers.forEach(d => {
                 if (d[5] && d[5] != 0) {
                     if (markers[d[2]]) markers[d[2]].setLatLng([d[5], d[6]]);
-                    else markers[d[2]] = L.marker([d[5], d[6]]).addTo(map);
+                    else markers[d[2]] = L.marker([d[5], d[6]]).addTo(map).bindPopup(d[1]);
                 }
             });
         }
 
-        function trackOnMap(lat, lng) { if(lat) map.flyTo([lat, lng], 17); }
+        function trackOnMap(lat, lng, name) {
+            if(!lat || lat == 0) return alert("خارج التغطية");
+            map.flyTo([lat, lng], 17);
+            L.popup().setLatLng([lat, lng]).setContent("الطيار: " + name).openOn(map);
+        }
+
+        async function deleteItem(sheet, id) {
+            if(!confirm("تأكيد الحذف النهائي؟")) return;
+            const pass = document.getElementById('master-pass').value;
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete_item', pass: pass, targetSheet: sheet, targetID: id }) });
+            setTimeout(() => loadMasterData(true), 1000);
+        }
+
+        async function control(target, id, col, val) {
+            const pass = document.getElementById('master-pass').value;
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'master_control', pass: pass, targetSheet: target, targetID: id, colIndex: col, newValue: val }) });
+            setTimeout(() => loadMasterData(true), 1000);
+        }
+
+        setInterval(() => { if (!document.getElementById('main-ui').classList.contains('hidden')) loadMasterData(true); }, 10000);
     </script>
 </body>
 </html>
