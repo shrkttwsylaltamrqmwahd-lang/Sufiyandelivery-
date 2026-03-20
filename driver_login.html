@@ -73,8 +73,8 @@
     </div>
 
     <script>
-        // الرابط الجديد V6.0
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyLS5rwRjqIG8_s0XTuYT1ai1_PewDOBejcEUDCa_EwCqY3p9i5RiHdet9gsgpr6QA_kg/exec';
+        // الرابط الجديد V6.1 المحدث
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbypXnyeduY_p9Ax-BWJC-u_dYMU7q-zZ8MSv_7o3BWNtBZdYxNo3h7CX0OVR_GGbZr5ew/exec';
 
         window.onload = async () => {
             const savedPhone = localStorage.getItem('whale_driver_phone');
@@ -121,16 +121,14 @@
             btnText.innerText = "جاري البث للقاعدة... 📡";
 
             try {
-                // إذا كان المستخدم يملأ بيانات التسجيل لأول مرة
                 if (!regFields.classList.contains('hidden')) {
+                    // تسجيل جديد
                     const regData = {
                         action: "register_user",
                         type: "Driver",
                         name: name,
                         phone: phone,
-                        address: "كركوك",
-                        fee: 0,
-                        coords: "0,0" // سيتم تحديثها حياً من الـ Dashboard
+                        password: "123" // باسوورد افتراضي
                     };
                     
                     await fetch(scriptURL, {
@@ -142,7 +140,7 @@
                     localStorage.setItem('whale_driver_phone', phone);
                     showStatusView('pending');
                 } else {
-                    // محاولة تسجيل دخول عادية
+                    // دخول عادي
                     const response = await fetch(`${scriptURL}?action=login_check&type=Driver&id=${encodeURIComponent(phone)}`);
                     const result = await response.json();
 
@@ -157,7 +155,6 @@
                     }
                 }
             } catch (e) {
-                // في حالة الخطأ أو الـ CORS، نعطيه وضع الانتظار
                 localStorage.setItem('whale_driver_phone', phone);
                 showStatusView('pending');
             }
