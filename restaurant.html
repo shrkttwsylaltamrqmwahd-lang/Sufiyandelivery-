@@ -103,7 +103,6 @@
     </div>
 
     <script>
-        // الرابط السيادي (طه - كركوك) V6.2
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyIqK63Xu4b2G8BN0aNQIs42oTqvvYRlGDLfQCCSMo68YPYoysKjQ_IjoXhie0MhIaZpQ/exec';
         let currentMode = 'manual';
         let base64Image = null;
@@ -111,8 +110,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             const resName = localStorage.getItem('whale_res_name');
             const resPhone = localStorage.getItem('whale_res_phone');
+            
+            // التحقق من الهوية (الأمان)
             if (!resPhone) { 
-                window.location.href = 'restaurant_login.html'; 
+                window.location.href = 'Restaurant_login.html'; 
                 return; 
             }
             document.getElementById('displayResName').innerText = resName || "مطعم شريك";
@@ -150,7 +151,7 @@
             const btn = document.getElementById('submitBtn');
             const toast = document.getElementById('toast');
             
-            // سحب بيانات المطعم المحفوظة محلياً
+            // سحب البيانات المخزنة من مرحلة التسجيل
             const resName = localStorage.getItem('whale_res_name');
             const resPhone = localStorage.getItem('whale_res_phone');
             const resMap = localStorage.getItem('whale_res_map') || ""; 
@@ -159,11 +160,11 @@
             const resLng = localStorage.getItem('whale_res_lng') || 0;
 
             const area = document.getElementById('locationSelect').value;
-            const customerPhone = document.getElementById('customerPhone').value || "";
-            const userDetails = document.getElementById('details').value || "";
+            const customerPhone = document.getElementById('customerPhone').value || "غير متوفر";
+            const userDetails = document.getElementById('details').value || "بدون تفاصيل إضافية";
 
-            // تجميع النص النهائي للبيانات
-            const finalDetails = `${area} - ${userDetails} | هاتف: ${customerPhone}`;
+            // دمج التفاصيل في نص واحد منظم
+            const finalDetails = `[${area}] - ${userDetails} | هاتف الزبون: ${customerPhone}`;
 
             const orderData = {
                 action: 'restaurant_send_order',
@@ -178,15 +179,17 @@
             };
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> جاري بث الإشارة...`;
+            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> جاري البث...`;
             
             try {
+                // إرسال البيانات للسيرفر (Google Apps Script)
                 await fetch(scriptURL, {
                     method: 'POST',
-                    mode: 'no-cors',
+                    mode: 'no-cors', // لضمان الإرسال السريع دون تعقيدات CORS
                     body: JSON.stringify(orderData)
                 });
 
+                // نجاح البث
                 toast.classList.remove('hidden');
                 document.getElementById('orderForm').reset();
                 cancelImage();
@@ -198,13 +201,16 @@
                 }, 3000);
 
             } catch (err) {
-                alert("فشل في الوصول للقاعدة، يرجى إعادة المحاولة.");
+                alert("تعذر الوصول للرادار. يرجى التحقق من اتصال الإنترنت في كركوك.");
                 btn.disabled = false;
                 btn.innerHTML = `<span>بث الطلبية الآن</span>`;
             }
         };
 
-        function logout() { localStorage.clear(); window.location.href = 'restaurant_login.html'; }
+        function logout() { 
+            localStorage.clear(); 
+            window.location.href = 'Restaurant_login.html'; 
+        }
     </script>
 </body>
 </html>
