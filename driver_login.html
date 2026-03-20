@@ -73,26 +73,36 @@
     </div>
 
     <script>
-        // الرابط المحدث V6.1.3
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbz-Rgnwclf9OJz2uJuBhD4PqDkY9XI0KCnSDhq1bRI558bxT5YLTTozkpZHky20oX9g/exec';
+        // الرابط الجديد المحدث V6.2 لعام 2026
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw0IyVaO5zgsrFFohgarfB_AkjWyUqZ8UMg-8cYlGQfYymg-eDhE-gDJEq3etTPP635Iw/exec';
 
         window.onload = async () => {
             const savedPhone = localStorage.getItem('whale_driver_phone');
             if (savedPhone) {
-                try {
-                    const response = await fetch(`${scriptURL}?action=login_check&type=Driver&id=${encodeURIComponent(savedPhone)}`);
-                    const result = await response.json();
-                    handleDriverStatus(result, savedPhone);
-                } catch (e) { showUI('authUI'); }
-            } else { showUI('authUI'); }
+                checkLoginStatus(savedPhone);
+            } else { 
+                showUI('authUI'); 
+            }
         };
+
+        async function checkLoginStatus(phone) {
+            try {
+                // استدعاء فحص الحالة من القاعدة
+                const response = await fetch(`${scriptURL}?action=login_check&type=Driver&id=${encodeURIComponent(phone)}`);
+                const result = await response.json();
+                handleDriverStatus(result, phone);
+            } catch (e) { 
+                console.error("Connection error");
+                showUI('authUI'); 
+            }
+        }
 
         function handleDriverStatus(result, phone) {
             document.getElementById('loader').classList.add('hidden');
             if (result.status === 'active') {
                 localStorage.setItem('whale_driver_phone', phone);
+                // حفظ الاسم لغرض الترحيب في الصفحة الرئيسية
                 if (result.data) localStorage.setItem('whale_driver_name', result.data[1]); 
-                // التوجيه للوحة الكابتن (تأكد أن الاسم مطابق لملفك)
                 window.location.href = 'driver.html';
             } else if (result.status === 'pending') {
                 showStatusView('pending');
@@ -119,16 +129,17 @@
             const regFields = document.getElementById('regFields');
             
             btn.disabled = true;
-            btnText.innerText = "جاري البث للقاعدة... 📡";
+            btnText.innerText = "جاري الاتصال بالقاعدة... 📡";
 
             try {
                 if (!regFields.classList.contains('hidden')) {
-                    // إرسال طلب تسجيل جديد
+                    // تسجيل كابتن جديد
                     const regData = {
                         action: "register_user",
                         type: "Driver",
                         name: name,
-                        phone: phone
+                        phone: phone,
+                        password: "123" // كلمة سر افتراضية
                     };
                     
                     await fetch(scriptURL, {
@@ -145,19 +156,20 @@
                     const result = await response.json();
 
                     if (result.status === 'not_found') {
+                        // إذا لم يتم العثور على الرقم، نطلب الاسم للتسجيل
                         regFields.classList.remove('hidden');
                         document.getElementById('driverName').required = true;
                         btn.disabled = false;
-                        btnText.innerText = "إرسال طلب انضمام";
+                        btnText.innerText = "إرسال طلب تفعيل";
                     } else {
                         localStorage.setItem('whale_driver_phone', phone);
                         handleDriverStatus(result, phone);
                     }
                 }
             } catch (e) {
-                // في حالة فشل الاتصال، نظهر واجهة الانتظار كإجراء احتياطي
-                localStorage.setItem('whale_driver_phone', phone);
-                showStatusView('pending');
+                alert("خطأ في الشبكة، يرجى المحاولة لاحقاً.");
+                btn.disabled = false;
+                btnText.innerText = "تفعيل ودخول الرادار";
             }
         };
 
@@ -173,9 +185,11 @@
                 icon.innerText = "🚫";
                 desc.innerText = "لقد تم تقييد وصول هذا الكابتن من قبل الإدارة.";
             } else {
-                title.innerText = "بانتظار موافقة الإدارة";
+                title.innerText = "بانتظار موافقة طه";
                 icon.innerText = "🛰️";
-                desc.innerText = "طلب انضمامك قيد المراجعة حالياً.\nسيفتح الرادار لك فور التفعيل.";
+                desc.innerText = "تم استلام بياناتك وهي قيد المراجعة.\nبمجرد التفعيل، سيفتح الرادار تلقائياً.";
+                // فحص دوري كل دقيقة إذا تم التفعيل
+                setTimeout(() => location.reload(), 60000);
             }
         }
 
