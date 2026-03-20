@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Tajawal', sans-serif; background: #000; color: #fff; overflow-x: hidden; }
-        .receipt-card { background: linear-gradient(145deg, #0f172a, #020617); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; }
+        .receipt-card { background: linear-gradient(145deg, #0f172a, #020617); border: 1px solid rgba(251, 191, 36, 0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; }
         .radar-ping { animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
         @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
         .img-zoom { transition: transform 0.3s; width: 100%; height: auto; border-radius: 1rem; cursor: zoom-in; }
@@ -20,15 +20,15 @@
 </head>
 <body class="max-w-md mx-auto min-h-screen pb-10">
     
-    <header class="p-5 bg-slate-900 rounded-b-[2.5rem] border-b border-emerald-500/30 shadow-2xl flex justify-between items-center sticky top-0 z-50">
+    <header class="p-5 bg-slate-900 rounded-b-[2.5rem] border-b border-amber-500/30 shadow-2xl flex justify-between items-center sticky top-0 z-50">
         <div class="flex items-center gap-3">
             <div class="relative">
-                <div class="absolute inset-0 bg-emerald-500 rounded-full radar-ping opacity-20"></div>
-                <div class="w-3 h-3 bg-emerald-500 rounded-full relative z-10"></div>
+                <div class="absolute inset-0 bg-amber-500 rounded-full radar-ping opacity-20"></div>
+                <div class="w-3 h-3 bg-amber-500 rounded-full relative z-10"></div>
             </div>
             <div>
-                <h1 class="text-[10px] font-black text-emerald-500 italic uppercase tracking-tighter">Whale Pilot Radar</h1>
-                <p id="welcomeName" class="text-xs text-white font-bold italic text-right tracking-wide">جاري الاتصال...</p>
+                <h1 class="text-[10px] font-black text-amber-500 italic uppercase tracking-tighter">Whale Pilot Radar V6.2</h1>
+                <p id="welcomeName" class="text-xs text-white font-bold italic text-right tracking-wide">جاري الاتصال بالقاعدة...</p>
             </div>
         </div>
         <button onclick="logout()" class="text-[10px] bg-red-500/10 text-red-400 px-4 py-2 rounded-xl font-black italic border border-red-500/20 active:scale-90 transition-all">خروج</button>
@@ -36,18 +36,18 @@
 
     <main class="p-6">
         <div id="searchingStatus" class="text-center mb-8">
-            <p id="radarText" class="text-[9px] text-emerald-500 font-black uppercase tracking-[0.4em] italic animate-pulse">Scanning Kirkuk Sector...</p>
+            <p id="radarText" class="text-[9px] text-amber-500 font-black uppercase tracking-[0.4em] italic animate-pulse">Scanning Kirkuk Sector...</p>
         </div>
 
         <div id="orderCard" class="receipt-card p-6 rounded-[2.5rem] relative overflow-hidden hidden active-mission">
             <div class="mb-6 flex flex-col items-center border-b border-white/5 pb-6 text-center">
-                <span class="text-[8px] bg-amber-500 text-black px-3 py-0.5 rounded-full font-black uppercase mb-3 italic">مهمة قتالية نشطة</span>
+                <span class="text-[8px] bg-amber-500 text-black px-3 py-0.5 rounded-full font-black uppercase mb-3 italic tracking-widest">مهمة قتالية نشطة</span>
                 <h2 id="restaurantTitle" class="text-2xl font-black text-white italic tracking-tight">اسم المطعم</h2>
-                <div id="orderStatusBadge" class="mt-3 px-4 py-1.5 rounded-full bg-white/5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20 italic">بانتظار التحرك</div>
+                <div id="orderStatusBadge" class="mt-3 px-4 py-1.5 rounded-full bg-white/5 text-[10px] font-bold text-amber-400 border border-amber-500/20 italic">بانتظار التحرك</div>
                 
-                <a id="restMapLink" href="#" target="_blank" class="mt-4 flex items-center gap-2 text-emerald-400 bg-emerald-500/10 px-4 py-2 rounded-full border border-emerald-500/30 text-[10px] font-black italic hover:bg-emerald-500/20 transition-all">
+                <a id="restMapLink" href="#" target="_blank" class="mt-4 flex items-center gap-2 text-amber-400 bg-amber-500/10 px-4 py-2 rounded-full border border-amber-500/30 text-[10px] font-black italic hover:bg-amber-500/20 transition-all">
                     <i class="fas fa-location-arrow"></i>
-                    <span>عرض موقع المطعم على الخريطة</span>
+                    <span>فتح موقع المطعم (Google Maps)</span>
                 </a>
             </div>
 
@@ -77,10 +77,10 @@
 
             <div class="mt-8 space-y-3">
                 <button id="pickUpBtn" onclick="updateOrderStatus('picked-up')" class="w-full bg-amber-500 text-black py-5 rounded-[1.5rem] font-black text-lg active:scale-95 transition-all shadow-xl italic flex items-center justify-center gap-2">
-                    <span>تم الاستلام من المطعم 🥡</span>
+                    <span>استلمت من المطعم 🥡</span>
                 </button>
                 <button id="deliverBtn" onclick="updateOrderStatus('delivered')" class="w-full bg-emerald-500 text-black py-5 rounded-[1.5rem] font-black text-lg active:scale-95 transition-all shadow-xl italic flex items-center justify-center gap-2 hidden">
-                    <span>تم التسليم بنجاح ✅</span>
+                    <span>سلمت للزبون بنجاح ✅</span>
                 </button>
                 <button onclick="reportProblem()" class="w-full py-3 text-red-500/40 font-bold text-[10px] italic">⚠️ إبلاغ عن مشكلة لطه</button>
             </div>
@@ -93,8 +93,8 @@
     </main>
 
     <script>
-        // الرابط الجديد المحدث V6.2
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw0IyVaO5zgsrFFohgarfB_AkjWyUqZ8UMg-8cYlGQfYymg-eDhE-gDJEq3etTPP635Iw/exec';
+        // الرابط السيادي الجديد V6.2
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw_cl72d5j5v3ziPZYFAd-wy8_H6yo0II4CHEzJiEMMnkPY92jlUbSYbI_FgnXDPeRvyg/exec';
         const driverPhone = localStorage.getItem('whale_driver_phone'); 
         let currentOrderID = null;
 
@@ -105,39 +105,33 @@
             }
             document.getElementById('welcomeName').innerText = "كابتن: " + (localStorage.getItem('whale_driver_name') || "مجهول");
             
-            initRadarSystem(); // تفعيل بث الموقع اللحظي
+            initGPS(); // بدء تتبع الموقع الفعلي
             checkOrders(); // فحص أولي للطلبات
             setInterval(checkOrders, 5000); // تحديث الرادار كل 5 ثوانٍ
         });
 
-        // نظام الـ GPS اللحظي
-        function initRadarSystem() {
+        // تفعيل الـ GPS للبث المباشر
+        function initGPS() {
             if (navigator.geolocation) {
+                // مراقبة الموقع وإرساله صامتاً كلما تغير
                 navigator.geolocation.watchPosition(
-                    (pos) => broadcastPosition(pos.coords.latitude, pos.coords.longitude),
-                    (err) => console.error("GPS Signal Lost"),
-                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                    (pos) => {
+                        const data = { 
+                            action: "update_location", 
+                            phone: driverPhone, 
+                            lat: pos.coords.latitude, 
+                            lng: pos.coords.longitude 
+                        };
+                        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                    },
+                    (err) => console.log("GPS Signal Weak"),
+                    { enableHighAccuracy: true, timeout: 5000 }
                 );
-            } else {
-                alert("يرجى تفعيل الموقع (GPS) لكي يتم تعيين الطلبات لك.");
             }
-        }
-
-        async function broadcastPosition(lat, lng) {
-            const data = { 
-                action: "update_location", 
-                type: "Driver", 
-                phone: driverPhone, 
-                lat: lat, 
-                lng: lng 
-            };
-            // إرسال الموقع صامت للخلفية
-            fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
         }
 
         async function checkOrders() {
             try {
-                // جلب طلبات السائق المحددة له تلقائياً من قبل "محرك الحوت"
                 const res = await fetch(`${scriptURL}?action=get_radar_orders&id=${encodeURIComponent(driverPhone)}`);
                 const data = await res.json();
                 
@@ -150,7 +144,7 @@
                     updateRadarUI(false);
                 }
             } catch (e) { 
-                console.log("Radar Scanning for signals..."); 
+                console.log("Radar Scanning..."); 
             }
         }
 
@@ -166,7 +160,6 @@
             document.getElementById('orderCard').classList.remove('hidden');
             document.getElementById('restaurantTitle').innerText = order.restName;
             
-            // تحديث رابط الخريطة للمطعم
             const mapLink = document.getElementById('restMapLink');
             if (order.restLocation && order.restLocation.startsWith('http')) {
                 mapLink.href = order.restLocation;
@@ -184,15 +177,12 @@
                 dBtn.classList.remove('hidden');
                 badge.innerText = "في الطريق لتسليم الزبون 🚀";
                 badge.className = "mt-3 px-4 py-1.5 rounded-full bg-blue-500/10 text-[10px] font-bold text-blue-400 border border-blue-500/20 italic";
-                mapLink.classList.add('hidden'); // اخفاء رابط المطعم بعد الاستلام
             } else {
                 pBtn.classList.remove('hidden');
                 dBtn.classList.add('hidden');
                 badge.innerText = "توجه للمطعم لاستلام الطلب 🥡";
-                badge.className = "mt-3 px-4 py-1.5 rounded-full bg-amber-500/10 text-[10px] font-bold text-amber-400 border border-amber-500/20 italic";
             }
 
-            // عرض صورة الوصل
             const rView = document.getElementById('receiptOnlyView');
             if (order.image && order.image.length > 50) {
                 rView.classList.remove('hidden');
@@ -201,18 +191,15 @@
                 rView.classList.add('hidden');
             }
 
-            document.getElementById('locationTxt').innerText = order.details || "لا توجد ملاحظات";
+            document.getElementById('locationTxt').innerText = order.details || "لا توجد تفاصيل وجهة";
             
-            // استخراج هاتف الزبون
             const phoneMatch = (order.details || "").match(/07[0-9]{9}/);
             const pSec = document.getElementById('customerPhoneSection');
             if (phoneMatch) {
                 pSec.classList.remove('hidden');
                 document.getElementById('phoneTxt').innerText = phoneMatch[0];
                 document.getElementById('phoneCall').href = "tel:" + phoneMatch[0];
-            } else {
-                pSec.classList.add('hidden');
-            }
+            } else { pSec.classList.add('hidden'); }
         }
 
         async function updateOrderStatus(newStatus) {
@@ -221,7 +208,7 @@
             const originalContent = btn.innerHTML;
             
             btn.disabled = true;
-            btn.innerText = "جاري التحديث... 📡";
+            btn.innerText = "بث الإشارة للقاعدة...";
 
             try {
                 await fetch(scriptURL, {
@@ -236,12 +223,12 @@
                 });
                 
                 if (newStatus === 'delivered') {
-                    alert("المهمة اكتملت! سيتم البحث عن طلب جديد. 🐋");
+                    alert("تمت المهمة بنجاح! شكراً لك كابتن. 🐋");
                     document.getElementById('orderCard').classList.add('hidden');
                 }
-                setTimeout(checkOrders, 1500);
+                setTimeout(checkOrders, 1000);
             } catch (e) {
-                alert("فشل في تحديث الحالة. تأكد من الإنترنت.");
+                alert("خطأ في تحديث الحالة.");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalContent;
@@ -249,10 +236,9 @@
         }
 
         function logout() { localStorage.clear(); window.location.href = 'driver_login.html'; }
-        
         function reportProblem() {
-            const msg = prompt("اكتب طبيعة المشكلة (مثلاً: دراجة عاطلة، زبون لم يرد):");
-            if (msg) alert("تم إرسال إشعار للإدارة (طه) وسيتم التواصل معك.");
+            const msg = prompt("ما هي المشكلة؟");
+            if (msg) alert("تم إشعار طه بالمشكلة.");
         }
     </script>
 </body>
