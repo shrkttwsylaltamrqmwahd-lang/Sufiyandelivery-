@@ -112,8 +112,8 @@
     </div>
 
     <script>
-        // الرابط الجديد V6.0
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyLS5rwRjqIG8_s0XTuYT1ai1_PewDOBejcEUDCa_EwCqY3p9i5RiHdet9gsgpr6QA_kg/exec';
+        // الرابط الجديد V6.1 المحدث
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbypXnyeduY_p9Ax-BWJC-u_dYMU7q-zZ8MSv_7o3BWNtBZdYxNo3h7CX0OVR_GGbZr5ew/exec';
 
         window.onload = async () => {
             const savedPhone = localStorage.getItem('whale_res_phone');
@@ -150,6 +150,7 @@
             if (result.status === 'active') {
                 localStorage.setItem('whale_res_phone', phone);
                 if (result.data && result.data[1]) localStorage.setItem('whale_res_name', result.data[1]);
+                // التوجيه للوحة المطعم (تأكد أن الاسم هو restaurant.html)
                 window.location.href = 'restaurant.html'; 
             } else if (result.status === 'pending') {
                 showUI('waitMessage');
@@ -194,6 +195,7 @@
             document.getElementById('btnText').innerText = "جاري إرسال طلبك... 🚀";
 
             try {
+                // حفظ مؤقت للبيانات
                 localStorage.setItem('whale_res_phone', resPhone);
                 localStorage.setItem('whale_res_name', resName);
 
