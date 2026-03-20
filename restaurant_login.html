@@ -18,8 +18,6 @@
         .action-btn:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
         label { display: block; text-align: right; font-size: 10px; color: #10b981; font-weight: 900; margin-bottom: 5px; margin-right: 5px; text-transform: uppercase; }
         .hidden { display: none; }
-        
-        /* تأثير النبض عند جلب الموقع */
         .gps-pulse { animation: pulse 1.5s infinite; color: #10b981; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
     </style>
@@ -96,7 +94,7 @@
         <div id="waitMessage" class="hidden text-center py-12">
             <div class="text-6xl mb-6 animate-bounce">⏳</div>
             <h3 class="text-xl font-black text-amber-500 italic uppercase">بانتظار تفعيل طه</h3>
-            <p id="waitText" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">طلبك الآن على طاولة الإدارة في كركوك.<br>يتم الآن معايرة موقعك على الرادار.</p>
+            <p id="waitText" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">طلبك الآن على طاولة الإدارة في كركوك.<br>بمجرد تفعيل طه، سيفتح الرادار تلقائياً.</p>
             <button onclick="logout()" class="mt-10 text-[9px] text-red-500 font-black uppercase border-b border-red-500/30">تعديل البيانات</button>
         </div>
 
@@ -110,7 +108,8 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw0IyVaO5zgsrFFohgarfB_AkjWyUqZ8UMg-8cYlGQfYymg-eDhE-gDJEq3etTPP635Iw/exec';
+        // الرابط الجديد المحدث V6.2 لعام 2026
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw_cl72d5j5v3ziPZYFAd-wy8_H6yo0II4CHEzJiEMMnkPY92jlUbSYbI_FgnXDPeRvyg/exec';
 
         window.onload = async () => {
             const savedPhone = localStorage.getItem('whale_res_phone');
@@ -139,6 +138,9 @@
                     localStorage.setItem('whale_res_name', result.data[1]);
                     localStorage.setItem('whale_res_map', result.data[3]);
                     localStorage.setItem('whale_res_fee', result.data[5]);
+                    // تخزين الإحداثيات إذا كانت موجودة لخدمة المطعم لاحقاً
+                    if(result.data[8]) localStorage.setItem('whale_res_lat', result.data[8]);
+                    if(result.data[9]) localStorage.setItem('whale_res_lng', result.data[9]);
                 }
                 window.location.href = 'restaurant.html'; 
             } else if (result.status === 'pending') {
@@ -159,18 +161,14 @@
             document.getElementById(id).classList.remove('hidden');
         }
 
-        // الوظيفة السحرية لجلب الإحداثيات
-        function getCoords() {
-            return new Promise((resolve, reject) => {
-                if (!navigator.geolocation) {
-                    reject("GPS Not Supported");
-                } else {
-                    navigator.geolocation.getCurrentPosition(
-                        (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-                        (err) => resolve({ lat: 0, lng: 0 }), // إذا رفض الإذن نرسل أصفاراً
-                        { enableHighAccuracy: true }
-                    );
-                }
+        async function getCoords() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) resolve({ lat: 0, lng: 0 });
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                    (err) => resolve({ lat: 0, lng: 0 }),
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
             });
         }
 
@@ -183,7 +181,7 @@
             statusDiv.classList.remove('hidden');
             document.getElementById('btnText').innerText = "جاري معايرة الموقع...";
 
-            // 1. جلب الإحداثيات فوراً
+            // سحب إحداثيات GPS المطعم فوراً
             const coords = await getCoords();
 
             const data = {
@@ -194,14 +192,15 @@
                 address: document.getElementById('resMapLink').value,
                 fee: document.getElementById('fixedFee').value,
                 paySystem: document.getElementById('paySystem').value,
-                lat: coords.lat, // إرسال خط العرض
-                lng: coords.lng  // إرسال خط الطول
+                lat: coords.lat, 
+                lng: coords.lng  
             };
 
             document.getElementById('btnText').innerText = "بث البيانات للقاعدة...";
 
             try {
                 localStorage.setItem('whale_res_phone', data.phone);
+                // إرسال البيانات
                 await fetch(scriptURL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -210,7 +209,7 @@
                 
                 setTimeout(() => showUI('waitMessage'), 1000);
             } catch (e) {
-                alert("خطأ في البث، تأكد من الاتصال.");
+                alert("خطأ في الاتصال. تأكد من الإنترنت.");
                 btn.disabled = false;
                 statusDiv.classList.add('hidden');
                 document.getElementById('btnText').innerText = "إعادة المحاولة";
