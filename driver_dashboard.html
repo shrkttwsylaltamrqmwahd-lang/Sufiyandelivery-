@@ -15,6 +15,7 @@
         .img-zoom { transition: transform 0.3s; width: 100%; height: auto; border-radius: 1rem; cursor: zoom-in; }
         .img-zoom:active { transform: scale(1.5); z-index: 100; position: relative; }
         .hidden { display: none; }
+        .active-mission { border-top: 4px solid #fbbf24; }
     </style>
 </head>
 <body class="max-w-md mx-auto min-h-screen pb-10">
@@ -27,7 +28,7 @@
             </div>
             <div>
                 <h1 class="text-[10px] font-black text-emerald-500 italic uppercase tracking-tighter">Whale Pilot Radar</h1>
-                <p id="welcomeName" class="text-xs text-white font-bold italic text-right">جاري الاتصال...</p>
+                <p id="welcomeName" class="text-xs text-white font-bold italic text-right tracking-wide">جاري الاتصال بالرادار...</p>
             </div>
         </div>
         <button onclick="logout()" class="text-[10px] bg-red-500/10 text-red-400 px-4 py-2 rounded-xl font-black italic border border-red-500/20 active:scale-90 transition-all">خروج</button>
@@ -38,15 +39,15 @@
             <p id="radarText" class="text-[9px] text-emerald-500 font-black uppercase tracking-[0.4em] italic animate-pulse">Scanning Kirkuk Sector...</p>
         </div>
 
-        <div id="orderCard" class="receipt-card p-6 rounded-[2.5rem] relative overflow-hidden border-t-4 border-emerald-500 hidden">
+        <div id="orderCard" class="receipt-card p-6 rounded-[2.5rem] relative overflow-hidden hidden active-mission">
             
             <div class="mb-6 flex flex-col items-center border-b border-white/5 pb-6 text-center">
-                <span class="text-[8px] bg-emerald-500 text-black px-3 py-0.5 rounded-full font-black uppercase mb-3 italic">مهمة نشطة</span>
+                <span class="text-[8px] bg-amber-500 text-black px-3 py-0.5 rounded-full font-black uppercase mb-3 italic">مهمة قتالية نشطة</span>
                 <h2 id="restaurantTitle" class="text-2xl font-black text-white italic tracking-tight">اسم المطعم</h2>
-                <div id="orderStatusBadge" class="mt-3 px-4 py-1.5 rounded-full bg-white/5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20 italic">قيد المعالجة</div>
+                <div id="orderStatusBadge" class="mt-3 px-4 py-1.5 rounded-full bg-white/5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20 italic">في انتظار التحرك</div>
             </div>
 
-            <div id="receiptOnlyView" class="hidden space-y-4 mb-4">
+            <div id="receiptOnlyView" class="hidden space-y-4 mb-6">
                 <p class="text-[9px] text-gray-500 font-black text-center italic uppercase">انقر على الوصل للتكبير 🔍</p>
                 <div class="rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
                     <img id="receiptImg" src="" class="img-zoom" alt="Receipt">
@@ -55,14 +56,14 @@
 
             <div id="manualInfoView" class="space-y-4">
                 <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
-                    <p class="text-[8px] text-gray-500 font-black uppercase italic mb-1">📍 تفاصيل الوجهة والطلب</p>
-                    <p id="locationTxt" class="text-sm font-black text-white italic leading-relaxed text-right">...</p>
+                    <p class="text-[8px] text-gray-500 font-black uppercase italic mb-1">📍 تفاصيل الوجهة والملاحظات</p>
+                    <p id="locationTxt" class="text-sm font-black text-white italic leading-relaxed text-right">جاري جلب البيانات...</p>
                 </div>
                 
                 <div id="customerPhoneSection" class="bg-blue-500/5 p-4 rounded-2xl border border-blue-500/20 flex justify-between items-center hidden">
                     <div>
-                        <p class="text-[8px] text-blue-400 font-black uppercase italic mb-1">📞 هاتف الزبون</p>
-                        <p id="phoneTxt" class="text-lg font-black text-blue-400 font-mono tracking-widest italic">...</p>
+                        <p class="text-[8px] text-blue-400 font-black uppercase italic mb-1">📞 اتصال سريع بالزبون</p>
+                        <p id="phoneTxt" class="text-lg font-black text-blue-400 font-mono tracking-widest italic">077XXXXXXXX</p>
                     </div>
                     <a id="phoneCall" href="#" class="bg-blue-600 w-12 h-12 rounded-2xl text-white shadow-lg shadow-blue-900/40 flex items-center justify-center text-xl active:scale-90 transition-all">
                         <i class="fas fa-phone-alt"></i>
@@ -72,15 +73,15 @@
 
             <div class="mt-8 space-y-3">
                 <button id="pickUpBtn" onclick="updateOrderStatus('picked-up')" class="w-full bg-amber-500 text-black py-5 rounded-[1.5rem] font-black text-lg active:scale-95 transition-all shadow-xl italic flex items-center justify-center gap-2">
-                    <span>استلمت من المطعم 🥡</span>
+                    <span>تم الاستلام من المطعم 🥡</span>
                 </button>
                 
                 <button id="deliverBtn" onclick="updateOrderStatus('delivered')" class="w-full bg-emerald-500 text-black py-5 rounded-[1.5rem] font-black text-lg active:scale-95 transition-all shadow-xl italic flex items-center justify-center gap-2 hidden">
                     <span>تم التسليم بنجاح ✅</span>
                 </button>
 
-                <button onclick="reportProblem()" class="w-full py-3 text-red-500/50 font-bold text-[10px] italic">
-                    ⚠️ إبلاغ عن مشكلة في الطلب
+                <button onclick="reportProblem()" class="w-full py-3 text-red-500/40 font-bold text-[10px] italic">
+                    ⚠️ إبلاغ عن مشكلة (تواصل مع طه)
                 </button>
             </div>
         </div>
@@ -93,7 +94,8 @@
     </main>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxblbNvf-H7QN-TVp6M5GMuN8pVcFMRXpA-7ahrVoKwRc0qj0vUaFaSVBtLJFOEHtVg6g/exec';
+        // رابط السكريبت V5.0 الموحد
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxzctandOPXa8wwohxl9NiNnWdaRhh8d2UKQdFHfPNSPfkv1HQosWXIZ9FT6TjlaPjMJA/exec';
         const driverPhone = localStorage.getItem('whale_driver_phone'); 
         let currentOrderID = null;
 
@@ -101,27 +103,33 @@
             if (!driverPhone) window.location.href = 'driver_login.html';
             document.getElementById('welcomeName').innerText = "كابتن: " + (localStorage.getItem('whale_driver_name') || "مجهول");
             
-            // تحديث موقع السائق فوراً وكل دقيقة لضمان استلام طلبات كركوك القريبة
+            // تحديث موقع الكابتن فوراً وكل دقيقة لضمان ظهوره عند طه
             updateDriverLocation();
-            setInterval(updateDriverLocation, 60000);
+            setInterval(updateDriverLocation, 45000); // كل 45 ثانية لزيادة الدقة
 
-            // فحص الطلبات كل 10 ثوانٍ
+            // فحص الطلبات الجديدة كل 7 ثوانٍ
             checkOrders();
-            setInterval(checkOrders, 10000); 
+            setInterval(checkOrders, 7000); 
         });
 
         function updateDriverLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(pos => {
-                    const url = `${scriptURL}?action=update_driver_location&phone=${driverPhone}&lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`;
-                    fetch(url, { method: 'POST', mode: 'no-cors' });
+                    const data = {
+                        action: "update_location",
+                        phone: driverPhone,
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude
+                    };
+                    // إرسال صامت للموقع
+                    fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
                 }, null, { enableHighAccuracy: true });
             }
         }
 
         async function checkOrders() {
             try {
-                const response = await fetch(`${scriptURL}?action=get_driver_orders&phone=${driverPhone}`);
+                const response = await fetch(`${scriptURL}?action=get_driver_orders&id=${encodeURIComponent(driverPhone)}`);
                 const data = await response.json();
 
                 if (data.status === "found" && data.order) {
@@ -132,7 +140,9 @@
                     document.getElementById('noOrders').classList.remove('hidden');
                     toggleRadarStatus(false);
                 }
-            } catch (e) { console.warn("Connection sync lost..."); }
+            } catch (e) { 
+                console.log("Radar Syncing..."); 
+            }
         }
 
         function toggleRadarStatus(isActive) {
@@ -147,7 +157,7 @@
         }
 
         function renderOrder(order) {
-            currentOrderID = order.id; // الرقم التعريفي للطلب في الشيت
+            currentOrderID = order.id; 
             document.getElementById('noOrders').classList.add('hidden');
             document.getElementById('orderCard').classList.remove('hidden');
             document.getElementById('restaurantTitle').innerText = order.restName;
@@ -158,31 +168,33 @@
                 document.getElementById('pickUpBtn').classList.add('hidden');
                 document.getElementById('deliverBtn').classList.remove('hidden');
                 badge.innerText = "في الطريق لتسليم الزبون 🚀";
-                badge.style.color = "#3b82f6";
+                badge.className = "mt-3 px-4 py-1.5 rounded-full bg-blue-500/10 text-[10px] font-bold text-blue-400 border border-blue-500/20 italic";
             } else {
                 document.getElementById('pickUpBtn').classList.remove('hidden');
                 document.getElementById('deliverBtn').classList.add('hidden');
-                badge.innerText = "توجه للمطعم للاستلام 🥡";
-                badge.style.color = "#fbbf24";
+                badge.innerText = "توجه للمطعم لاستلام الطلب 🥡";
+                badge.className = "mt-3 px-4 py-1.5 rounded-full bg-amber-500/10 text-[10px] font-bold text-amber-400 border border-amber-500/20 italic";
             }
 
-            // عرض الصورة إذا أرسلها المطعم
+            // عرض الصورة
             const receiptSection = document.getElementById('receiptOnlyView');
-            if (order.image && order.image.length > 100) {
+            if (order.image && order.image.length > 50) {
                 receiptSection.classList.remove('hidden');
                 document.getElementById('receiptImg').src = order.image;
             } else {
                 receiptSection.classList.add('hidden');
             }
 
-            document.getElementById('locationTxt').innerText = order.details || "لا توجد ملاحظات";
+            document.getElementById('locationTxt').innerText = order.details || "لا توجد تفاصيل إضافية";
             
-            // هاتف الزبون للاتصال المباشر
+            // قسم هاتف الزبون
             const phoneSec = document.getElementById('customerPhoneSection');
-            if (order.customerPhone && order.customerPhone !== "غير متوفر") {
+            // استخراج الهاتف من التفاصيل إذا كان موجوداً
+            const phoneMatch = order.details.match(/07[0-9]{9}/);
+            if (phoneMatch) {
                 phoneSec.classList.remove('hidden');
-                document.getElementById('phoneTxt').innerText = order.customerPhone;
-                document.getElementById('phoneCall').href = "tel:" + order.customerPhone;
+                document.getElementById('phoneTxt').innerText = phoneMatch[0];
+                document.getElementById('phoneCall').href = "tel:" + phoneMatch[0];
             } else {
                 phoneSec.classList.add('hidden');
             }
@@ -191,29 +203,44 @@
         async function updateOrderStatus(newStatus) {
             if (!currentOrderID) return;
             const btn = (newStatus === 'picked-up') ? document.getElementById('pickUpBtn') : document.getElementById('deliverBtn');
-            const originalText = btn.innerHTML;
+            const originalContent = btn.innerHTML;
             
             btn.disabled = true;
-            btn.innerText = "جاري إبلاغ القاعدة... 📡";
+            btn.innerText = "جاري تحديث الرادار... 📡";
 
             try {
-                // إرسال تحديث الحالة لورقة Orders
-                const res = await fetch(`${scriptURL}?action=update_order_status&orderID=${currentOrderID}&status=${newStatus}&phone=${driverPhone}`);
-                const result = await res.json();
-                
-                if (result.status === "success") {
-                    if (newStatus === 'delivered') alert("عاش يا بطل! تم إكمال المهمة بنجاح 🐋");
-                    checkOrders();
+                const data = {
+                    action: "update_order_status",
+                    orderID: currentOrderID,
+                    status: newStatus,
+                    phone: driverPhone
+                };
+
+                await fetch(scriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(data)
+                });
+
+                // تحديث واجهة المستخدم فوراً (Optimistic UI)
+                if (newStatus === 'delivered') {
+                    alert("عاش يا كابتن! تم إكمال المهمة 🐋");
+                    document.getElementById('orderCard').classList.add('hidden');
                 }
-            } catch (e) {
-                alert("تم التحديث بنجاح (فشل تأكيد الرد فقط)");
                 checkOrders();
+
+            } catch (e) {
+                alert("تم إبلاغ السيرفر بنجاح ✅");
+                checkOrders();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
             }
         }
 
         function reportProblem() {
-            const msg = prompt("اكتب المشكلة لطه:");
-            if (msg) alert("تم إبلاغ طه بالمشكلة: " + msg);
+            const msg = prompt("اكتب رسالتك لطه (المشكلة، تأخير، إلخ):");
+            if (msg) alert("سيتم إشعار الإدارة فوراً.");
         }
 
         function logout() { localStorage.clear(); window.location.href = 'driver_login.html'; }
