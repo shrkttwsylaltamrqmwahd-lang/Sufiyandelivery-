@@ -41,7 +41,6 @@
             </header>
 
             <form id="smartForm" class="space-y-4">
-                
                 <div>
                     <label>اسم المطعم (الرسمي)</label>
                     <div class="relative">
@@ -51,7 +50,7 @@
                 </div>
 
                 <div>
-                    <label>رقم هاتف التواصل</label>
+                    <label>رقم هاتف التواصل (معرّف الدخول)</label>
                     <div class="relative">
                         <i class="fas fa-phone absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
                         <input type="tel" id="resPhone" required placeholder="07XXXXXXXXX" class="whale-input text-right">
@@ -81,16 +80,16 @@
                 </div>
 
                 <div class="pt-2">
-                    <label>تثبيت الموقع (GPS)</label>
+                    <label>تثبيت الموقع الجغرافي للمطعم</label>
                     <button type="button" onclick="getLocation()" id="locBtn" class="location-btn flex items-center justify-center gap-2">
                         <i class="fas fa-crosshairs"></i>
-                        <span id="locStatus">اضغط لتحديد الموقع بدقة</span>
+                        <span id="locStatus">تثبيت موقع المطعم بالخريطة</span>
                     </button>
                     <input type="hidden" id="resCoords" value="">
                 </div>
 
                 <button type="submit" id="mainBtn" class="w-full py-5 action-btn mt-4 flex items-center justify-center gap-3 italic shadow-xl">
-                    <span id="btnText">إرسال طلب الانضمام</span>
+                    <span id="btnText">إرسال طلب الانضمام للحوت</span>
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </form>
@@ -99,29 +98,31 @@
         <div id="waitMessage" class="hidden text-center py-12">
             <div class="text-6xl mb-6 animate-bounce">⏳</div>
             <h3 class="text-xl font-black text-amber-500 italic uppercase">بانتظار موافقة طه</h3>
-            <p class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">يتم الآن مراجعة بيانات مطعمك.<br>ستتمكن من الدخول فور تفعيل حسابك.</p>
-            <button onclick="logout()" class="mt-10 text-[9px] text-red-500 font-black uppercase border-b border-red-500/30">إلغاء وتغيير البيانات</button>
+            <p class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">يتم مراجعة بياناتك في كركوك.<br>حسابك قيد التفعيل حالياً.</p>
+            <button onclick="logout()" class="mt-10 text-[9px] text-red-500 font-black uppercase border-b border-red-500/30">تعديل البيانات</button>
         </div>
 
         <div id="banMessage" class="hidden text-center py-12">
             <div class="text-6xl mb-6">🚫</div>
-            <h3 class="text-xl font-black text-red-500 italic uppercase">الحساب محظور</h3>
-            <p class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">نأسف، لقد تم تقييد وصول هذا المطعم.<br>يرجى التواصل مع الإدارة.</p>
-            <button onclick="logout()" class="mt-8 text-[9px] text-gray-500">العودة</button>
+            <h3 class="text-xl font-black text-red-500 italic uppercase">تم الحظر من المنظومة</h3>
+            <p class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">لقد تم تقييد وصول هذا المطعم من قبل الإدارة.</p>
+            <button onclick="logout()" class="mt-8 text-[9px] text-gray-500">رجوع</button>
         </div>
 
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyuXWjqrDVJEFUeNbj2WL78NomEzigv_ewkQ9O0NEc7ZIedHqo8qaTbIUe45FkbHyHMzw/exec';
+        // الرابط الجديد الخاص بك V5.0
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxblbNvf-H7QN-TVp6M5GMuN8pVcFMRXpA-7ahrVoKwRc0qj0vUaFaSVBtLJFOEHtVg6g/exec';
 
         window.onload = async () => {
-            const savedName = localStorage.getItem('whale_res_name');
-            if (savedName) {
+            const savedPhone = localStorage.getItem('whale_res_phone');
+            if (savedPhone) {
                 try {
-                    const res = await fetch(`${scriptURL}?action=login_check&type=Restaurant&id=${encodeURIComponent(savedName)}`);
+                    // التحقق من الحالة عبر رقم الهاتف (Phone)
+                    const res = await fetch(`${scriptURL}?action=login_check&type=Restaurant&id=${encodeURIComponent(savedPhone)}`);
                     const result = await res.json();
-                    handleStatus(result, savedName);
+                    handleStatus(result, savedPhone);
                 } catch (e) { showUI('authUI'); }
             } else { showUI('authUI'); }
         };
@@ -130,22 +131,24 @@
             const locBtn = document.getElementById('locBtn');
             const locStatus = document.getElementById('locStatus');
             if (navigator.geolocation) {
-                locStatus.innerText = "جاري الاتصال بالأقمار... 🛰️";
+                locStatus.innerText = "جاري تتبع القمر الصناعي... 🛰️";
                 navigator.geolocation.getCurrentPosition((pos) => {
                     document.getElementById('resCoords').value = `${pos.coords.latitude},${pos.coords.longitude}`;
                     locBtn.classList.add('success');
-                    locStatus.innerText = "تم تثبيت الموقع بنجاح ✅";
+                    locStatus.innerText = "تم تثبيت إحداثيات المطعم ✅";
                 }, () => {
-                    alert("يرجى تفعيل الـ GPS.");
-                    locStatus.innerText = "فشل التحديد - حاول مجدداً";
+                    alert("يرجى تفعيل الـ GPS في متصفحك.");
+                    locStatus.innerText = "خطأ في التحديد - حاول مجدداً";
                 });
             }
         }
 
-        function handleStatus(result, name) {
+        function handleStatus(result, phone) {
             document.getElementById('loader').classList.add('hidden');
             if (result.status === 'active') {
-                localStorage.setItem('whale_res_name', name);
+                localStorage.setItem('whale_res_phone', phone);
+                // تخزين اسم المطعم أيضاً لاستخدامه في الطلبات
+                if(result.data) localStorage.setItem('whale_res_name', result.data[1]); 
                 window.location.href = 'restaurant.html'; 
             } else if (result.status === 'pending') {
                 showUI('waitMessage');
@@ -172,18 +175,19 @@
                 coords: document.getElementById('resCoords').value
             };
 
-            if (!data.coords) return alert("يجب تثبيت الموقع الجغرافي للمطعم أولاً.");
+            if (!data.coords) return alert("يجب الضغط على زر تثبيت الموقع أولاً لضمان وصول السواق إليك.");
 
             btn.disabled = true;
-            document.getElementById('btnText').innerText = "جاري إرسال البيانات... 🚀";
+            document.getElementById('btnText').innerText = "جاري إرسال بياناتك لطه... 🚀";
 
             try {
-                const url = `${scriptURL}?action=login_check&type=Restaurant&register=true&name=${encodeURIComponent(data.name)}&phone=${data.phone}&address=${encodeURIComponent(data.address)}&fee=${data.fee}&commType=${data.commType}&coords=${data.coords}&id=${encodeURIComponent(data.name)}`;
+                // إرسال طلب تسجيل جديد
+                const url = `${scriptURL}?action=login_check&type=Restaurant&register=true&name=${encodeURIComponent(data.name)}&phone=${data.phone}&address=${encodeURIComponent(data.address)}&fee=${data.fee}&commType=${data.commType}&coords=${data.coords}&id=${data.phone}`;
                 const response = await fetch(url);
                 const result = await response.json();
-                handleStatus(result, data.name);
+                handleStatus(result, data.phone);
             } catch (e) {
-                alert("حدث خطأ في الاتصال.");
+                alert("حدث خطأ في الاتصال بالسيرفر الرئيسي.");
                 btn.disabled = false;
             }
         };
