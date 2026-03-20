@@ -16,6 +16,7 @@
         .whale-input:focus { border-color: var(--whale-emerald); background: rgba(16, 185, 129, 0.05); }
         .action-btn { background: var(--whale-emerald); color: #020617; font-weight: 900; clip-path: polygon(4% 0, 100% 0, 96% 100%, 0% 100%); transition: 0.3s; cursor: pointer; }
         label { display: block; text-align: right; font-size: 10px; color: #10b981; font-weight: 900; margin-bottom: 5px; margin-right: 5px; text-transform: uppercase; }
+        .hidden { display: none; }
     </style>
 </head>
 <body class="p-6">
@@ -31,7 +32,7 @@
 
         <div id="authUI" class="hidden">
             <header class="text-center mb-6">
-                <h2 class="text-2xl font-black tracking-widest uppercase italic orbitron">
+                <h2 class="text-2xl font-black tracking-widest uppercase italic" style="font-family: 'Orbitron', sans-serif;">
                     WHALE <span class="text-emerald-500">KITCHEN</span>
                 </h2>
                 <p class="text-[10px] text-gray-400 mt-1 font-bold italic opacity-60">مركز انضمام شركاء الحوت</p>
@@ -58,7 +59,7 @@
                     <label>رابط الموقع من Google Maps</label>
                     <div class="relative">
                         <i class="fas fa-link absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
-                        <input type="url" id="resMapLink" required placeholder="انصق رابط موقع المطعم هنا..." class="whale-input text-right">
+                        <input type="url" id="resMapLink" required placeholder="الصق رابط موقع المطعم هنا..." class="whale-input text-right">
                     </div>
                 </div>
 
@@ -85,8 +86,8 @@
 
         <div id="waitMessage" class="hidden text-center py-12">
             <div class="text-6xl mb-6 animate-bounce">⏳</div>
-            <h3 class="text-xl font-black text-amber-500 italic uppercase">بانتظار تفعيل السيادة</h3>
-            <p class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">طلبك الآن على طاولة الإدارة في كركوك.<br>بمجرد الموافقة، ستفتح لك قمرة قيادة المطعم.</p>
+            <h3 class="text-xl font-black text-amber-500 italic uppercase">بانتظار تفعيل طه</h3>
+            <p id="waitText" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">طلبك الآن على طاولة الإدارة في كركوك.<br>بمجرد الموافقة، ستفتح لك قمرة قيادة المطعم.</p>
             <button onclick="logout()" class="mt-10 text-[9px] text-red-500 font-black uppercase border-b border-red-500/30">إعادة إدخال البيانات</button>
         </div>
 
@@ -100,31 +101,45 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbz-Rgnwclf9OJz2uJuBhD4PqDkY9XI0KCnSDhq1bRI558bxT5YLTTozkpZHky20oX9g/exec';
+        // الرابط الجديد المحدث V6.2 لعام 2026
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw0IyVaO5zgsrFFohgarfB_AkjWyUqZ8UMg-8cYlGQfYymg-eDhE-gDJEq3etTPP635Iw/exec';
 
         window.onload = async () => {
             const savedPhone = localStorage.getItem('whale_res_phone');
             if (savedPhone) {
-                try {
-                    const res = await fetch(`${scriptURL}?action=login_check&type=Restaurant&id=${encodeURIComponent(savedPhone)}`);
-                    const result = await res.json();
-                    handleStatus(result, savedPhone);
-                } catch (e) { showUI('authUI'); }
-            } else { showUI('authUI'); }
+                checkResLogin(savedPhone);
+            } else { 
+                showUI('authUI'); 
+            }
         };
+
+        async function checkResLogin(phone) {
+            try {
+                const res = await fetch(`${scriptURL}?action=login_check&type=Restaurant&id=${encodeURIComponent(phone)}`);
+                const result = await res.json();
+                handleStatus(result, phone);
+            } catch (e) { 
+                console.error("Link error");
+                showUI('authUI'); 
+            }
+        }
 
         function handleStatus(result, phone) {
             document.getElementById('loader').classList.add('hidden');
             if (result.status === 'active') {
                 localStorage.setItem('whale_res_phone', phone);
-                // حفظ البيانات الأساسية لاستخدامها في إرسال الطلبات
                 if (result.data) {
                     localStorage.setItem('whale_res_name', result.data[1]);
-                    localStorage.setItem('whale_res_map', result.data[3]); // حفظ الرابط في الذاكرة
+                    // تخزين رابط الخريطة (العمود الرابع في جدول Restaurants)
+                    localStorage.setItem('whale_res_map', result.data[3]);
+                    // تخزين العمولة الثابتة (العمود السادس)
+                    localStorage.setItem('whale_res_fee', result.data[5]);
                 }
                 window.location.href = 'restaurant.html'; 
             } else if (result.status === 'pending') {
                 showUI('waitMessage');
+                // إعادة الفحص تلقائياً كل دقيقة
+                setTimeout(() => location.reload(), 60000);
             } else if (result.status === 'banned') {
                 showUI('banMessage');
             } else { 
@@ -151,19 +166,17 @@
                 type: "Restaurant",
                 name: document.getElementById('resName').value,
                 phone: resPhone,
-                address: resMapLink, // نرسل الرابط هنا ليتم تخزينه في عمود العنوان/الموقع
+                address: resMapLink, // سيتم تخزينه في عمود الموقع
                 fee: document.getElementById('fixedFee').value,
                 paySystem: document.getElementById('paySystem').value
             };
 
             btn.disabled = true;
-            document.getElementById('btnText').innerText = "جاري إرسال البيانات... 🛰️";
+            document.getElementById('btnText').innerText = "جاري البث للقاعدة... 🛰️";
 
             try {
-                // حفظ البيانات مؤقتاً
                 localStorage.setItem('whale_res_phone', resPhone);
-                localStorage.setItem('whale_res_map', resMapLink);
-
+                
                 await fetch(scriptURL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -172,7 +185,9 @@
                 
                 setTimeout(() => showUI('waitMessage'), 1000);
             } catch (e) {
-                showUI('waitMessage');
+                alert("خطأ في الاتصال، يرجى التحقق من الشبكة.");
+                btn.disabled = false;
+                document.getElementById('btnText').innerText = "إرسال طلب الانضمام";
             }
         };
 
