@@ -12,10 +12,10 @@
         body { background: var(--dark-bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 15px; }
         .header { text-align: center; border-bottom: 2px solid var(--main-gold); padding-bottom: 10px; margin-bottom: 20px; }
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px; }
-        .section-card { background: var(--card-bg); border-radius: 12px; padding: 15px; border: 1px solid #333; height: 500px; overflow-y: auto; }
+        .section-card { background: var(--card-bg); border-radius: 12px; padding: 15px; border: 1px solid #333; height: 450px; overflow-y: auto; }
         .section-card h2 { color: var(--main-gold); border-bottom: 1px solid #444; padding-bottom: 8px; font-size: 1rem; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
         
-        #map { height: 300px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--main-gold); }
+        #map { height: 350px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--main-gold); }
 
         .filter-box { background: #151515; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
         .filter-inputs { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
@@ -35,25 +35,30 @@
         .stat-item { background: #000; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; }
         .stat-item span { display: block; color: var(--main-gold); font-size: 1.1rem; font-weight: bold; }
         
-        small { color: #888; display: block; }
+        /* تنبيه الطلبات الجديدة */
+        .pending-alert { background: rgba(245, 127, 23, 0.1); border: 1px solid #f57f17; color: #f57f17; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>🐋 منظومة الحوت - لوحة السيادة</h1>
-        <p>قطاع كركوك المركزي V5.0</p>
+        <p>قطاع كركوك المركزي | تحديث الرادار الجديد</p>
     </div>
 
-    <div id="login-block" style="text-align: center; margin-top: 50px;">
-        <i class="fas fa-crown" style="font-size: 3rem; color: var(--main-gold); margin-bottom: 20px;"></i><br>
-        <input type="password" id="master-pass" placeholder="أدخل رمز السيادة..." style="padding: 15px; border-radius: 8px; border: 1px solid var(--main-gold); background: #000; color: gold; width: 280px; font-size: 1.1rem; text-align: center;">
+    <div id="login-block" style="text-align: center; mt-12">
+        <i class="fas fa-crown" style="font-size: 3rem; color: var(--main-gold); mb-5"></i><br>
+        <input type="password" id="master-pass" placeholder="أدخل رمز السيادة الجديد..." style="padding: 15px; border-radius: 8px; border: 1px solid var(--main-gold); background: #000; color: gold; width: 280px; font-size: 1.1rem; text-align: center;">
         <br><br>
-        <button class="btn btn-approve" onclick="loadMasterData()" style="padding: 15px 40px; font-weight: bold;">دخول السيادة</button>
+        <button class="btn btn-approve" onclick="loadMasterData()" style="padding: 15px 40px; font-weight: bold;">تأكيد الدخول</button>
     </div>
 
     <div id="main-ui" style="display: none;">
         
+        <div id="pending-section" class="pending-alert" style="display: none;">
+            <i class="fas fa-bell"></i> يوجد <span id="pending-count">0</span> طلبات انضمام جديدة بانتظار موافقتك!
+        </div>
+
         <div id="map"></div>
 
         <div class="filter-box">
@@ -72,57 +77,66 @@
 
         <div class="grid-container">
             <div class="section-card">
-                <h2><i class="fas fa-motorcycle"></i> السواق النشطين</h2>
+                <h2><i class="fas fa-motorcycle"></i> السواق (الموقع والحالة)</h2>
                 <div id="drivers-list"></div>
             </div>
 
             <div class="section-card">
-                <h2><i class="fas fa-utensils"></i> إدارة المطاعم</h2>
+                <h2><i class="fas fa-utensils"></i> المطاعم المتعاقدة</h2>
                 <div id="rests-list"></div>
             </div>
 
             <div class="section-card">
-                <h2><i class="fas fa-history"></i> آخر 20 طلبية</h2>
+                <h2><i class="fas fa-history"></i> مراقبة حركة الطلبات</h2>
                 <div id="orders-list"></div>
             </div>
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxblbNvf-H7QN-TVp6M5GMuN8pVcFMRXpA-7ahrVoKwRc0qj0vUaFaSVBtLJFOEHtVg6g/exec";
+        // الرابط الجديد تم تحديثه هنا
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzctandOPXa8wwohxl9NiNnWdaRhh8d2UKQdFHfPNSPfkv1HQosWXIZ9FT6TjlaPjMJA/exec";
         let rawData = null;
         let map, markers = [];
 
-        // إعداد الخريطة فور التحميل
         function initMap() {
-            map = L.map('map').setView([35.467, 44.392], 12); // إحداثيات كركوك
+            if (map) return;
+            map = L.map('map').setView([35.467, 44.392], 12); 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         }
 
         async function loadMasterData() {
             const pass = document.getElementById('master-pass').value;
             try {
-                const res = await fetch(`${SCRIPT_URL}?action=get_master_data&pass=${pass}`);
+                const res = await fetch(`${SCRIPT_URL}?action=get_master_data&pass=${encodeURIComponent(pass)}`);
                 rawData = await res.json();
 
-                if (rawData.status === "denied") return alert("رمز السيادة مرفوض!");
+                if (rawData.status === "denied") return alert("رمز السيادة غير صحيح!");
                 
                 document.getElementById('login-block').style.display = 'none';
                 document.getElementById('main-ui').style.display = 'block';
-                if(!map) initMap();
+                initMap();
                 renderUI(rawData);
                 updateMapMarkers(rawData.drivers);
-            } catch (e) { alert("فشل في الاتصال بمحرك الحوت!"); }
+            } catch (e) { alert("خطأ في الاتصال بالرادار!"); }
         }
 
         function renderUI(data) {
+            // تحديث قسم التنبيهات
+            if (data.pending && data.pending.length > 0) {
+                document.getElementById('pending-section').style.display = 'block';
+                document.getElementById('pending-count').innerText = data.pending.length;
+            } else {
+                document.getElementById('pending-section').style.display = 'none';
+            }
+
             // رندر السواق
             document.getElementById('drivers-list').innerHTML = data.drivers.map(d => `
-                <div class="item-row">
+                <div class="item-row" style="border-right: 4px solid ${d[4] === 'active' ? '#1b5e20' : '#f57f17'}">
                     <div><b>${d[1]}</b><small>${d[2]}</small></div>
                     <div style="text-align:left">
                         <span class="status-badge ${d[4]}">${d[4]}</span><br>
-                        <button class="btn btn-ban" onclick="control('Drivers', '${d[2]}', 5, 'banned')"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-ban" onclick="control('Drivers', '${d[2]}', 5, 'banned')"><i class="fas fa-user-slash"></i></button>
                         <button class="btn btn-approve" onclick="control('Drivers', '${d[2]}', 5, 'active')"><i class="fas fa-check"></i></button>
                     </div>
                 </div>
@@ -131,7 +145,7 @@
             // رندر المطاعم
             document.getElementById('rests-list').innerHTML = data.restaurants.map(r => `
                 <div class="item-row">
-                    <div><b>${r[1]}</b><small>العمولة: ${r[3]}</small></div>
+                    <div><b>${r[1]}</b><small>${r[3]}</small></div>
                     <div style="text-align:left">
                         <span class="status-badge ${r[4]}">${r[4]}</span><br>
                         <button class="btn btn-ban" onclick="control('Restaurants', '${r[2]}', 5, 'banned')"><i class="fas fa-lock"></i></button>
@@ -153,32 +167,15 @@
             markers.forEach(m => map.removeLayer(m));
             markers = [];
             drivers.forEach(d => {
-                if(d[5] && d[6]) { // إذا توفرت إحداثيات
+                if(d[5] && d[6] && d[4] === 'active') {
                     let m = L.marker([d[5], d[6]]).addTo(map).bindPopup(`السائق: ${d[1]}<br>${d[2]}`);
                     markers.push(m);
                 }
             });
         }
 
-        function applyFinancialFilter() {
-            const from = new Date(document.getElementById('date-from').value);
-            const to = new Date(document.getElementById('date-to').value);
-            let count = 0, total = 0;
-
-            rawData.orders.forEach(o => {
-                const orderDate = new Date(o[7]);
-                if (orderDate >= from && orderDate <= to) {
-                    count++;
-                    total += parseFloat(o[8] || 0);
-                }
-            });
-
-            document.getElementById('stat-count').innerText = count;
-            document.getElementById('stat-profit').innerText = total.toLocaleString() + " د.ع";
-        }
-
         async function control(target, id, col, val) {
-            if(!confirm("هل أنت متأكد من تغيير الحالة؟")) return;
+            if(!confirm("تأكيد تغيير الحالة؟")) return;
             const pass = document.getElementById('master-pass').value;
             await fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -188,7 +185,7 @@
         }
 
         async function releaseOrder(orderID) {
-            if(!confirm("سيتم فصل السائق عن الطلب، هل أنت متأكد؟")) return;
+            if(!confirm("سحب الطلب وإعادته للانتظار؟")) return;
             const pass = document.getElementById('master-pass').value;
             await fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -198,8 +195,24 @@
                 method: 'POST',
                 body: JSON.stringify({ action: 'master_control', pass: pass, targetSheet: 'Orders', targetID: orderID, colIndex: 7, newValue: '' })
             });
-            alert('تم تحرير الطلب');
             loadMasterData();
+        }
+
+        function applyFinancialFilter() {
+            const from = new Date(document.getElementById('date-from').value);
+            const to = new Date(document.getElementById('date-to').value);
+            if(isNaN(from) || isNaN(to)) return alert("اختر التاريخ أولاً");
+            
+            let count = 0, total = 0;
+            rawData.orders.forEach(o => {
+                const orderDate = new Date(o[7]);
+                if (orderDate >= from && orderDate <= to) {
+                    count++;
+                    total += parseFloat(o[8] || 0);
+                }
+            });
+            document.getElementById('stat-count').innerText = count;
+            document.getElementById('stat-profit').innerText = total.toLocaleString() + " د.ع";
         }
     </script>
 </body>
