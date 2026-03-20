@@ -112,7 +112,7 @@
     </div>
 
     <script>
-        // الرابط الجديد V5.0 المطور
+        // الرابط الموحد V5.0
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxzctandOPXa8wwohxl9NiNnWdaRhh8d2UKQdFHfPNSPfkv1HQosWXIZ9FT6TjlaPjMJA/exec';
 
         window.onload = async () => {
@@ -132,11 +132,15 @@
             if (navigator.geolocation) {
                 locStatus.innerText = "جاري تتبع القمر الصناعي... 🛰️";
                 navigator.geolocation.getCurrentPosition((pos) => {
-                    document.getElementById('resCoords').value = `${pos.coords.latitude},${pos.coords.longitude}`;
+                    const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
+                    document.getElementById('resCoords').value = coords;
+                    // حفظ الموقع بشكل ثابت للمطعم لاستخدامه في الإرسال
+                    localStorage.setItem('last_lat', pos.coords.latitude);
+                    localStorage.setItem('last_lng', pos.coords.longitude);
                     locBtn.classList.add('success');
                     locStatus.innerText = "تم تثبيت إحداثيات المطعم ✅";
                 }, () => {
-                    alert("يرجى تفعيل الـ GPS.");
+                    alert("يرجى تفعيل الـ GPS لتثبيت موقع المطعم.");
                     locStatus.innerText = "خطأ في التحديد - حاول مجدداً";
                 });
             }
@@ -146,50 +150,67 @@
             document.getElementById('loader').classList.add('hidden');
             if (result.status === 'active') {
                 localStorage.setItem('whale_res_phone', phone);
-                if(result.data) localStorage.setItem('whale_res_name', result.data[1]); 
+                // تأكد من حفظ الاسم القادم من الشيت
+                if (result.data && result.data[1]) {
+                    localStorage.setItem('whale_res_name', result.data[1]);
+                }
                 window.location.href = 'restaurant.html'; 
             } else if (result.status === 'pending') {
                 showUI('waitMessage');
             } else if (result.status === 'banned') {
                 showUI('banMessage');
-            } else { showUI('authUI'); }
+            } else { 
+                showUI('authUI'); 
+            }
         }
 
         function showUI(id) {
             document.getElementById('loader').classList.add('hidden');
-            document.querySelectorAll('.max-w-md > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById('authUI').classList.add('hidden');
+            document.getElementById('waitMessage').classList.add('hidden');
+            document.getElementById('banMessage').classList.add('hidden');
             document.getElementById(id).classList.remove('hidden');
         }
 
         document.getElementById('smartForm').onsubmit = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('mainBtn');
+            const resName = document.getElementById('resName').value;
+            const resPhone = document.getElementById('resPhone').value;
+
             const data = {
                 action: "register_user",
                 type: "Restaurant",
-                name: document.getElementById('resName').value,
-                phone: document.getElementById('resPhone').value,
+                name: resName,
+                phone: resPhone,
                 address: document.getElementById('resAddress').value,
                 fee: document.getElementById('fixedFee').value,
                 coords: document.getElementById('resCoords').value
             };
 
-            if (!data.coords) return alert("ثبت موقع المطعم أولاً 📍");
+            if (!data.coords) {
+                alert("يرجى تثبيت موقع المطعم بالخريطة أولاً 📍");
+                return;
+            }
 
             btn.disabled = true;
-            document.getElementById('btnText').innerText = "جاري إرسال طلب الانضمام... 🚀";
+            document.getElementById('btnText').innerText = "جاري إرسال طلبك... 🚀";
 
             try {
-                const response = await fetch(scriptURL, {
+                // حفظ الاسم والهاتف محلياً بشكل استباقي
+                localStorage.setItem('whale_res_phone', resPhone);
+                localStorage.setItem('whale_res_name', resName);
+
+                await fetch(scriptURL, {
                     method: 'POST',
+                    mode: 'no-cors', // لضمان الإرسال حتى مع وجود CORS
                     body: JSON.stringify(data)
                 });
-                const result = await response.json();
-                localStorage.setItem('whale_res_phone', data.phone);
-                handleStatus(result, data.phone);
+
+                // بما أننا نستخدم no-cors لن نستلم نتيجة JSON فورية، سنوجهه لصفحة الانتظار
+                showUI('waitMessage');
+
             } catch (e) {
-                // في حالة الـ CORS، نفترض الإرسال وننتظر تفعيل طه
-                localStorage.setItem('whale_res_phone', data.phone);
                 showUI('waitMessage');
             }
         };
