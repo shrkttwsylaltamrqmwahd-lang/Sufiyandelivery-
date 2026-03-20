@@ -18,6 +18,9 @@
         .pulse-emerald { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); animation: pulse 2s infinite; }
         @keyframes pulse { 70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
         .card-hover:hover { border-color: rgba(16, 185, 129, 0.4); transform: translateY(-5px); transition: 0.3s; }
+        .loader-line { width: 100%; height: 3px; position: relative; overflow: hidden; background: rgba(16, 185, 129, 0.1); }
+        .loader-line::after { content: ''; position: absolute; left: -50%; height: 3px; width: 50%; background: #10b981; animation: lineAnim 1.5s infinite linear; }
+        @keyframes lineAnim { from { left: -50%; } to { left: 100%; } }
     </style>
 </head>
 <body class="min-h-screen">
@@ -32,13 +35,14 @@
     </div>
 
     <div id="mainDashboard" class="hidden p-4 md:p-8 pb-24">
+        <div id="loadingLine" class="hidden loader-line sticky top-0 z-[60]"></div>
         
         <header class="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row justify-between items-center bg-slate-900/80 p-6 rounded-[2.5rem] border border-emerald-500/20 shadow-2xl sticky top-4 z-50 glass">
             <div class="flex items-center gap-5">
                 <div class="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center font-black text-slate-900 text-2xl master-font">ح</div>
                 <div>
                     <h1 class="text-xl font-black text-white italic">السيادة المطلقة</h1>
-                    <p class="text-[9px] text-emerald-500 font-bold uppercase tracking-[0.3em] italic">Whale HQ • Kirkuk Sector</p>
+                    <p class="text-[9px] text-emerald-500 font-bold uppercase tracking-[0.3em] italic">Whale HQ • Kirkuk Operational Center</p>
                 </div>
             </div>
             <div class="flex gap-3 mt-6 md:mt-0">
@@ -57,39 +61,39 @@
             </div>
 
             <div id="orders" class="tab-content active glass p-8 rounded-[3rem] border-t-4 border-emerald-500">
-                <h2 class="text-xl font-black text-emerald-400 italic mb-8 flex items-center gap-3"><i class="fas fa-satellite-dish animate-pulse"></i> مراقبة البث المباشر</h2>
+                <h2 class="text-xl font-black text-emerald-400 italic mb-8 flex items-center gap-3"><i class="fas fa-satellite-dish animate-pulse"></i> مراقبة البث المباشر للقطاع</h2>
                 <div id="ordersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <p class="col-span-full text-center opacity-30 italic py-10">جاري مسح القطاع...</p>
+                    <p class="col-span-full text-center opacity-30 italic py-10 text-xs">جاري مسح القطاع بحثاً عن إشارات...</p>
                 </div>
             </div>
 
             <div id="approvals" class="tab-content glass p-8 rounded-[3rem] border-t-4 border-amber-500">
-                <h2 class="text-xl font-black text-amber-500 italic mb-8">طلبات معلقة تحتاج موافقتك</h2>
+                <h2 class="text-xl font-black text-amber-500 italic mb-8 flex items-center gap-3"><i class="fas fa-user-plus"></i> طلبات معلقة (بانتظار الموافقة)</h2>
                 <div id="pendingList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
 
             <div id="finance" class="tab-content glass p-8 rounded-[3rem] border-t-4 border-blue-500">
-                <h2 class="text-xl font-black text-blue-400 italic mb-8 text-center uppercase tracking-widest">إدارة شركاء الحوت</h2>
+                <h2 class="text-xl font-black text-blue-400 italic mb-8 text-center uppercase tracking-widest">محفظة شركاء منظومة الحوت</h2>
                 <div id="entitiesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
         </main>
     </div>
 
     <script>
-        // الرابط المحدث الخاص بك
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbwka4X5EuWllid1JLzvrXvGoYpcMdnEFID7gwrk4TPiHpudxhCWKB7OPT1rvSxeU6YfbA/exec';
-        const MASTER_PASS = "112233"; // رمز السيادة الخاص بك
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyuXWjqrDVJEFUeNbj2WL78NomEzigv_ewkQ9O0NEc7ZIedHqo8qaTbIUe45FkbHyHMzw/exec';
+        const MASTER_PASS = "112233"; // رمز الدخول الخاص بطه
 
         function unlockMaster() {
             if (document.getElementById('adminPass').value === MASTER_PASS) {
                 document.getElementById('lockScreen').classList.add('hidden');
                 document.getElementById('mainDashboard').classList.remove('hidden');
                 fetchData();
-                setInterval(fetchData, 15000); 
+                setInterval(fetchData, 20000); // تحديث آلي كل 20 ثانية
             } else { alert("عذراً طه، الرمز غير صحيح!"); }
         }
 
         async function fetchData() {
+            document.getElementById('loadingLine').classList.remove('hidden');
             try {
                 const response = await fetch(`${scriptURL}?action=get_master_data&pass=${MASTER_PASS}`);
                 const data = await response.json();
@@ -97,27 +101,33 @@
                 renderPending(data.pending || []);
                 renderFinance(data.restaurants || [], data.drivers || []);
             } catch (e) { console.error("Data Sync Fail"); }
+            finally { document.getElementById('loadingLine').classList.add('hidden'); }
         }
 
         function renderOrders(orders) {
             const container = document.getElementById('ordersList');
+            if (orders.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-center opacity-30 italic py-10">لا توجد طلبات نشطة حالياً</p>`;
+                return;
+            }
             container.innerHTML = orders.map(ord => `
-                <div class="bg-white/5 p-6 rounded-[2rem] border border-white/5 card-hover">
+                <div class="bg-white/5 p-6 rounded-[2rem] border border-white/5 card-hover relative overflow-hidden">
                     <div class="flex justify-between items-start mb-4">
-                        <span class="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">ID: ${ord.id}</span>
+                        <span class="text-[9px] font-black text-emerald-500 uppercase">ID: ${ord.id}</span>
                         <span class="status-badge ${ord.status === 'delivered' ? 'bg-emerald-500' : 'bg-blue-600'} text-white italic">${ord.status}</span>
                     </div>
-                    <h3 class="font-black text-white italic mb-2">${ord.restaurantName}</h3>
-                    <p class="text-[10px] text-gray-400 mb-4 line-clamp-2">${ord.details}</p>
-                    <div class="bg-black/40 p-3 rounded-xl mb-4 text-[10px]">
-                        <p class="text-emerald-400 italic">الكابتن: <span class="text-white">${ord.driverPhone || 'بانتظار سائق'}</span></p>
+                    <h3 class="font-black text-white italic text-lg mb-1">${ord.restaurantName}</h3>
+                    <p class="text-[10px] text-gray-400 mb-4 h-8 overflow-hidden">${ord.details}</p>
+                    <div class="bg-black/40 p-3 rounded-xl mb-4 text-[10px] border border-white/5">
+                        <p class="text-emerald-400 italic">الكابتن: <span class="text-white">${ord.driverPhone || 'بانتظار قبول سائق...'}</span></p>
+                        <p class="text-emerald-400 italic mt-1">المنطقة: <span class="text-white">${ord.area || 'غير محددة'}</span></p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="releaseOrder('${ord.id}')" class="flex-1 bg-amber-500/10 text-amber-500 py-3 rounded-xl text-[9px] font-black border border-amber-500/20 active:scale-95">سحب الطلب 🔓</button>
-                        <a href="https://wa.me/${ord.driverPhone}" class="bg-emerald-500 text-slate-900 px-4 py-3 rounded-xl flex items-center"><i class="fab fa-whatsapp"></i></a>
+                        <button onclick="releaseOrder('${ord.id}')" class="flex-1 bg-amber-500/10 text-amber-500 py-3 rounded-xl text-[9px] font-black border border-amber-500/20 hover:bg-amber-500 hover:text-black transition-all">سحب وإلغاء 🔓</button>
+                        ${ord.driverPhone ? `<a href="https://wa.me/${ord.driverPhone}" class="bg-emerald-500 text-slate-900 px-4 py-3 rounded-xl flex items-center justify-center hover:bg-emerald-400"><i class="fab fa-whatsapp"></i></a>` : ''}
                     </div>
                 </div>
-            `).join('') || '<p class="col-span-full text-center opacity-30 italic">لا توجد إشارات نشطة حالياً</p>';
+            `).join('');
         }
 
         function renderPending(pending) {
@@ -127,16 +137,15 @@
                 countBadge.innerText = pending.length; countBadge.classList.remove('hidden');
                 container.innerHTML = pending.map(user => `
                     <div class="bg-amber-500/5 border border-amber-500/20 p-6 rounded-[2rem] text-center">
-                        <span class="text-[8px] bg-amber-500 text-black px-3 py-1 rounded-full font-black uppercase mb-3 inline-block">${user.type === 'Driver' ? 'كابتن' : 'مطعم'}</span>
+                        <span class="text-[8px] bg-amber-500 text-black px-3 py-1 rounded-full font-black uppercase mb-3 inline-block">${user.type === 'Driver' ? 'كابتن ميداني' : 'شريك مطعم'}</span>
                         <h4 class="font-black text-white text-lg">${user.name}</h4>
                         <p class="text-xs text-gray-500 font-mono mb-6">${user.phone}</p>
                         <div class="flex gap-2">
-                            <button onclick="approveUser('${user.phone}', '${user.type}')" class="flex-1 bg-amber-500 text-black py-4 rounded-xl font-black italic shadow-lg active:scale-95 transition-all">تفعيل ✅</button>
-                            <button onclick="rejectUser('${user.phone}', '${user.type}')" class="bg-red-500/20 text-red-500 px-5 py-4 rounded-xl border border-red-500/20"><i class="fas fa-trash"></i></button>
+                            <button onclick="approveUser('${user.phone}', '${user.type}')" class="flex-1 bg-amber-500 text-black py-4 rounded-xl font-black italic shadow-lg active:scale-95 hover:bg-amber-400 transition-all">تفعيل الحساب ✅</button>
                         </div>
                     </div>
                 `).join('');
-            } else { countBadge.classList.add('hidden'); container.innerHTML = '<p class="col-span-full text-center opacity-30 italic py-10">لا توجد طلبات معلقة</p>'; }
+            } else { countBadge.classList.add('hidden'); container.innerHTML = '<p class="col-span-full text-center opacity-30 italic py-10">لا توجد طلبات انضمام جديدة</p>'; }
         }
 
         function renderFinance(restaurants, drivers) {
@@ -147,14 +156,16 @@
                 <div class="bg-slate-900 border border-white/5 p-6 rounded-[2.5rem] relative group card-hover">
                     <div class="flex justify-between items-start mb-6">
                         <div>
-                            <span class="text-[8px] text-gray-500 uppercase font-black tracking-widest">${item.type === 'Driver' ? 'كابتن ميداني' : 'شريك مطعم'}</span>
+                            <span class="text-[8px] text-gray-500 uppercase font-black tracking-widest">${item.type === 'Driver' ? 'كابتن' : 'مطعم'}</span>
                             <h3 class="text-lg font-black text-white italic">${item.name}</h3>
                         </div>
-                        <p class="text-emerald-500 text-xl font-black">${item.wallet} <span class="text-[8px]">IQD</span></p>
+                        <div class="text-left">
+                            <p class="text-emerald-500 text-xl font-black">${Number(item.wallet).toLocaleString()} <span class="text-[8px]">د.ع</span></p>
+                        </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2 mb-4">
-                        <button onclick="clearWallet('${item.phone}', '${item.type}')" class="bg-blue-600 text-white py-4 rounded-xl font-black text-[10px] italic shadow-lg active:scale-95 transition-all">تصفية 💰</button>
-                        <button onclick="banUser('${item.phone}', '${item.type}')" class="bg-red-500/10 text-red-500 py-4 rounded-xl font-black text-[10px] border border-red-500/20 active:scale-95 transition-all">حظر 🚫</button>
+                        <button onclick="clearWallet('${item.phone}', '${item.type}')" class="bg-blue-600/20 text-blue-400 py-4 rounded-xl font-black text-[10px] italic border border-blue-600/20 hover:bg-blue-600 hover:text-white transition-all">تصفية 💰</button>
+                        <button onclick="banUser('${item.phone}', '${item.type}')" class="bg-red-500/10 text-red-500 py-4 rounded-xl font-black text-[10px] border border-red-500/20 hover:bg-red-500 hover:text-white transition-all">حظر 🚫</button>
                     </div>
                     <div class="flex justify-center gap-6 opacity-40 group-hover:opacity-100 transition-all">
                         <a href="tel:${item.phone}" class="text-white text-sm"><i class="fas fa-phone"></i></a>
@@ -164,28 +175,29 @@
             `).join('');
         }
 
-        // الأوامر المركزية
+        // الأوامر السيادية
         async function approveUser(phone, type) {
+            if(!confirm("هل توافق على تفعيل هذا الشريك؟")) return;
             await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'approve_user', phone, type, pass: MASTER_PASS }) });
-            alert("تم تفعيل الشريك بنجاح!"); fetchData();
+            fetchData();
         }
 
         async function clearWallet(phone, type) {
-            if(!confirm("هل أنت متأكد من تصفير محفظة هذا المستخدم؟")) return;
+            if(!confirm("تنبيه: سيتم تصفير المحفظة وتسوية الحساب المالي. استمرار؟")) return;
             await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'clear_wallet', phone, type, pass: MASTER_PASS }) });
-            alert("تمت تسوية الحساب."); fetchData();
+            fetchData();
         }
 
         async function banUser(phone, type) {
-            if(!confirm("سيتم حظر المستخدم نهائياً ومنعه من الدخول. هل أنت متأكد؟")) return;
+            if(!confirm("حظر نهائي؟ لن يتمكن من الدخول للمنظومة مرة أخرى.")) return;
             await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'ban_user', phone, type, pass: MASTER_PASS }) });
-            alert("تم الحظر بنجاح."); fetchData();
+            fetchData();
         }
 
         async function releaseOrder(orderID) {
-            if(!confirm("سحب الطلب سيعيده إلى الرادار ليأخذه سائق آخر. استمرار؟")) return;
+            if(!confirm("سيتم سحب الطلب وإعادته للرادار العام. هل أنت متأكد؟")) return;
             await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: 'release_order', orderID, pass: MASTER_PASS }) });
-            alert("تم سحب الطلب بنجاح."); fetchData();
+            fetchData();
         }
 
         function showTab(tabId) {
