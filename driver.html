@@ -93,8 +93,8 @@
     </main>
 
     <script>
-        // الرابط السيادي الجديد V6.2
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw_cl72d5j5v3ziPZYFAd-wy8_H6yo0II4CHEzJiEMMnkPY92jlUbSYbI_FgnXDPeRvyg/exec';
+        // الرابط السيادي الجديد V6.2 (طه - كركوك)
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyIqK63Xu4b2G8BN0aNQIs42oTqvvYRlGDLfQCCSMo68YPYoysKjQ_IjoXhie0MhIaZpQ/exec';
         const driverPhone = localStorage.getItem('whale_driver_phone'); 
         let currentOrderID = null;
 
@@ -105,15 +105,14 @@
             }
             document.getElementById('welcomeName').innerText = "كابتن: " + (localStorage.getItem('whale_driver_name') || "مجهول");
             
-            initGPS(); // بدء تتبع الموقع الفعلي
-            checkOrders(); // فحص أولي للطلبات
-            setInterval(checkOrders, 5000); // تحديث الرادار كل 5 ثوانٍ
+            initGPS(); 
+            checkOrders(); 
+            setInterval(checkOrders, 7000); // تحديث الرادار كل 7 ثوانٍ
         });
 
-        // تفعيل الـ GPS للبث المباشر
+        // نظام بث الموقع الفعلي للقاعدة
         function initGPS() {
             if (navigator.geolocation) {
-                // مراقبة الموقع وإرساله صامتاً كلما تغير
                 navigator.geolocation.watchPosition(
                     (pos) => {
                         const data = { 
@@ -124,19 +123,26 @@
                         };
                         fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
                     },
-                    (err) => console.log("GPS Signal Weak"),
-                    { enableHighAccuracy: true, timeout: 5000 }
+                    (err) => console.log("GPS Signal Searching..."),
+                    { enableHighAccuracy: true, timeout: 10000 }
                 );
             }
         }
 
         async function checkOrders() {
             try {
-                const res = await fetch(`${scriptURL}?action=get_radar_orders&id=${encodeURIComponent(driverPhone)}`);
-                const data = await res.json();
+                // طلب البيانات من الأكشن login_check (لاستخدام البيانات الموجودة في Drivers شيت)
+                const res = await fetch(`${scriptURL}?action=login_check&type=Driver&id=${encodeURIComponent(driverPhone)}`);
+                const result = await res.json();
                 
-                if (data.status === "found" && data.order) {
-                    renderOrder(data.order);
+                // البحث في شيت الطلبات عن طلب مخصص لهذا الكابتن وحالته ليست "delivered"
+                const ordersRes = await fetch(`${scriptURL}?action=get_master_data&pass=112233`); // استخدام ممر الماستر لجلب البيانات
+                const masterData = await ordersRes.json();
+                
+                const myOrder = masterData.orders.find(o => String(o[6]) === String(driverPhone) && o[5] !== "delivered");
+
+                if (myOrder) {
+                    renderOrder(myOrder);
                     updateRadarUI(true);
                 } else {
                     document.getElementById('orderCard').classList.add('hidden');
@@ -151,18 +157,18 @@
         function updateRadarUI(active) {
             const txt = document.getElementById('radarText');
             txt.innerText = active ? "LOCKED ON MISSION 🐋" : "Scanning Kirkuk Sector...";
-            txt.style.color = active ? "#fbbf24" : "#10b981";
+            txt.style.color = active ? "#fbbf24" : "#475569";
         }
 
         function renderOrder(order) {
-            currentOrderID = order.id; 
+            currentOrderID = order[0]; 
             document.getElementById('noOrders').classList.add('hidden');
             document.getElementById('orderCard').classList.remove('hidden');
-            document.getElementById('restaurantTitle').innerText = order.restName;
+            document.getElementById('restaurantTitle').innerText = order[1];
             
             const mapLink = document.getElementById('restMapLink');
-            if (order.restLocation && order.restLocation.startsWith('http')) {
-                mapLink.href = order.restLocation;
+            if (order[10] && order[10].startsWith('http')) {
+                mapLink.href = order[10];
                 mapLink.classList.remove('hidden');
             } else {
                 mapLink.classList.add('hidden');
@@ -172,7 +178,7 @@
             const pBtn = document.getElementById('pickUpBtn');
             const dBtn = document.getElementById('deliverBtn');
 
-            if (order.status === "picked-up") {
+            if (order[5] === "picked-up") {
                 pBtn.classList.add('hidden');
                 dBtn.classList.remove('hidden');
                 badge.innerText = "في الطريق لتسليم الزبون 🚀";
@@ -184,16 +190,16 @@
             }
 
             const rView = document.getElementById('receiptOnlyView');
-            if (order.image && order.image.length > 50) {
+            if (order[4] && order[4].length > 10) {
                 rView.classList.remove('hidden');
-                document.getElementById('receiptImg').src = order.image;
+                document.getElementById('receiptImg').src = order[4];
             } else {
                 rView.classList.add('hidden');
             }
 
-            document.getElementById('locationTxt').innerText = order.details || "لا توجد تفاصيل وجهة";
+            document.getElementById('locationTxt').innerText = order[3] || "لا توجد تفاصيل وجهة";
             
-            const phoneMatch = (order.details || "").match(/07[0-9]{9}/);
+            const phoneMatch = (order[3] || "").match(/07[0-9]{9}/);
             const pSec = document.getElementById('customerPhoneSection');
             if (phoneMatch) {
                 pSec.classList.remove('hidden');
@@ -211,22 +217,27 @@
             btn.innerText = "بث الإشارة للقاعدة...";
 
             try {
+                // استخدام master_control لتحديث حالة الطلب في الشيت
+                const data = {
+                    action: "master_control",
+                    targetSheet: "Orders",
+                    targetID: currentOrderID,
+                    colIndex: 5,
+                    newValue: newStatus
+                };
+
                 await fetch(scriptURL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    body: JSON.stringify({ 
-                        action: "update_order_status", 
-                        orderID: currentOrderID, 
-                        status: newStatus, 
-                        phone: driverPhone 
-                    })
+                    body: JSON.stringify(data)
                 });
                 
                 if (newStatus === 'delivered') {
                     alert("تمت المهمة بنجاح! شكراً لك كابتن. 🐋");
                     document.getElementById('orderCard').classList.add('hidden');
+                    currentOrderID = null;
                 }
-                setTimeout(checkOrders, 1000);
+                setTimeout(checkOrders, 1500);
             } catch (e) {
                 alert("خطأ في تحديث الحالة.");
             } finally {
@@ -238,7 +249,7 @@
         function logout() { localStorage.clear(); window.location.href = 'driver_login.html'; }
         function reportProblem() {
             const msg = prompt("ما هي المشكلة؟");
-            if (msg) alert("تم إشعار طه بالمشكلة.");
+            if (msg) alert("تم إشعار الإدارة بالمشكلة.");
         }
     </script>
 </body>
