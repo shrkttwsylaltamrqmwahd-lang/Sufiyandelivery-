@@ -103,8 +103,8 @@
     </div>
 
     <script>
-        // الرابط الجديد المحدث V6.2 لعام 2026
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw_cl72d5j5v3ziPZYFAd-wy8_H6yo0II4CHEzJiEMMnkPY92jlUbSYbI_FgnXDPeRvyg/exec';
+        // الرابط السيادي (طه - كركوك) V6.2
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyIqK63Xu4b2G8BN0aNQIs42oTqvvYRlGDLfQCCSMo68YPYoysKjQ_IjoXhie0MhIaZpQ/exec';
         let currentMode = 'manual';
         let base64Image = null;
 
@@ -150,19 +150,20 @@
             const btn = document.getElementById('submitBtn');
             const toast = document.getElementById('toast');
             
-            // بيانات المطعم من الذاكرة المحلية
+            // سحب بيانات المطعم المحفوظة محلياً
             const resName = localStorage.getItem('whale_res_name');
+            const resPhone = localStorage.getItem('whale_res_phone');
             const resMap = localStorage.getItem('whale_res_map') || ""; 
             const fee = localStorage.getItem('whale_res_fee') || 0;
-            const resPhone = localStorage.getItem('whale_res_phone');
-            
-            // الإحداثيات (سيتم سحبها من الذاكرة إذا كانت مخزنة عند الدخول)
             const resLat = localStorage.getItem('whale_res_lat') || 0;
             const resLng = localStorage.getItem('whale_res_lng') || 0;
 
             const area = document.getElementById('locationSelect').value;
-            const customerPhone = document.getElementById('customerPhone').value || "غير مسجل";
-            const userDetails = document.getElementById('details').value || "بدون تفاصيل إضافية";
+            const customerPhone = document.getElementById('customerPhone').value || "";
+            const userDetails = document.getElementById('details').value || "";
+
+            // تجميع النص النهائي للبيانات
+            const finalDetails = `${area} - ${userDetails} | هاتف: ${customerPhone}`;
 
             const orderData = {
                 action: 'restaurant_send_order',
@@ -171,11 +172,9 @@
                 restLocation: resMap,
                 lat: resLat, 
                 lng: resLng,
-                type: currentMode === 'camera' ? 'تصوير وصل' : 'يدوي',
-                area: area,
-                details: `الزبون: ${customerPhone} | العنوان: ${userDetails}`,
+                details: finalDetails,
                 fee: fee,
-                image: base64Image
+                image: base64Image || "" 
             };
 
             btn.disabled = true;
@@ -199,7 +198,7 @@
                 }, 3000);
 
             } catch (err) {
-                alert("فشل الاتصال برادار كركوك.");
+                alert("فشل في الوصول للقاعدة، يرجى إعادة المحاولة.");
                 btn.disabled = false;
                 btn.innerHTML = `<span>بث الطلبية الآن</span>`;
             }
