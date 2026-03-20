@@ -24,7 +24,7 @@
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-900 font-black shadow-lg">🐋</div>
             <div>
-                <p class="text-[8px] text-emerald-500 font-black uppercase tracking-widest italic">Al-Hut Kitchen Hub</p>
+                <p class="text-[8px] text-emerald-500 font-black uppercase tracking-widest italic">Al-Hut Kitchen Hub V6.2</p>
                 <h1 id="displayResName" class="text-xs font-black text-white italic tracking-wider">جاري التوثيق...</h1>
             </div>
         </div>
@@ -35,7 +35,7 @@
         
         <div class="text-center mb-6">
             <h2 class="text-xl font-black italic">إرسال سريع للرادار 🚀</h2>
-            <p class="text-[9px] text-emerald-500 font-bold uppercase tracking-widest mt-1">يتم بث موقع المطعم تلقائياً 📍</p>
+            <p class="text-[9px] text-emerald-500 font-bold uppercase tracking-widest mt-1">يتم بث موقع المطعم والبيانات تلقائياً 📍</p>
         </div>
 
         <div class="flex gap-2 mb-6 bg-white/5 p-1 rounded-2xl">
@@ -104,7 +104,7 @@
 
     <script>
         // الرابط الجديد المحدث V6.2 لعام 2026
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw0IyVaO5zgsrFFohgarfB_AkjWyUqZ8UMg-8cYlGQfYymg-eDhE-gDJEq3etTPP635Iw/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw_cl72d5j5v3ziPZYFAd-wy8_H6yo0II4CHEzJiEMMnkPY92jlUbSYbI_FgnXDPeRvyg/exec';
         let currentMode = 'manual';
         let base64Image = null;
 
@@ -150,12 +150,16 @@
             const btn = document.getElementById('submitBtn');
             const toast = document.getElementById('toast');
             
-            // جلب البيانات من الذاكرة المحلية (التي تم حفظها أثناء تسجيل الدخول)
+            // بيانات المطعم من الذاكرة المحلية
             const resName = localStorage.getItem('whale_res_name');
             const resMap = localStorage.getItem('whale_res_map') || ""; 
             const fee = localStorage.getItem('whale_res_fee') || 0;
             const resPhone = localStorage.getItem('whale_res_phone');
             
+            // الإحداثيات (سيتم سحبها من الذاكرة إذا كانت مخزنة عند الدخول)
+            const resLat = localStorage.getItem('whale_res_lat') || 0;
+            const resLng = localStorage.getItem('whale_res_lng') || 0;
+
             const area = document.getElementById('locationSelect').value;
             const customerPhone = document.getElementById('customerPhone').value || "غير مسجل";
             const userDetails = document.getElementById('details').value || "بدون تفاصيل إضافية";
@@ -164,7 +168,9 @@
                 action: 'restaurant_send_order',
                 restName: resName,
                 restPhone: resPhone,
-                restLocation: resMap, // إرسال رابط الخريطة المخزن
+                restLocation: resMap,
+                lat: resLat, 
+                lng: resLng,
                 type: currentMode === 'camera' ? 'تصوير وصل' : 'يدوي',
                 area: area,
                 details: `الزبون: ${customerPhone} | العنوان: ${userDetails}`,
@@ -173,10 +179,9 @@
             };
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> جاري البث للقاعدة...`;
+            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> جاري بث الإشارة...`;
             
             try {
-                // إرسال البيانات للسكريبت
                 await fetch(scriptURL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -194,9 +199,9 @@
                 }, 3000);
 
             } catch (err) {
-                alert("خطأ في الاتصال بالرادار. تأكد من الإنترنت.");
+                alert("فشل الاتصال برادار كركوك.");
                 btn.disabled = false;
-                btn.innerHTML = `<span>إعادة المحاولة</span>`;
+                btn.innerHTML = `<span>بث الطلبية الآن</span>`;
             }
         };
 
