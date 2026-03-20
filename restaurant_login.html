@@ -108,7 +108,6 @@
     </div>
 
     <script>
-        // الرابط الجديد المحدث V6.2 لعام 2026 (طه - كركوك)
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyIqK63Xu4b2G8BN0aNQIs42oTqvvYRlGDLfQCCSMo68YPYoysKjQ_IjoXhie0MhIaZpQ/exec';
 
         window.onload = async () => {
@@ -126,23 +125,24 @@
                 const result = await res.json();
                 handleStatus(result, phone);
             } catch (e) { 
+                console.error("Login Error:", e);
                 showUI('authUI'); 
             }
         }
 
         function handleStatus(result, phone) {
-            document.getElementById('loader').classList.add('hidden');
             if (result.status === 'active') {
                 localStorage.setItem('whale_res_phone', phone);
                 if (result.data) {
                     localStorage.setItem('whale_res_name', result.data[1]);
                     localStorage.setItem('whale_res_map', result.data[3]);
                     localStorage.setItem('whale_res_fee', result.data[5]);
+                    localStorage.setItem('whale_res_lat', result.data[8] || 0);
+                    localStorage.setItem('whale_res_lng', result.data[9] || 0);
                 }
                 window.location.href = 'restaurant.html'; 
             } else if (result.status === 'pending') {
                 showUI('waitMessage');
-                // إعادة المحاولة كل 30 ثانية للكشف عن التفعيل التلقائي
                 setTimeout(() => location.reload(), 30000);
             } else if (result.status === 'banned') {
                 showUI('banMessage');
@@ -174,42 +174,42 @@
             e.preventDefault();
             const btn = document.getElementById('mainBtn');
             const statusDiv = document.getElementById('gpsStatus');
+            const btnSpan = document.getElementById('btnText');
             
             btn.disabled = true;
             statusDiv.classList.remove('hidden');
-            const btnSpan = document.getElementById('btnText');
-            btnSpan.innerText = "جاري معايرة الموقع...";
+            btnSpan.innerText = "جاري تحديد الموقع...";
 
-            // سحب إحداثيات المطعم لضبطها في القاعدة
             const coords = await getCoords();
 
-            const data = {
-                action: "register_user",
-                type: "Restaurant",
-                name: document.getElementById('resName').value,
-                phone: document.getElementById('resPhone').value,
-                address: document.getElementById('resMapLink').value,
-                fee: document.getElementById('fixedFee').value,
-                paySystem: document.getElementById('paySystem').value,
-                lat: coords.lat, 
-                lng: coords.lng  
-            };
+            const formData = new FormData();
+            formData.append('action', 'register_user');
+            formData.append('type', 'Restaurant');
+            formData.append('name', document.getElementById('resName').value);
+            formData.append('phone', document.getElementById('resPhone').value);
+            formData.append('address', document.getElementById('resMapLink').value);
+            formData.append('fee', document.getElementById('fixedFee').value);
+            formData.append('paySystem', document.getElementById('paySystem').value);
+            formData.append('lat', coords.lat);
+            formData.append('lng', coords.lng);
 
             btnSpan.innerText = "بث البيانات للقاعدة...";
 
             try {
-                // حفظ الرقم محلياً قبل الإرسال
-                localStorage.setItem('whale_res_phone', data.phone);
-                
-                await fetch(scriptURL, {
+                // استخدام POST مع إرسال البيانات كـ URLSearchParams لضمان التوافق العالي
+                const response = await fetch(scriptURL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(data)
+                    body: new URLSearchParams(Object.fromEntries(formData))
                 });
                 
-                setTimeout(() => showUI('waitMessage'), 1500);
+                // حفظ الرقم للدخول لاحقاً
+                localStorage.setItem('whale_res_phone', document.getElementById('resPhone').value);
+                localStorage.setItem('whale_res_lat', coords.lat);
+                localStorage.setItem('whale_res_lng', coords.lng);
+                
+                showUI('waitMessage');
             } catch (e) {
-                alert("تعذر الاتصال بالرادار. يرجى التحقق من الشبكة.");
+                alert("حدث خطأ أثناء الإرسال. يرجى التأكد من الإنترنت أو الرابط.");
                 btn.disabled = false;
                 statusDiv.classList.add('hidden');
                 btnSpan.innerText = "إعادة المحاولة";
