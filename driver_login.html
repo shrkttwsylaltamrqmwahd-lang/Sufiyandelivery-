@@ -67,14 +67,14 @@
         <div id="statusMessage" class="hidden text-center py-12">
             <div id="statusIcon" class="text-6xl mb-6">🛰️</div>
             <h3 id="statusTitle" class="text-xl font-black text-amber-500 italic uppercase">بانتظار الإشارة</h3>
-            <p id="statusDesc" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">يتم مراجعة طلبك من قبل طه.<br>سيفتح الرادار تلقائياً فور التفعيل.</p>
+            <p id="statusDesc" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">يتم مراجعة طلبك من قبل الإدارة.<br>سيفتح الرادار تلقائياً فور التفعيل.</p>
             <button onclick="logout()" class="mt-10 text-[9px] text-red-500 font-black border-b border-red-500/30 pb-1 italic">خروج / تغيير البيانات</button>
         </div>
     </div>
 
     <script>
-        // الرابط الجديد V6.1 المحدث
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbypXnyeduY_p9Ax-BWJC-u_dYMU7q-zZ8MSv_7o3BWNtBZdYxNo3h7CX0OVR_GGbZr5ew/exec';
+        // الرابط المحدث V6.1.3
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz-Rgnwclf9OJz2uJuBhD4PqDkY9XI0KCnSDhq1bRI558bxT5YLTTozkpZHky20oX9g/exec';
 
         window.onload = async () => {
             const savedPhone = localStorage.getItem('whale_driver_phone');
@@ -92,7 +92,8 @@
             if (result.status === 'active') {
                 localStorage.setItem('whale_driver_phone', phone);
                 if (result.data) localStorage.setItem('whale_driver_name', result.data[1]); 
-                window.location.href = 'driver_dashboard.html';
+                // التوجيه للوحة الكابتن (تأكد أن الاسم مطابق لملفك)
+                window.location.href = 'driver.html';
             } else if (result.status === 'pending') {
                 showStatusView('pending');
             } else if (result.status === 'banned') {
@@ -122,13 +123,12 @@
 
             try {
                 if (!regFields.classList.contains('hidden')) {
-                    // تسجيل جديد
+                    // إرسال طلب تسجيل جديد
                     const regData = {
                         action: "register_user",
                         type: "Driver",
                         name: name,
-                        phone: phone,
-                        password: "123" // باسوورد افتراضي
+                        phone: phone
                     };
                     
                     await fetch(scriptURL, {
@@ -138,9 +138,9 @@
                     });
                     
                     localStorage.setItem('whale_driver_phone', phone);
-                    showStatusView('pending');
+                    setTimeout(() => showStatusView('pending'), 1000);
                 } else {
-                    // دخول عادي
+                    // محاولة دخول عادي
                     const response = await fetch(`${scriptURL}?action=login_check&type=Driver&id=${encodeURIComponent(phone)}`);
                     const result = await response.json();
 
@@ -148,13 +148,14 @@
                         regFields.classList.remove('hidden');
                         document.getElementById('driverName').required = true;
                         btn.disabled = false;
-                        btnText.innerText = "إرسال طلب انضمام كابتن";
+                        btnText.innerText = "إرسال طلب انضمام";
                     } else {
                         localStorage.setItem('whale_driver_phone', phone);
                         handleDriverStatus(result, phone);
                     }
                 }
             } catch (e) {
+                // في حالة فشل الاتصال، نظهر واجهة الانتظار كإجراء احتياطي
                 localStorage.setItem('whale_driver_phone', phone);
                 showStatusView('pending');
             }
@@ -170,11 +171,11 @@
                 title.innerText = "الوصول محظور";
                 title.style.color = "#ef4444";
                 icon.innerText = "🚫";
-                desc.innerText = "لقد تم تقييد وصول هذا الكابتن.\nيرجى التواصل مع إدارة الحوت.";
+                desc.innerText = "لقد تم تقييد وصول هذا الكابتن من قبل الإدارة.";
             } else {
-                title.innerText = "بانتظار موافقة طه";
+                title.innerText = "بانتظار موافقة الإدارة";
                 icon.innerText = "🛰️";
-                desc.innerText = "طلب انضمامك قيد المراجعة حالياً.\nسيتم تفعيل الرادار لك فور الموافقة من طه.";
+                desc.innerText = "طلب انضمامك قيد المراجعة حالياً.\nسيفتح الرادار لك فور التفعيل.";
             }
         }
 
