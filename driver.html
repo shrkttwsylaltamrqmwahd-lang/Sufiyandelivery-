@@ -42,34 +42,38 @@
         <div id="orderCard" class="receipt-card p-6 rounded-[2.5rem] relative overflow-hidden hidden active-mission">
             <div class="mb-6 flex flex-col items-center border-b border-white/5 pb-6 text-center">
                 <span class="text-[8px] bg-amber-500 text-black px-3 py-0.5 rounded-full font-black uppercase mb-3 italic tracking-widest">مهمة قتالية نشطة</span>
-                <h2 id="restaurantTitle" class="text-2xl font-black text-white italic tracking-tight">اسم المطعم</h2>
-                <div id="orderStatusBadge" class="mt-3 px-4 py-1.5 rounded-full bg-white/5 text-[10px] font-bold text-amber-400 border border-amber-500/20 italic">بانتظار التحرك</div>
                 
-                <a id="restMapLink" href="#" target="_blank" class="mt-4 flex items-center gap-2 text-amber-400 bg-amber-500/10 px-4 py-2 rounded-full border border-amber-500/30 text-[10px] font-black italic hover:bg-amber-500/20 transition-all">
-                    <i class="fas fa-location-arrow"></i>
-                    <span>فتح موقع المطعم (Google Maps)</span>
+                <h2 id="restaurantTitle" class="text-2xl font-black text-white italic tracking-tight">اسم المطعم</h2>
+                
+                <div id="restaurantArea" class="text-amber-400 font-black text-xs mt-1 italic">📍 جاري تحديد المنطقة...</div>
+
+                <div id="orderStatusBadge" class="mt-4 px-4 py-1.5 rounded-full bg-white/5 text-[10px] font-bold text-amber-400 border border-amber-500/20 italic">بانتظار التحرك</div>
+                
+                <a id="restMapLink" href="#" target="_blank" class="mt-4 flex items-center gap-2 text-white bg-blue-600 px-5 py-3 rounded-full shadow-lg text-[11px] font-black italic active:scale-95 transition-all">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>التوجه إلى موقع المطعم (Maps)</span>
                 </a>
             </div>
 
             <div id="receiptOnlyView" class="hidden space-y-4 mb-6">
                 <p class="text-[9px] text-gray-500 font-black text-center italic uppercase">انقر على الوصل للتكبير 🔍</p>
-                <div class="rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-                    <img id="receiptImg" src="" class="img-zoom" alt="Receipt">
+                <div class="rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black text-center">
+                    <img id="receiptImg" src="" class="img-zoom mx-auto" alt="Receipt">
                 </div>
             </div>
 
             <div id="manualInfoView" class="space-y-4">
                 <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
-                    <p class="text-[8px] text-gray-500 font-black uppercase italic mb-1">📍 تفاصيل الوجهة والملاحظات</p>
+                    <p class="text-[8px] text-gray-400 font-black uppercase italic mb-1">🏠 عنوان الزبون والملاحظات</p>
                     <p id="locationTxt" class="text-sm font-black text-white italic leading-relaxed text-right">جاري جلب البيانات...</p>
                 </div>
                 
-                <div id="customerPhoneSection" class="bg-blue-500/5 p-4 rounded-2xl border border-blue-500/20 flex justify-between items-center hidden">
+                <div id="customerPhoneSection" class="bg-emerald-500/5 p-4 rounded-2xl border border-emerald-500/20 flex justify-between items-center hidden">
                     <div>
-                        <p class="text-[8px] text-blue-400 font-black uppercase italic mb-1">📞 اتصال سريع بالزبون</p>
-                        <p id="phoneTxt" class="text-lg font-black text-blue-400 font-mono tracking-widest italic">077XXXXXXXX</p>
+                        <p class="text-[8px] text-emerald-400 font-black uppercase italic mb-1">📞 هاتف الزبون</p>
+                        <p id="phoneTxt" class="text-lg font-black text-emerald-400 font-mono tracking-widest italic">077XXXXXXXX</p>
                     </div>
-                    <a id="phoneCall" href="#" class="bg-blue-600 w-12 h-12 rounded-2xl text-white shadow-lg shadow-blue-900/40 flex items-center justify-center text-xl active:scale-90 transition-all">
+                    <a id="phoneCall" href="#" class="bg-emerald-600 w-12 h-12 rounded-2xl text-white shadow-lg shadow-emerald-900/40 flex items-center justify-center text-xl active:scale-90 transition-all">
                         <i class="fas fa-phone-alt"></i>
                     </a>
                 </div>
@@ -82,7 +86,6 @@
                 <button id="deliverBtn" onclick="updateOrderStatus('delivered')" class="w-full bg-emerald-500 text-black py-5 rounded-[1.5rem] font-black text-lg active:scale-95 transition-all shadow-xl italic flex items-center justify-center gap-2 hidden">
                     <span>سلمت للزبون بنجاح ✅</span>
                 </button>
-                <button onclick="reportProblem()" class="w-full py-3 text-red-500/40 font-bold text-[10px] italic">⚠️ إبلاغ عن مشكلة لطه</button>
             </div>
         </div>
 
@@ -93,65 +96,47 @@
     </main>
 
     <script>
-        // الرابط السيادي الجديد V6.2 (طه - كركوك)
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyIqK63Xu4b2G8BN0aNQIs42oTqvvYRlGDLfQCCSMo68YPYoysKjQ_IjoXhie0MhIaZpQ/exec';
         const driverPhone = localStorage.getItem('whale_driver_phone'); 
         let currentOrderID = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (!driverPhone) {
-                window.location.href = 'driver_login.html';
-                return;
-            }
+            if (!driverPhone) { window.location.href = 'driver_login.html'; return; }
             document.getElementById('welcomeName').innerText = "كابتن: " + (localStorage.getItem('whale_driver_name') || "مجهول");
-            
             initGPS(); 
             checkOrders(); 
-            setInterval(checkOrders, 7000); // تحديث الرادار كل 7 ثوانٍ
+            setInterval(checkOrders, 8000); 
         });
 
-        // نظام بث الموقع الفعلي للقاعدة
         function initGPS() {
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(
                     (pos) => {
-                        const data = { 
-                            action: "update_location", 
-                            phone: driverPhone, 
-                            lat: pos.coords.latitude, 
-                            lng: pos.coords.longitude 
-                        };
+                        const data = { action: "update_location", phone: driverPhone, lat: pos.coords.latitude, lng: pos.coords.longitude };
                         fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-                    },
-                    (err) => console.log("GPS Signal Searching..."),
-                    { enableHighAccuracy: true, timeout: 10000 }
+                    }, null, { enableHighAccuracy: true }
                 );
             }
         }
 
         async function checkOrders() {
             try {
-                // طلب البيانات من الأكشن login_check (لاستخدام البيانات الموجودة في Drivers شيت)
-                const res = await fetch(`${scriptURL}?action=login_check&type=Driver&id=${encodeURIComponent(driverPhone)}`);
-                const result = await res.json();
+                const res = await fetch(`${scriptURL}?action=get_master_data&pass=112233`);
+                const data = await res.json();
                 
-                // البحث في شيت الطلبات عن طلب مخصص لهذا الكابتن وحالته ليست "delivered"
-                const ordersRes = await fetch(`${scriptURL}?action=get_master_data&pass=112233`); // استخدام ممر الماستر لجلب البيانات
-                const masterData = await ordersRes.json();
-                
-                const myOrder = masterData.orders.find(o => String(o[6]) === String(driverPhone) && o[5] !== "delivered");
+                const myOrder = data.orders.find(o => String(o[6]) === String(driverPhone) && o[5] !== "delivered");
 
                 if (myOrder) {
-                    renderOrder(myOrder);
+                    // البحث عن بيانات المطعم لجلب المنطقة
+                    const restaurantData = data.restaurants.find(r => r[1] === myOrder[1]);
+                    renderOrder(myOrder, restaurantData);
                     updateRadarUI(true);
                 } else {
                     document.getElementById('orderCard').classList.add('hidden');
                     document.getElementById('noOrders').classList.remove('hidden');
                     updateRadarUI(false);
                 }
-            } catch (e) { 
-                console.log("Radar Scanning..."); 
-            }
+            } catch (e) { console.log("Scanning..."); }
         }
 
         function updateRadarUI(active) {
@@ -160,18 +145,19 @@
             txt.style.color = active ? "#fbbf24" : "#475569";
         }
 
-        function renderOrder(order) {
+        function renderOrder(order, restInfo) {
             currentOrderID = order[0]; 
             document.getElementById('noOrders').classList.add('hidden');
             document.getElementById('orderCard').classList.remove('hidden');
-            document.getElementById('restaurantTitle').innerText = order[1];
             
-            const mapLink = document.getElementById('restMapLink');
-            if (order[10] && order[10].startsWith('http')) {
-                mapLink.href = order[10];
-                mapLink.classList.remove('hidden');
-            } else {
-                mapLink.classList.add('hidden');
+            // عرض اسم المطعم
+            document.getElementById('restaurantTitle').innerText = order[1];
+
+            // عرض المنطقة بفصلها عن الرابط
+            if (restInfo && restInfo[3]) {
+                const areaParts = restInfo[3].split('|');
+                document.getElementById('restaurantArea').innerText = "📍 منطقة: " + areaParts[0].trim();
+                document.getElementById('restMapLink').href = areaParts[1] ? areaParts[1].trim() : "#";
             }
 
             const badge = document.getElementById('orderStatusBadge');
@@ -182,7 +168,7 @@
                 pBtn.classList.add('hidden');
                 dBtn.classList.remove('hidden');
                 badge.innerText = "في الطريق لتسليم الزبون 🚀";
-                badge.className = "mt-3 px-4 py-1.5 rounded-full bg-blue-500/10 text-[10px] font-bold text-blue-400 border border-blue-500/20 italic";
+                badge.className = "mt-4 px-4 py-1.5 rounded-full bg-blue-500/10 text-[10px] font-bold text-blue-400 border border-blue-500/20 italic";
             } else {
                 pBtn.classList.remove('hidden');
                 dBtn.classList.add('hidden');
@@ -193,9 +179,7 @@
             if (order[4] && order[4].length > 10) {
                 rView.classList.remove('hidden');
                 document.getElementById('receiptImg').src = order[4];
-            } else {
-                rView.classList.add('hidden');
-            }
+            } else { rView.classList.add('hidden'); }
 
             document.getElementById('locationTxt').innerText = order[3] || "لا توجد تفاصيل وجهة";
             
@@ -211,46 +195,27 @@
         async function updateOrderStatus(newStatus) {
             if (!currentOrderID) return;
             const btn = (newStatus === 'picked-up') ? document.getElementById('pickUpBtn') : document.getElementById('deliverBtn');
-            const originalContent = btn.innerHTML;
-            
+            const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerText = "بث الإشارة للقاعدة...";
+            btn.innerText = "بث الإشارة...";
 
             try {
-                // استخدام master_control لتحديث حالة الطلب في الشيت
-                const data = {
-                    action: "master_control",
-                    targetSheet: "Orders",
-                    targetID: currentOrderID,
-                    colIndex: 5,
-                    newValue: newStatus
-                };
-
                 await fetch(scriptURL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({ action: "master_control", targetSheet: "Orders", targetID: currentOrderID, colIndex: 5, newValue: newStatus })
                 });
                 
                 if (newStatus === 'delivered') {
-                    alert("تمت المهمة بنجاح! شكراً لك كابتن. 🐋");
+                    alert("تمت المهمة بنجاح! شكراً كابتن.");
                     document.getElementById('orderCard').classList.add('hidden');
-                    currentOrderID = null;
                 }
-                setTimeout(checkOrders, 1500);
-            } catch (e) {
-                alert("خطأ في تحديث الحالة.");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalContent;
-            }
+                setTimeout(checkOrders, 1000);
+            } catch (e) { alert("خطأ في الشبكة"); }
+            finally { btn.disabled = false; btn.innerHTML = originalText; }
         }
 
         function logout() { localStorage.clear(); window.location.href = 'driver_login.html'; }
-        function reportProblem() {
-            const msg = prompt("ما هي المشكلة؟");
-            if (msg) alert("تم إشعار الإدارة بالمشكلة.");
-        }
     </script>
 </body>
 </html>
