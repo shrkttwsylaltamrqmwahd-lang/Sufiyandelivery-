@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>غرفة العمليات الصامتة | منظومة الحوت 🐋</title>
+    <title>غرفة العمليات الذاتية | منظومة الحوت 🐋</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -11,90 +11,89 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #2563eb; --danger: #ef4444; --success: #22c55e; }
-        body { background: #f1f5f9; color: #1e293b; font-family: 'Tajawal', sans-serif; margin: 0; overflow-x: hidden; }
+        body { background: #0f172a; color: #f1f5f9; font-family: 'Tajawal', sans-serif; margin: 0; overflow-x: hidden; }
         
-        /* تصميم الخريطة */
-        #map { height: 400px; border-radius: 2.5rem; border: 8px solid white; box-shadow: 0 20px 50px rgba(0,0,0,0.1); z-index: 10; margin-bottom: 2rem; }
+        #map { height: 400px; border-radius: 2.5rem; border: 4px solid #1e293b; box-shadow: 0 20px 50px rgba(0,0,0,0.3); z-index: 10; margin-bottom: 2rem; filter: grayscale(0.5) contrast(1.2); }
         
-        .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid white; border-radius: 1.5rem; padding: 1.2rem; box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1.5rem; padding: 1.2rem; }
         
-        /* التنبيه البصري الصامت (النبض) */
         .critical-pulse { animation: red-pulse 2s infinite; border: 2px solid #ef4444 !important; }
         @keyframes red-pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
         
-        .item-row { border-radius: 1rem; padding: 12px; margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; position: relative; }
+        .item-row { border-radius: 1rem; padding: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; position: relative; background: rgba(255,255,255,0.03); }
         
-        /* حالات التأخير البصرية */
-        .delay-safe { border-right: 6px solid #22c55e; background: white; }
-        .delay-warning { border-right: 6px solid #f59e0b; background: #fffbeb; }
-        .delay-danger { border-right: 6px solid #ef4444; background: #fef2f2; }
+        .delay-safe { border-right: 6px solid #22c55e; }
+        .delay-warning { border-right: 6px solid #f59e0b; }
+        .delay-danger { border-right: 6px solid #ef4444; background: rgba(239, 68, 68, 0.1); }
 
         .btn-action { padding: 6px 12px; border-radius: 10px; font-weight: 900; font-size: 10px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 4px; border: none; }
         .btn-blue { background: #2563eb; color: white; }
         .btn-red { background: #ef4444; color: white; }
-        .btn-green { background: #22c55e; color: white; }
-        .btn-gray { background: #64748b; color: white; }
+        .btn-gray { background: #475569; color: white; }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .auto-status { font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 20px; background: #22c55e; color: white; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 lg:p-8">
 
-    <div id="login-block" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900">
+    <div id="login-block" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950">
         <div class="max-w-[400px] w-full p-10 text-center glass-panel">
             <div class="w-20 h-20 bg-blue-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl text-white text-4xl">🐋</div>
-            <h1 class="text-2xl font-black mb-2">غرفة العمليات</h1>
-            <p class="text-xs text-slate-400 mb-8 font-bold text-uppercase">AL-HUT WAR ROOM V6.8 (SILENT)</p>
-            <input type="password" id="master-pass" placeholder="كود الدخول" class="w-full bg-slate-100 rounded-2xl p-4 text-center mb-4 outline-none font-bold border-2 focus:border-blue-500 transition-all">
-            <button onclick="loadMasterData()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all">دخول النظام</button>
+            <h1 class="text-2xl font-black mb-2">غرفة العمليات الذاتية</h1>
+            <p class="text-xs text-slate-500 mb-8 font-bold">AL-HUT AUTONOMOUS V7.2</p>
+            <input type="password" id="master-pass" placeholder="كود الدخول" class="w-full bg-slate-800 rounded-2xl p-4 text-center mb-4 outline-none font-bold border-2 border-transparent focus:border-blue-500 transition-all text-white">
+            <button onclick="loadMasterData()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black shadow-lg">تشغيل النظام</button>
         </div>
     </div>
 
     <div id="main-ui" class="hidden max-w-[1900px] mx-auto">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="glass-panel border-b-4 border-blue-600 text-center">
-                <p class="text-[10px] font-black text-slate-400">طلبات اليوم</p>
-                <h3 id="stat-total" class="text-3xl font-black text-blue-600">0</h3>
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex gap-4">
+                <div class="glass-panel py-2 px-6 border-b-4 border-blue-600 text-center">
+                    <p class="text-[9px] font-black text-slate-400">الطلبات</p>
+                    <h3 id="stat-total" class="text-2xl font-black">0</h3>
+                </div>
+                <div class="glass-panel py-2 px-6 border-b-4 border-emerald-500 text-center">
+                    <p class="text-[9px] font-black text-slate-400">كباتن</p>
+                    <h3 id="stat-drivers" class="text-2xl font-black">0</h3>
+                </div>
             </div>
-            <div class="glass-panel border-b-4 border-emerald-500 text-center">
-                <p class="text-[10px] font-black text-slate-400">كباتن نشطون</p>
-                <h3 id="stat-drivers" class="text-3xl font-black text-emerald-600">0</h3>
+            <div class="text-center">
+                <span class="auto-status">AUTO-DISPATCH ACTIVE 🛰️</span>
+                <p id="clock" class="text-xl font-black mt-1">00:00:00</p>
             </div>
-            <div class="glass-panel border-b-4 border-amber-500 text-center">
-                <p class="text-[10px] font-black text-slate-400">قيد التنفيذ</p>
-                <h3 id="stat-active" class="text-3xl font-black text-amber-600">0</h3>
-            </div>
-            <div class="glass-panel border-b-4 border-red-600 text-center">
-                <p class="text-[10px] font-black text-slate-400">الديون المستحقة</p>
-                <h3 id="stat-debt" class="text-2xl font-black text-red-600">0</h3>
+            <div class="flex gap-4">
+                <div class="glass-panel py-2 px-6 border-b-4 border-red-600 text-center">
+                    <p class="text-[9px] font-black text-slate-400">ديون المطاعم</p>
+                    <h3 id="stat-debt" class="text-xl font-black text-red-400">0</h3>
+                </div>
             </div>
         </div>
 
         <div id="map"></div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <section class="glass-panel h-[750px] flex flex-col border-t-8 border-blue-600">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="font-black text-sm uppercase">الرادار والتحليل</h2>
-                    <span id="clock" class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded-lg italic">00:00:00</span>
-                </div>
+            <section class="glass-panel h-[700px] flex flex-col">
+                <h2 class="font-black text-xs mb-4 text-blue-400 uppercase">الرادار الميداني</h2>
                 <div id="drivers-list" class="overflow-y-auto flex-1 space-y-3"></div>
-                <div id="performance-box" class="mt-4"></div>
             </section>
 
-            <section class="glass-panel h-[750px] flex flex-col border-t-8 border-emerald-500">
-                <h2 class="font-black text-sm mb-4 uppercase text-emerald-600">المحاسبة والمطاعم</h2>
+            <section class="glass-panel h-[700px] flex flex-col">
+                <h2 class="font-black text-xs mb-4 text-emerald-400 uppercase">المطاعم النشطة</h2>
                 <div id="rests-list" class="overflow-y-auto flex-1 space-y-3"></div>
             </section>
 
-            <section class="glass-panel h-[750px] flex flex-col border-t-8 border-amber-500">
-                <h2 class="font-black text-sm mb-4 uppercase text-amber-600 text-center">LIVE STREAMING 🛰️</h2>
+            <section class="glass-panel h-[700px] flex flex-col border-2 border-blue-500/20">
+                <h2 class="font-black text-xs mb-4 text-amber-400 text-center uppercase">المراقبة الآلية 🤖</h2>
                 <div id="active-orders" class="overflow-y-auto flex-1 space-y-3"></div>
             </section>
 
-            <section class="glass-panel h-[750px] flex flex-col border-t-8 border-slate-400">
-                <h2 class="font-black text-sm mb-4 uppercase text-slate-500 text-center">أرشيف اليوم</h2>
+            <section class="glass-panel h-[700px] flex flex-col">
+                <h2 class="font-black text-xs mb-4 text-slate-500 text-center uppercase">أرشيف العمليات</h2>
                 <div id="completed-orders" class="overflow-y-auto flex-1 space-y-3"></div>
             </section>
         </div>
@@ -104,7 +103,6 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIqK63Xu4b2G8BN0aNQIs42oTqvvYRlGDLfQCCSMo68YPYoysKjQ_IjoXhie0MhIaZpQ/exec";
         let map, markers = {}, currentData = null;
 
-        // إحداثيات مناطق كركوك للخريطة الحرارية
         const locationsCoords = {
             "الماس": [35.478, 44.385], "طريق بغداد": [35.455, 44.375], "التسعين": [35.460, 44.395],
             "شارع المحافظة": [35.468, 44.392], "قورية": [35.475, 44.398], "بنجه علي": [35.485, 44.420],
@@ -120,7 +118,7 @@
             try {
                 const res = await fetch(`${SCRIPT_URL}?action=get_master_data&pass=${encodeURIComponent(pass)}`);
                 const data = await res.json();
-                if (data.status === "denied") return alert("الرمز خطأ!");
+                if (data.status === "denied") return;
                 currentData = data;
                 if (!isSilent) { 
                     document.getElementById('login-block').classList.add('hidden'); 
@@ -129,163 +127,153 @@
                 }
                 renderUI(data);
                 updateMarkers(data.drivers);
-            } catch (e) { console.error("Sync Error"); }
+                // تشغيل محرك التوزيع الآلي
+                autoDispatcher(data);
+            } catch (e) { console.log("Sync..."); }
+        }
+
+        // --- محرك التوزيع الآلي الذكي ---
+        async function autoDispatcher(data) {
+            const pendingOrders = data.orders.filter(o => o[5] === 'pending' && (!o[6] || o[6] === ""));
+            if (pendingOrders.length === 0) return;
+
+            for (let order of pendingOrders) {
+                const bestDriver = calculateBestDriver(order[9], data);
+                if (bestDriver) {
+                    console.log(`Assigning Order ${order[0]} to ${bestDriver.name}`);
+                    await executeAutoAssignment(order[0], bestDriver.name);
+                }
+            }
+        }
+
+        function calculateBestDriver(area, data) {
+            const dest = locationsCoords[area];
+            if (!dest) return null;
+
+            let best = null;
+            let highestScore = -1;
+
+            const activeDrivers = data.drivers.filter(d => d[4] === 'active' && d[5]);
+            
+            activeDrivers.forEach(d => {
+                // 1. المسافة
+                const dist = Math.sqrt(Math.pow(d[5]-dest[0], 2) + Math.pow(d[6]-dest[1], 2));
+                // 2. عدد الطلبات اليوم
+                const dailyOrders = data.orders.filter(o => o[6] === d[1] && o[5] === 'delivered').length;
+                // 3. زمن الانتظار (تقريبي بناءً على آخر طلب)
+                const lastOrder = data.orders.filter(o => o[6] === d[1]).sort((a,b) => new Date(b[7]) - new Date(a[7]))[0];
+                const waitMins = lastOrder ? (new Date() - new Date(lastOrder[7]))/60000 : 60;
+
+                // المعادلة: الأولوية لمن ينتظر أكثر ولديه طلبات أقل ويقع في المدى الجغرافي
+                const score = (waitMins / (dailyOrders + 1)) * (1 / (dist + 0.001));
+
+                if (score > highestScore) {
+                    highestScore = score;
+                    best = { name: d[1], phone: d[2] };
+                }
+            });
+            return best;
+        }
+
+        async function executeAutoAssignment(orderID, driverName) {
+            const pass = document.getElementById('master-pass').value;
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({
+                    action: 'master_control',
+                    pass: pass,
+                    targetSheet: 'Orders',
+                    targetID: orderID,
+                    colIndex: 6,
+                    newValue: driverName
+                })
+            });
+            // تحديث فوري بعد الإسناد
+            setTimeout(() => loadMasterData(true), 1000);
         }
 
         function initMap() {
             if (map) return;
             map = L.map('map', { zoomControl: false }).setView([35.467, 44.392], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.tileLayer('https://{s}.tile.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
         }
 
         function renderUI(data) {
             const activeOrders = data.orders.filter(o => o[5] !== 'delivered');
             const completedOrders = data.orders.filter(o => o[5] === 'delivered');
 
-            // 1. الإحصائيات العلوية
             document.getElementById('stat-total').innerText = data.orders.length;
             document.getElementById('stat-drivers').innerText = data.drivers.filter(d => d[4] === 'active').length;
-            document.getElementById('stat-active').innerText = activeOrders.length;
             
             let totalDebt = 0;
             data.restaurants.forEach(r => {
-                const count = completedOrders.filter(o => o[1] === r[1]).length;
-                totalDebt += (count * parseFloat(r[5] || 0));
+                totalDebt += (completedOrders.filter(o => o[1] === r[1]).length * parseFloat(r[5] || 0));
             });
             document.getElementById('stat-debt').innerText = totalDebt.toLocaleString() + " د.ع";
 
-            // 2. تحليل أداء السائقين (الأبطأ وصولاً)
-            const driverStats = {};
-            completedOrders.forEach(o => {
-                const dName = o[6]; if (!dName) return;
-                const diff = Math.floor((new Date(o[8] || o[7]) - new Date(o[7])) / 60000);
-                if (!driverStats[dName]) driverStats[dName] = { mins: 0, count: 0 };
-                driverStats[dName].mins += diff;
-                driverStats[dName].count += 1;
-            });
-            const sortedPerformance = Object.keys(driverStats).map(n => ({
-                name: n, avg: Math.floor(driverStats[n].mins / driverStats[n].count)
-            })).sort((a,b) => b.avg - a.avg);
-
-            let perfHTML = `<div class="bg-slate-900 p-3 rounded-xl border-t-2 border-red-500 text-white">
-                <p class="text-[9px] font-black text-red-400 mb-2 uppercase italic">⚠️ الأبطأ وصولاً (معدل اليوم)</p>`;
-            sortedPerformance.slice(0, 3).forEach(p => {
-                perfHTML += `<div class="flex justify-between text-[10px] mb-1 border-b border-slate-800 pb-1">
-                    <span>${p.name}</span> <span class="text-red-500 font-black">${p.avg} دقيقة</span>
-                </div>`;
-            });
-            perfHTML += `</div>`;
-            document.getElementById('performance-box').innerHTML = perfHTML;
-
-            // 3. رندر السائقين
+            // رندر السائقين
             document.getElementById('drivers-list').innerHTML = data.drivers.map(d => `
-                <div class="item-row ${d[4]==='active'?'bg-white':'bg-slate-100 opacity-60'}">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="font-black text-xs">${d[1]}</span>
-                        <span class="text-[8px] font-black p-1 rounded bg-slate-100">${d[4]}</span>
+                <div class="item-row ${d[4]==='active'?'border-emerald-500/30':'opacity-40'}">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-black text-[11px]">${d[1]}</span>
+                        <span class="text-[8px] px-2 py-0.5 rounded bg-slate-800">${completedOrders.filter(o => o[6]===d[1]).length} طلبات</span>
                     </div>
                     <div class="flex gap-1">
-                        <button onclick="trackOnMap(${d[5]},${d[6]})" class="btn-action btn-blue flex-1 justify-center"><i class="fas fa-location-crosshairs"></i></button>
+                        <button onclick="trackOnMap(${d[5]},${d[6]})" class="btn-action btn-blue flex-1 justify-center"><i class="fas fa-crosshairs"></i></button>
                         <a href="tel:${d[2]}" class="btn-action btn-gray flex-1 justify-center"><i class="fas fa-phone"></i></a>
-                        <button onclick="control('Drivers','${d[2]}',4,'${d[4]==='active'?'pending':'active'}')" class="btn-action ${d[4]==='active'?'btn-red':'btn-green'} flex-1 justify-center text-[8px]">${d[4]==='active'?'حظر':'تفعيل'}</button>
                     </div>
                 </div>`).join('');
 
-            // 4. رندر المطاعم
-            document.getElementById('rests-list').innerHTML = data.restaurants.map(r => {
-                const count = completedOrders.filter(o => o[1] === r[1]).length;
-                return `
-                <div class="item-row bg-white border-l-4 border-emerald-500">
-                    <p class="font-black text-xs mb-1">${r[1]}</p>
-                    <div class="flex justify-between items-center bg-emerald-50 p-2 rounded-lg mb-2">
-                        <span class="text-[9px] font-bold text-slate-500">منجز: ${count}</span>
-                        <span class="text-[10px] font-black text-red-600">${count * r[5]} د.ع</span>
-                    </div>
-                    <div class="flex gap-1">
-                        <a href="tel:${r[2]}" class="btn-action btn-gray flex-1 justify-center"><i class="fas fa-phone"></i></a>
-                        <button onclick="deleteItem('Restaurants','${r[2]}')" class="btn-action btn-red"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`;
-            }).join('');
-
-            // 5. رندر الطلبات (تنبيه نبضي صامت)
+            // رندر الطلبات النشطة
             document.getElementById('active-orders').innerHTML = activeOrders.reverse().map(o => {
                 const diff = Math.floor(((new Date()) - new Date(o[7])) / 60000);
                 let delayState = diff > 40 ? "delay-danger critical-pulse" : (diff > 20 ? "delay-warning" : "delay-safe");
-                
                 return `
-                <div class="item-row ${delayState} shadow-sm">
+                <div class="item-row ${delayState}">
                     <div class="flex justify-between mb-1">
-                        <span class="text-[9px] font-black text-blue-600">ID: ${o[0]}</span>
-                        <span class="text-[9px] font-black ${diff > 30 ? 'text-red-600' : 'text-slate-400'}">⏳ منذ ${diff} د</span>
+                        <span class="text-[9px] font-black text-blue-400">#${o[0]}</span>
+                        <span class="text-[9px] font-bold">⏳ ${diff} د</span>
                     </div>
-                    <p class="font-black text-[11px]">${o[1]}</p>
-                    <p class="text-[10px] text-slate-500">📍 ${o[9]}</p>
-                    <div class="flex gap-1 mt-2">
-                        <a href="tel:${o[10]}" class="btn-action btn-blue flex-1 justify-center">المطعم</a>
-                        ${o[6] ? `<a href="tel:${o[6]}" class="btn-action btn-green flex-1 justify-center">الطيار</a>` : ''}
-                        <button onclick="deleteItem('Orders','${o[0]}')" class="btn-action btn-red"><i class="fas fa-trash"></i></button>
+                    <p class="font-black text-xs text-white">${o[1]}</p>
+                    <p class="text-[10px] text-slate-400">📍 ${o[9]}</p>
+                    <div class="mt-2 text-[10px] font-bold text-emerald-400">
+                        ${o[6] ? `<i class="fas fa-truck"></i> المنفذ: ${o[6]}` : '<span class="text-amber-500">جاري الإسناد الآلي...</span>'}
                     </div>
                 </div>`;
             }).join('');
 
-            // 6. رندر الأرشيف
-            document.getElementById('completed-orders').innerHTML = completedOrders.reverse().slice(0, 20).map(o => `
-                <div class="item-row bg-slate-50 border-r-4 border-slate-300">
-                    <p class="text-[9px] font-bold text-slate-400">#${o[0]} - ${new Date(o[7]).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'})}</p>
-                    <p class="font-black text-xs text-slate-700">${o[1]}</p>
-                    <p class="text-[9px] text-emerald-600 font-bold">تم التوصيل بواسطة: ${o[6] || '---'}</p>
+            // رندر المطاعم
+            document.getElementById('rests-list').innerHTML = data.restaurants.map(r => `
+                <div class="item-row">
+                    <p class="font-black text-xs mb-1 text-emerald-400">${r[1]}</p>
+                    <p class="text-[10px] text-slate-500">الديون: ${completedOrders.filter(o => o[1] === r[1]).length * r[5]} د.ع</p>
                 </div>`).join('');
 
-            // 7. تحديث الخريطة الحرارية
-            updateHeatmap(activeOrders);
-        }
-
-        function updateHeatmap(orders) {
-            map.eachLayer(layer => { if(layer instanceof L.Circle) map.removeLayer(layer); });
-            const counts = {};
-            orders.forEach(o => { counts[o[9]] = (counts[o[9]] || 0) + 1; });
-            Object.keys(counts).forEach(area => {
-                if(locationsCoords[area]) {
-                    const count = counts[area];
-                    L.circle(locationsCoords[area], {
-                        color: count > 3 ? '#ef4444' : '#3b82f6',
-                        fillColor: count > 3 ? '#ef4444' : '#3b82f6',
-                        fillOpacity: 0.3,
-                        radius: 150 + (count * 60)
-                    }).addTo(map).bindPopup(`منطقة ${area}: ${count} طلبات`);
-                }
-            });
-        }
-
-        async function deleteItem(sheet, id) {
-            if(!confirm("⚠️ حذف نهائي من السيستم؟")) return;
-            const pass = document.getElementById('master-pass').value;
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete_item', pass: pass, targetSheet: sheet, targetID: id }) });
-            setTimeout(() => loadMasterData(true), 500);
-        }
-
-        async function control(target, id, col, val) {
-            const pass = document.getElementById('master-pass').value;
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'master_control', pass: pass, targetSheet: target, targetID: id, colIndex: col, newValue: val }) });
-            setTimeout(() => loadMasterData(true), 500);
+            // رندر الأرشيف
+            document.getElementById('completed-orders').innerHTML = completedOrders.reverse().slice(0, 10).map(o => `
+                <div class="item-row opacity-60">
+                    <p class="text-[9px] font-bold">${o[1]} ✅</p>
+                    <p class="text-[8px] text-slate-500">${o[6]}</p>
+                </div>`).join('');
         }
 
         function trackOnMap(lat, lng) {
-            if(!lat || lat == 0) return alert("الكابتن أوفلاين");
-            map.flyTo([lat, lng], 17, {animate: true, duration: 2});
+            if(!lat || lat == 0) return alert("أوفلاين");
+            map.flyTo([lat, lng], 16);
         }
 
         function updateMarkers(drivers) {
             drivers.forEach(d => {
                 if(d[5] && d[5] != 0) {
-                    const icon = L.divIcon({className: 'custom-div-icon', html: `<div style="background: ${d[4]==='active'?'#22c55e':'#94a3b8'}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.2);"></div>`, iconSize: [12, 12]});
+                    const icon = L.divIcon({className: 'c-icon', html: `<div style="background: ${d[4]==='active'?'#22c55e':'#64748b'}; width: 10px; height: 10px; border-radius: 50%; border: 2px solid white;"></div>`});
                     if(markers[d[2]]) markers[d[2]].setLatLng([d[5], d[6]]);
-                    else markers[d[2]] = L.marker([d[5], d[6]], {icon: icon}).addTo(map).bindPopup(`الطيار: ${d[1]}`);
+                    else markers[d[2]] = L.marker([d[5], d[6]], {icon: icon}).addTo(map);
                 }
             });
         }
 
+        // تحديث كل 10 ثوانٍ لضمان استجابة المحرك الآلي
         setInterval(() => { if (!document.getElementById('main-ui').classList.contains('hidden')) loadMasterData(true); }, 10000);
     </script>
 </body>
