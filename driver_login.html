@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>دخول الكابتن | رادار الحوت 🐋</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --whale-amber: #fbbf24; --whale-navy: #020617; }
+        body { font-family: 'Tajawal', sans-serif; background: #010409; color: white; overflow-x: hidden; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .radar-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(251, 191, 36, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(251, 191, 36, 0.03) 1px, transparent 1px); background-size: 35px 35px; z-index: -1; }
+        .glass-card { background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(251, 191, 36, 0.15); box-shadow: 0 0 50px rgba(251, 191, 36, 0.05); }
+        .whale-input { width: 100%; padding: 1.1rem; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.2rem; color: white; outline: none; transition: 0.3s; text-align: center; font-weight: 900; }
+        .whale-input:focus { border-color: var(--whale-amber); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
+        .action-btn { background: var(--whale-amber); color: #020617; font-weight: 900; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); transition: 0.3s; cursor: pointer; }
+        .hidden { display: none; }
+        .status-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body class="p-6">
+
+    <div class="radar-grid"></div>
+
+    <div class="max-w-md w-full glass-card p-10 rounded-[2.5rem] relative z-10">
+        
+        <div id="loader" class="text-center py-12">
+            <div class="w-14 h-14 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <p class="text-[10px] text-amber-500 font-black italic uppercase tracking-widest">Scanning Pilot ID...</p>
+        </div>
+
+        <div id="authUI" class="hidden text-center">
+            <header class="mb-10">
+                <div class="inline-block p-4 rounded-3xl bg-amber-500/10 border border-amber-500/20 mb-4">
+                    <span class="text-4xl text-amber-500"><i class="fas fa-motorcycle"></i></span>
+                </div>
+                <h2 class="text-2xl font-black tracking-widest uppercase italic" style="font-family: 'Orbitron', sans-serif;">
+                    WHALE <span class="text-amber-500">PILOT</span>
+                </h2>
+                <p class="text-[9px] text-gray-500 mt-2 font-bold italic uppercase tracking-widest">Kirkuk Field Sector V7.5</p>
+            </header>
+
+            <form id="loginForm" class="space-y-4">
+                <div class="relative">
+                    <input type="tel" id="driverPhone" required placeholder="رقم هاتف الكابتن" 
+                           class="whale-input tracking-[0.1em] text-lg border-2 border-transparent focus:border-amber-500">
+                </div>
+
+                <div id="regFields" class="hidden space-y-4 pt-2">
+                    <input type="text" id="driverName" placeholder="الاسم الثلاثي واللقب" 
+                           class="whale-input">
+                    <p class="text-[9px] text-amber-500 italic font-bold">يرجى إدخال اسمك الحقيقي لتفعيل محفظتك المالية</p>
+                </div>
+
+                <button type="submit" id="mainBtn" class="w-full py-5 action-btn mt-6 flex items-center justify-center gap-3 italic shadow-lg">
+                    <span id="btnText">تفعيل ودخول الرادار</span>
+                    <i class="fas fa-crosshairs"></i>
+                </button>
+            </form>
+        </div>
+
+        <div id="statusMessage" class="hidden text-center py-12">
+            <div id="statusIcon" class="text-6xl mb-6 status-pulse">🛰️</div>
+            <h3 id="statusTitle" class="text-xl font-black text-amber-500 italic uppercase">بانتظار الإشارة</h3>
+            <p id="statusDesc" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">يتم مراجعة بياناتك من قبل طه.<br>سيفتح الرادار تلقائياً فور تفعيل حسابك.</p>
+            <button onclick="logout()" class="mt-10 text-[9px] text-red-500 font-black border-b border-red-500/30 pb-1 italic uppercase">تغيير الرقم أو الاسم</button>
+        </div>
+    </div>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxODYE0lTSF_v3NdQw1lN0GCq3dcxeEfo3SB9QaDy2Klcg3NEMvs3GxUjHFxQ5fooQm2Q/exec';
+        let checkTimer = null;
+
+        window.onload = async () => {
+            const savedPhone = localStorage.getItem('whale_driver_phone');
+            if (savedPhone) {
+                checkDriverStatus(savedPhone);
+            } else { 
+                showUI('authUI'); 
+            }
+        };
+
+        async function checkDriverStatus(phone) {
+            try {
+                const response = await fetch(`${scriptURL}?action=login_check&type=Driver&id=${encodeURIComponent(phone)}&cb=${Date.now()}`);
+                const result = await response.json();
+                
+                if (result.status === 'active') {
+                    localStorage.setItem('whale_driver_phone', phone);
+                    localStorage.setItem('whale_driver_data', JSON.stringify(result.data));
+                    window.location.replace('driver.html');
+                } else if (result.status === 'pending') {
+                    showStatusView('pending');
+                    if (!checkTimer) checkTimer = setInterval(() => checkDriverStatus(phone), 10000);
+                } else if (result.status === 'banned') {
+                    showStatusView('banned');
+                } else {
+                    showUI('authUI');
+                }
+            } catch (e) {
+                showUI('authUI');
+            }
+        }
+
+        document.getElementById('loginForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const phone = document.getElementById('driverPhone').value.trim();
+            const name = document.getElementById('driverName').value.trim();
+            const btn = document.getElementById('mainBtn');
+            const regFields = document.getElementById('regFields');
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-satellite-dish animate-pulse"></i> جاري البث...`;
+
+            if (!regFields.classList.contains('hidden')) {
+                // تسجيل جديد
+                if(!name) { alert("الاسم مطلوب"); btn.disabled = false; return; }
+                const data = {
+                    action: "register_user",
+                    type: "Driver",
+                    name: name,
+                    phone: phone,
+                    wallet: 0 // تهيئة المحفظة
+                };
+                try {
+                    await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+                    localStorage.setItem('whale_driver_phone', phone);
+                    showStatusView('pending');
+                    checkTimer = setInterval(() => checkDriverStatus(phone), 10000);
+                } catch (e) { alert("خطأ في الشبكة"); btn.disabled = false; }
+            } else {
+                // فحص دخول
+                checkDriverStatus(phone);
+                // إذا لم يجد الرقم، سيظهر حقول التسجيل في المرة القادمة
+                setTimeout(() => {
+                    const authUI = document.getElementById('authUI');
+                    if(!authUI.classList.contains('hidden')) {
+                        regFields.classList.remove('hidden');
+                        btn.disabled = false;
+                        btn.innerHTML = `إرسال طلب الانضمام <i class="fas fa-plus ml-2"></i>`;
+                    }
+                }, 2000);
+            }
+        };
+
+        function showUI(id) {
+            document.querySelectorAll('> div').forEach(div => div.classList.add('hidden')); // إخفاء الكل
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById('loader').classList.add('hidden');
+        }
+
+        function showStatusView(status) {
+            showUI('statusMessage');
+            if (status === 'banned') {
+                document.getElementById('statusTitle').innerText = "تم حظر الوصول";
+                document.getElementById('statusIcon').innerText = "🚫";
+                document.getElementById('statusDesc').innerText = "لقد تم تقييد وصولك للرادار من قبل الإدارة.\nيرجى مراجعة طه لتسوية الحسابات.";
+            }
+        }
+
+        function logout() { 
+            if(checkTimer) clearInterval(checkTimer);
+            localStorage.clear(); 
+            location.reload(); 
+        }
+    </script>
+</body>
+</html>
