@@ -16,8 +16,9 @@
         .whale-select:focus { border-color: #10b981; }
         .btn-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
         .hidden { display: none; }
-        .loading-shimmer { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        /* نبض حالة الاتصال */
+        .online-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; margin-left: 5px; box-shadow: 0 0 10px #10b981; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="p-4 pb-24">
@@ -27,7 +28,9 @@
             <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-900 font-black shadow-lg">🐋</div>
             <div>
                 <p class="text-[8px] text-emerald-500 font-black uppercase tracking-widest italic">Al-Hut Kitchen Hub V6.2</p>
-                <h1 id="displayResName" class="text-xs font-black text-white italic tracking-wider">جاري التوثيق...</h1>
+                <h1 id="displayResName" class="text-xs font-black text-white italic tracking-wider flex items-center">
+                    جاري التحقق..
+                </h1>
             </div>
         </div>
         <button onclick="logout()" class="text-[10px] font-black text-red-400 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 active:scale-95 transition-all">خروج</button>
@@ -36,7 +39,7 @@
     <div class="max-w-xl mx-auto glass-card p-6 rounded-[2.5rem] shadow-2xl relative border-t-4 border-emerald-500">
         <div class="text-center mb-6">
             <h2 class="text-xl font-black italic">إرسال سريع للرادار 🚀</h2>
-            <p id="resStatusText" class="text-[9px] text-emerald-500 font-bold uppercase tracking-widest mt-1 italic animate-pulse">جاري ربط الإحداثيات 📍</p>
+            <p id="resStatusText" class="text-[9px] text-emerald-500 font-bold uppercase tracking-widest mt-1 italic animate-pulse">ربط إشارة المطعم 📍</p>
         </div>
 
         <div class="flex gap-2 mb-6 bg-white/5 p-1 rounded-2xl">
@@ -100,25 +103,26 @@
         let base64Image = null;
         let restaurantProfile = null;
 
-        // عند فتح الصفحة: جلب بيانات المطعم كاملة من الشيت للتأكد من دقة المعلومات
         window.onload = async () => {
             const resPhone = localStorage.getItem('whale_res_phone');
             if (!resPhone) { window.location.href = 'Restaurant_login.html'; return; }
             
             try {
-                const res = await fetch(`${scriptURL}?action=login_check&type=Restaurant&id=${encodeURIComponent(resPhone)}`);
+                const res = await fetch(`${scriptURL}?action=login_check&type=Restaurant&id=${encodeURIComponent(resPhone)}&cb=${Date.now()}`);
                 const result = await res.json();
                 
                 if (result.status === 'active') {
-                    restaurantProfile = result.userData; // تخزين بيانات المطعم (الاسم، العمولة، الرابط)
-                    document.getElementById('displayResName').innerText = restaurantProfile[1]; // اسم المطعم من العمود B
-                    document.getElementById('resStatusText').innerText = "الرادار متصل بنجاح 📍";
+                    restaurantProfile = result.userData;
+                    // تحديث الهيدر لإظهار حالة الاتصال
+                    document.getElementById('displayResName').innerHTML = `<span class="online-dot"></span> ${restaurantProfile[1]}`;
+                    document.getElementById('resStatusText').innerText = "الرادار متصل بنجاح 🟢";
                     document.getElementById('resStatusText').classList.remove('animate-pulse');
+                    document.getElementById('resStatusText').classList.add('text-emerald-400');
                 } else {
                     window.location.href = 'Restaurant_login.html';
                 }
             } catch (e) {
-                document.getElementById('displayResName').innerText = "خطأ في الاتصال";
+                document.getElementById('displayResName').innerText = "خطأ في الشبكة ⚠️";
             }
         };
 
@@ -150,24 +154,23 @@
 
         document.getElementById('orderForm').onsubmit = async function(e) {
             e.preventDefault();
-            if (!restaurantProfile) return alert("انتظر جاري تحميل بيانات الرادار...");
+            if (!restaurantProfile) return alert("الرادار لم يتعرف على بروفايل المطعم بعد. يرجى الانتظار ثوانٍ..");
 
             const btn = document.getElementById('submitBtn');
             const area = document.getElementById('locationSelect').value;
             const customerPhone = document.getElementById('customerPhone').value || "بدون رقم";
             const userDetails = document.getElementById('details').value || "بدون تفاصيل";
 
-            // إعداد البيانات بناءً على ملف المطعم في الشيت
             const orderData = {
                 action: 'restaurant_send_order',
-                restName: restaurantProfile[1],     // الاسم من شيت المطاعم
-                restPhone: restaurantProfile[2],    // الهاتف من شيت المطاعم
-                restLocation: restaurantProfile[3], // الرابط المدمج من شيت المطاعم (المنطقة|الرابط)
-                lat: restaurantProfile[6],          // خط العرض
-                lng: restaurantProfile[7],          // خط الطول
+                restName: restaurantProfile[1],
+                restPhone: restaurantProfile[2],
+                restLocation: restaurantProfile[3],
+                lat: restaurantProfile[6],
+                lng: restaurantProfile[7],
                 area: area,
                 details: `[${area}] - ${userDetails} | هاتف الزبون: ${customerPhone}`,
-                fee: restaurantProfile[5],          // العمولة من شيت المطاعم
+                fee: restaurantProfile[5],
                 image: base64Image || "" 
             };
 
@@ -176,8 +179,6 @@
             
             try {
                 await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) });
-                
-                // نجاح الإرسال
                 document.getElementById('toast').classList.remove('hidden');
                 document.getElementById('orderForm').reset();
                 cancelImage();
@@ -187,7 +188,7 @@
                     btn.innerHTML = `<span>بث الطلبية الآن</span> <i class="fas fa-satellite-dish ml-2"></i>`; 
                 }, 3000);
             } catch (err) { 
-                alert("فشل في بث الإشارة، تأكد من الإنترنت."); 
+                alert("فشل في بث الإشارة."); 
                 btn.disabled = false; 
                 btn.innerHTML = `<span>بث الطلبية الآن</span> <i class="fas fa-satellite-dish ml-2"></i>`;
             }
