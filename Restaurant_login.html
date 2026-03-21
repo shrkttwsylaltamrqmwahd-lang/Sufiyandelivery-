@@ -3,151 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>تسجيل المطاعم | رادار الحوت 🐋</title>
+    <title>دخول ذكي | رادار الحوت 🐋</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --whale-emerald: #10b981; --whale-navy: #020617; }
-        body { font-family: 'Tajawal', sans-serif; background: #010409; color: white; overflow-x: hidden; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        :root { --whale-emerald: #10b981; }
+        body { font-family: 'Tajawal', sans-serif; background: #010409; color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
         .radar-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; }
         .glass-card { background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(16, 185, 129, 0.2); box-shadow: 0 0 50px rgba(16, 185, 129, 0.1); }
-        .whale-input { width: 100%; padding: 1.1rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 1.2rem; color: white; outline: none; transition: 0.3s; font-weight: bold; font-size: 0.85rem; }
+        .whale-input { width: 100%; padding: 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 1.2rem; color: white; outline: none; transition: 0.3s; font-weight: bold; text-align: center; }
         .whale-input:focus { border-color: var(--whale-emerald); background: rgba(16, 185, 129, 0.05); }
-        .action-btn { background: var(--whale-emerald); color: #020617; font-weight: 900; clip-path: polygon(4% 0, 100% 0, 96% 100%, 0% 100%); transition: 0.3s; cursor: pointer; }
+        .action-btn { background: var(--whale-emerald); color: #020617; font-weight: 900; clip-path: polygon(4% 0, 100% 0, 96% 100%, 0% 100%); cursor: pointer; transition: 0.3s; }
         .hidden { display: none; }
-        .input-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #10b981; opacity: 0.6; }
-        .input-group { position: relative; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="p-6">
     <div class="radar-grid"></div>
     <div class="max-w-md w-full glass-card p-8 rounded-[2.5rem] relative z-10">
         
-        <div id="loader" class="text-center py-12">
-            <div class="w-14 h-14 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-            <p class="text-emerald-500 font-black italic uppercase text-[10px]">Verifying Status...</p>
-        </div>
+        <header class="text-center mb-8">
+            <h2 class="text-2xl font-black italic" style="font-family: 'Orbitron';">WHALE <span class="text-emerald-500">RADAR</span></h2>
+            <p id="statusDesc" class="text-[10px] text-gray-400 mt-1 font-bold italic opacity-60 uppercase tracking-widest">Scanning Network V6.2</p>
+        </header>
 
-        <div id="authUI" class="hidden">
-            <header class="text-center mb-6">
-                <h2 class="text-2xl font-black italic" style="font-family: 'Orbitron';">WHALE <span class="text-emerald-500">KITCHEN</span></h2>
-                <p class="text-[10px] text-gray-400 mt-1 font-bold italic opacity-60">تسجيل شريك جديد V6.2</p>
-            </header>
-            <form id="smartForm" class="space-y-4">
-                <input type="text" id="resName" required placeholder="اسم المطعم" class="whale-input text-right">
-                <input type="tel" id="resPhone" required placeholder="رقم الهاتف" class="whale-input text-right">
-                
-                <div class="input-group">
-                    <input type="text" id="resArea" required placeholder="اسم المنطقة (مثال: حي كركوك)" class="whale-input text-right border-emerald-500/40">
-                    <i class="fas fa-map-marker-alt input-icon"></i>
-                </div>
-
-                <input type="url" id="resMapLink" required placeholder="رابط الخريطة (Google Maps)" class="whale-input text-right">
-                
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="number" id="fixedFee" required placeholder="العمولة" class="whale-input text-center p-2">
-                    <select id="paySystem" class="whale-input bg-slate-900 text-[10px] text-center">
-                        <option value="المطعم يدفع">المطعم يدفع</option>
-                        <option value="مناصفة">مناصفة</option>
-                    </select>
-                </div>
-                <button type="submit" id="mainBtn" class="w-full py-5 action-btn mt-4 italic">إرسال طلب الانضمام</button>
-            </form>
-        </div>
-
-        <div id="waitMessage" class="hidden text-center py-12">
-            <div class="relative w-24 h-24 mx-auto mb-8">
-                <div class="absolute inset-0 border-4 border-amber-500/20 rounded-full"></div>
-                <div class="absolute inset-0 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-                <div class="absolute inset-0 flex items-center justify-center text-3xl animate-pulse">🐋</div>
+        <div id="checkUI" class="space-y-4">
+            <div class="relative">
+                <input type="tel" id="checkPhone" placeholder="أدخل رقم الهاتف للتعرف" class="whale-input text-lg tracking-widest" dir="ltr">
             </div>
-            <h3 class="text-xl font-black text-amber-500 italic uppercase">بانتظار موافقة سفيان</h3>
-            <p class="text-[10px] text-slate-400 mt-4 italic leading-relaxed">
-                تم استلام طلبك بنجاح.<br>يرجى عدم إغلاق الصفحة، سيتم دخولك تلقائياً فور التفعيل.
-            </p>
-            <div class="mt-8 pt-6 border-t border-white/5">
-                <button onclick="logout()" class="text-[9px] text-red-500 font-black border-b border-red-500/30 uppercase tracking-widest">إلغاء الطلب / تعديل البيانات</button>
-            </div>
+            <button onclick="smartCheck()" id="checkBtn" class="w-full py-5 action-btn italic uppercase">فحص الإشارة 🛰️</button>
         </div>
+
+        <div id="registerUI" class="hidden fade-in space-y-4 mt-6 pt-6 border-t border-white/5">
+            <p class="text-center text-[10px] text-emerald-500 font-black mb-4 italic">⚠️ إشارة جديدة! يرجى إكمال بروفايل المطعم</p>
+            <input type="text" id="resName" placeholder="اسم المطعم" class="whale-input">
+            <input type="text" id="resArea" placeholder="المنطقة (مثال: طريق بغداد)" class="whale-input">
+            <input type="url" id="resMapLink" placeholder="رابط الموقع من الخريطة" class="whale-input">
+            
+            <div class="grid grid-cols-2 gap-2">
+                <input type="number" id="fixedFee" placeholder="العمولة" class="whale-input p-2 text-sm">
+                <select id="paySystem" class="whale-input text-[10px]">
+                    <option value="المطعم يدفع">المطعم يدفع</option>
+                    <option value="مناصفة">مناصفة</option>
+                </select>
+            </div>
+            <button onclick="finalRegister()" id="regBtn" class="w-full py-5 action-btn">إرسال طلب الانضمام</button>
+        </div>
+
+        <div id="waitMessage" class="hidden text-center py-10">
+            <div class="w-20 h-20 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <h3 class="text-xl font-black text-amber-500 italic">بانتظار تفعيل سفيان</h3>
+            <p class="text-[9px] text-slate-400 mt-4 italic">الرادار سيعيد الفحص تلقائياً كل 10 ثوانٍ...</p>
+            <button onclick="location.reload()" class="mt-8 text-red-500 text-[10px] font-bold border-b border-red-500/20">تغيير الرقم</button>
+        </div>
+
     </div>
 
     <script>
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyIqK63Xu4b2G8BN0aNQIs42oTqvvYRlGDLfQCCSMo68YPYoysKjQ_IjoXhie0MhIaZpQ/exec';
         let checkTimer = null;
 
+        // فحص الهاتف عند الدخول إذا كان مخزناً مسبقاً
         window.onload = () => {
-            const savedPhone = localStorage.getItem('whale_res_phone');
-            if (savedPhone) {
-                checkResLogin(savedPhone);
-            } else {
-                showUI('authUI');
+            const saved = localStorage.getItem('whale_res_phone');
+            if (saved) {
+                document.getElementById('checkPhone').value = saved;
+                smartCheck();
             }
         };
 
-        async function checkResLogin(phone) {
-            try {
-                const timestamp = new Date().getTime();
-                const res = await fetch(`${scriptURL}?action=login_check&type=Restaurant&id=${encodeURIComponent(phone)}&cb=${timestamp}`);
-                const result = await res.json();
-                
-                if (result.status === 'active') {
-                    // دخول مباشر
-                    localStorage.setItem('whale_res_phone', phone);
-                    window.location.href = 'restaurant.html'; 
-                } else if (result.status === 'pending') {
-                    // وضع الانتظار والفحص التلقائي
-                    showUI('waitMessage');
-                    if (!checkTimer) {
-                        checkTimer = setInterval(() => checkResLogin(phone), 10000); // يفحص كل 10 ثواني لدخول أسرع
-                    }
-                } else {
-                    // غير موجود أو مرفوض
-                    showUI('authUI');
-                }
-            } catch (e) { 
-                console.error("Connection error");
-                showUI('authUI'); 
-            }
-        }
+        // الدالة الذكية للفحص
+        async function smartCheck() {
+            const phone = document.getElementById('checkPhone').value;
+            if (!phone || phone.length < 10) return alert("يرجى إدخال رقم هاتف صحيح");
 
-        function showUI(id) {
-            document.getElementById('loader').classList.add('hidden');
-            document.getElementById('authUI').classList.add('hidden');
-            document.getElementById('waitMessage').classList.add('hidden');
-            document.getElementById(id).classList.remove('hidden');
+            const btn = document.getElementById('checkBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-circle-notch animate-spin"></i> جاري التعرف...`;
+
+            try {
+                const res = await fetch(`${scriptURL}?action=login_check&type=Restaurant&id=${encodeURIComponent(phone)}&cb=${Date.now()}`);
+                const result = await res.json();
+
+                if (result.status === 'active') {
+                    localStorage.setItem('whale_res_phone', phone);
+                    window.location.replace('restaurant.html');
+                } 
+                else if (result.status === 'pending') {
+                    localStorage.setItem('whale_res_phone', phone);
+                    showUI('waitMessage');
+                    if (!checkTimer) checkTimer = setInterval(() => smartCheck(), 10000);
+                } 
+                else {
+                    // إذا لم يتم العثور على الرقم (رقم جديد)
+                    document.getElementById('registerUI').classList.remove('hidden');
+                    document.getElementById('statusDesc').innerText = "NEW SIGNAL DETECTED 📡";
+                    btn.classList.add('hidden');
+                    document.getElementById('checkPhone').disabled = true; // قفل الرقم
+                }
+            } catch (e) {
+                alert("خطأ في الاتصال بالرادار");
+                btn.disabled = false;
+                btn.innerText = "فحص الإشارة 🛰️";
+            }
         }
 
         async function getCoords() {
             return new Promise((resolve) => {
-                if (!navigator.geolocation) resolve({ lat: 0, lng: 0 });
                 navigator.geolocation.getCurrentPosition(
                     (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
                     () => resolve({ lat: 0, lng: 0 }),
-                    { enableHighAccuracy: true, timeout: 5000 }
+                    { timeout: 5000 }
                 );
             });
         }
 
-        document.getElementById('smartForm').onsubmit = async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('mainBtn');
-            const phone = document.getElementById('resPhone').value;
-            
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> جاري المعالجة...`;
-            
-            const coords = await getCoords();
+        // إرسال البيانات للرقم الجديد
+        async function finalRegister() {
+            const btn = document.getElementById('regBtn');
+            const phone = document.getElementById('checkPhone').value;
+            const name = document.getElementById('resName').value;
             const area = document.getElementById('resArea').value;
-            const mapLink = document.getElementById('resMapLink').value;
-            const combinedAddress = `${area} | ${mapLink}`;
+            const map = document.getElementById('resMapLink').value;
 
+            if (!name || !area || !map) return alert("يرجى ملئ جميع الحقول");
+
+            btn.disabled = true;
+            btn.innerText = "جاري بث البيانات...";
+
+            const coords = await getCoords();
             const data = {
                 action: "register_user",
                 type: "Restaurant",
-                name: document.getElementById('resName').value,
+                name: name,
                 phone: phone,
-                address: combinedAddress,
+                address: `${area} | ${map}`,
                 fee: document.getElementById('fixedFee').value,
                 paySystem: document.getElementById('paySystem').value,
                 lat: coords.lat,
@@ -155,25 +147,23 @@
             };
 
             try {
-                // حفظ الهاتف محلياً لبدء عملية التتبع
                 localStorage.setItem('whale_res_phone', phone);
-                
                 await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-                
-                // الانتقال فوراً لفحص الحالة والانتظار
-                setTimeout(() => checkResLogin(phone), 2000);
-            } catch (e) { 
-                alert("حدث خطأ في الاتصال، حاول مجدداً");
+                showUI('waitMessage');
+                checkTimer = setInterval(() => smartCheck(), 10000);
+            } catch (e) {
+                alert("فشل التسجيل");
                 btn.disabled = false;
-                btn.innerText = "إرسال طلب الانضمام";
             }
-        };
+        }
 
-        function logout() { 
-            if (checkTimer) clearInterval(checkTimer);
-            localStorage.clear(); 
-            location.reload(); 
+        function showUI(id) {
+            document.getElementById('checkUI').classList.add('hidden');
+            document.getElementById('registerUI').classList.add('hidden');
+            document.getElementById('waitMessage').classList.add('hidden');
+            document.getElementById(id).classList.remove('hidden');
         }
     </script>
 </body>
 </html>
+
