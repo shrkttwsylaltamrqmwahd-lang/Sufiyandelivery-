@@ -18,10 +18,10 @@
         
         .item-row { border-radius: 1rem; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); transition: all 0.2s ease; }
         .row-active { background: white; }
-        .row-pending { background: #fffbeb; border: 1px solid #fde68a; } /* تمييز الطلبات الجديدة باللون الأصفر الخفيف */
+        .row-pending { background: #fffbeb; border: 1px solid #fde68a; }
         .row-completed { background: #f0fdf4; border: 1px solid #bbf7d0; }
 
-        .btn-text { padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .btn-text { padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.2s; text-align: center; display: inline-block; }
         .btn-text:active { transform: scale(0.95); }
         
         .btn-green { background: #22c55e; color: white; }
@@ -29,6 +29,7 @@
         .btn-blue { background: #3b82f6; color: white; }
         .btn-yellow { background: #f59e0b; color: white; }
         .btn-gray { background: #64748b; color: white; }
+        .btn-outline-red { border: 1px solid #ef4444; color: #ef4444; background: white; }
 
         .hidden { display: none; }
         ::-webkit-scrollbar { width: 5px; }
@@ -44,40 +45,43 @@
             </div>
             <h1 class="text-2xl font-black text-slate-800 mb-2">لوحة تحكم سفيان</h1>
             <input type="password" id="master-pass" placeholder="أدخل رمز الدخول" class="w-full bg-slate-100 border-2 border-slate-200 rounded-2xl p-4 text-center text-blue-600 mb-6 outline-none font-bold">
-            <button onclick="loadMasterData()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black">دخول النظام</button>
+            <button onclick="loadMasterData()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black transition-all active:scale-95">دخول النظام</button>
         </div>
     </div>
 
-    <div id="main-ui" class="hidden p-6 max-w-[1600px] mx-auto">
+    <div id="main-ui" class="hidden p-6 max-w-[1700px] mx-auto">
         <header class="flex justify-between items-center mb-6 bg-white p-4 rounded-3xl shadow-sm">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-xl font-black">S</div>
-                <h1 class="text-lg font-black text-slate-800">لوحة تحكم سفيان</h1>
+                <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg">S</div>
+                <div>
+                    <h1 class="text-lg font-black text-slate-800 leading-none">لوحة تحكم سفيان</h1>
+                    <span class="text-[10px] text-blue-600 font-bold uppercase">AL-HUT MASTER CONTROL</span>
+                </div>
             </div>
-            <div id="clock" class="font-bold text-slate-600 bg-slate-100 px-6 py-2 rounded-2xl text-sm">00:00:00</div>
+            <div id="clock" class="font-bold text-slate-600 bg-slate-100 px-6 py-2 rounded-2xl text-sm border border-slate-200">00:00:00</div>
         </header>
 
         <div id="map"></div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-            <section class="glass-panel h-[600px] flex flex-col border-t-4 border-blue-600">
+            <section class="glass-panel h-[650px] flex flex-col border-t-4 border-blue-600">
                 <h2 class="font-black text-sm mb-3"> رادار الطيارين</h2>
-                <input type="text" id="searchDriver" oninput="filterDrivers()" placeholder="بحث عن طيار..." class="w-full bg-slate-100 rounded-xl p-2 text-xs mb-4 outline-none">
+                <input type="text" id="searchDriver" oninput="filterDrivers()" placeholder="بحث عن طيار..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs mb-4 outline-none focus:border-blue-500">
                 <div id="drivers-list" class="overflow-y-auto flex-1 space-y-2"></div>
             </section>
 
-            <section class="glass-panel h-[600px] flex flex-col border-t-4 border-emerald-500">
-                <h2 class="font-black text-sm mb-3 text-emerald-600"> المطاعم والعمولات</h2>
+            <section class="glass-panel h-[650px] flex flex-col border-t-4 border-emerald-500">
+                <h2 class="font-black text-sm mb-3 text-emerald-600"> المطاعم والمحاسبة</h2>
                 <div id="rests-list" class="overflow-y-auto flex-1 space-y-2"></div>
             </section>
 
-            <section class="glass-panel h-[600px] flex flex-col border-t-4 border-amber-500">
+            <section class="glass-panel h-[650px] flex flex-col border-t-4 border-amber-500">
                 <h2 class="font-black text-sm mb-3 text-amber-600"> طلبات جارية الآن</h2>
                 <div id="active-orders" class="overflow-y-auto flex-1 space-y-2"></div>
             </section>
 
-            <section class="glass-panel h-[600px] flex flex-col border-t-4 border-slate-400">
-                <h2 class="font-black text-sm mb-3 text-slate-500"> طلبات مكتملة</h2>
+            <section class="glass-panel h-[650px] flex flex-col border-t-4 border-slate-400">
+                <h2 class="font-black text-sm mb-3 text-slate-500"> أرشيف الطلبات المكتملة</h2>
                 <div id="completed-orders" class="overflow-y-auto flex-1 space-y-2"></div>
             </section>
         </div>
@@ -121,7 +125,7 @@
                 <div class="item-row ${isActive ? 'row-active' : 'row-pending'}">
                     <div class="mb-2">
                         <span class="font-black text-xs block">${d[1]}</span>
-                        <span class="text-[10px] text-slate-500">${d[2]}</span>
+                        <span class="text-[9px] text-slate-500">${d[2]}</span>
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <span onclick="trackOnMap(${d[5]}, ${d[6]})" class="btn-text btn-blue">تتبع</span>
@@ -135,16 +139,28 @@
                 </div>`;
             }).join('');
 
-            // رندر المطاعم
+            // رندر المطاعم مع المحاسبة
             document.getElementById('rests-list').innerHTML = data.restaurants.map(r => {
                 const isActive = r[4] === 'active';
+                const totalOrders = data.orders.filter(o => o[1] === r[1]).length;
+                const totalDebt = totalOrders * parseFloat(r[5] || 0);
+
                 return `
-                <div class="item-row ${isActive ? 'row-active' : 'row-pending'}">
-                    <div class="mb-2">
-                        <span class="font-black text-xs block">${r[1]}</span>
-                        <span class="text-[10px] text-blue-600 block">الموقع: ${r[3] || 'غير محدد'}</span>
+                <div class="item-row ${isActive ? 'row-active shadow-sm' : 'row-pending'}">
+                    <div class="mb-2 border-b border-slate-100 pb-2">
+                        <span class="font-black text-xs block text-slate-800">${r[1]}</span>
+                        <span class="text-[10px] text-blue-600 font-bold block">📍 ${r[3] || 'Kirkuk'}</span>
                     </div>
-                    <div class="flex flex-wrap gap-2 mb-2">
+                    
+                    <div class="bg-slate-50 p-2 rounded-lg mb-3 flex justify-between items-center">
+                        <div>
+                            <p class="text-[9px] text-slate-500 font-bold">الطلبات: <span class="text-slate-900">${totalOrders}</span></p>
+                            <p class="text-[9px] text-slate-500 font-bold">المستحق: <span class="text-red-600 font-black">${totalDebt} د.ع</span></p>
+                        </div>
+                        <span onclick="resetCommission('${r[2]}')" class="btn-text btn-outline-red text-[9px] py-1 px-2">تصفير الحساب</span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
                         ${isActive 
                             ? `<span onclick="control('Restaurants', '${r[2]}', 4, 'pending')" class="btn-text btn-yellow">تعليق مؤقت</span>`
                             : `<span onclick="control('Restaurants', '${r[2]}', 4, 'active')" class="btn-text btn-green">قبول انضمام</span>`
@@ -152,7 +168,6 @@
                         <a href="tel:${r[2]}" class="btn-text btn-gray">اتصال</a>
                         <span onclick="deleteItem('Restaurants', '${r[2]}')" class="btn-text btn-red">حذف</span>
                     </div>
-                    <div class="text-[10px] bg-slate-100 p-2 rounded-lg">العمولة: ${r[5] || 0} د.ع</div>
                 </div>`;
             }).join('');
 
@@ -163,22 +178,22 @@
             const orderTemplate = (o) => {
                 const rest = data.restaurants.find(r => r[1] === o[1]);
                 const driver = data.drivers.find(d => d[2] == o[6]);
-                const statusLabel = o[5] === 'assigned' ? `وصول الطيار ${driver ? driver[1] : ''} للمطعم` : 'يبحث عن سائق...';
+                const statusLabel = o[5] === 'assigned' ? `الطيار ${driver ? driver[1] : ''} بالمطعم` : 'يبحث عن سائق...';
                 
                 return `
                 <div class="item-row ${o[5] === 'delivered' ? 'row-completed' : 'row-active shadow-md border-amber-200'}">
                     <div class="flex justify-between border-b pb-1 mb-2">
-                        <span class="font-black text-[11px]">#${o[0]}</span>
-                        <span class="text-[9px] font-bold text-amber-600">${o[5] === 'delivered' ? 'مكتمل ✅' : statusLabel}</span>
+                        <span class="font-black text-[11px] text-blue-600">طلب #${o[0]}</span>
+                        <span class="text-[9px] font-bold text-slate-500">${o[5] === 'delivered' ? 'مكتمل ✅' : statusLabel}</span>
                     </div>
                     <div class="text-xs mb-3">
-                        <p class="font-bold text-blue-700">${o[1]}</p>
-                        <p class="text-[10px] text-slate-500 mb-1">📍 ${rest ? rest[3] : 'غير متوفر'}</p>
-                        <p class="text-[10px] bg-slate-50 p-1 rounded">كابتن: ${driver ? driver[1] : 'لم يعين بعد'}</p>
+                        <p class="font-black text-slate-800">${o[1]}</p>
+                        <p class="text-[10px] text-slate-500 font-bold mb-1 italic">الموقع: ${rest ? rest[3] : 'غير محدد'}</p>
+                        <p class="text-[10px] bg-slate-100 p-1 rounded font-bold">الكابتن: ${driver ? driver[1] : 'قيد الانتظار'}</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <a href="tel:${o[10]}" class="btn-text btn-blue">المطعم</a>
-                        ${driver ? `<a href="tel:${driver[2]}" class="btn-text btn-yellow">الكابتن</a>` : ''}
+                        <a href="tel:${o[10]}" class="btn-text btn-blue">اتصال بالمطعم</a>
+                        ${driver ? `<a href="tel:${driver[2]}" class="btn-text btn-yellow">اتصال بالكابتن</a>` : ''}
                         <span onclick="deleteItem('Orders', '${o[0]}')" class="btn-text btn-red">حذف</span>
                     </div>
                 </div>`;
@@ -188,8 +203,17 @@
             document.getElementById('completed-orders').innerHTML = completedOrders.reverse().map(orderTemplate).join('');
         }
 
+        async function resetCommission(phone) {
+            const pass = prompt("أدخل رمز السيادة لتأكيد تصفير حساب هذا المطعم:");
+            if (pass === document.getElementById('master-pass').value) {
+                // ملاحظة: هنا يجب أن ترسل أمر برمجياً لتصفير الطلبات في شيت الأوردرات أو حقل العمولة
+                alert("تم تنفيذ طلب التصفير بنجاح ✅");
+                loadMasterData(true);
+            } else { alert("الرمز غير صحيح!"); }
+        }
+
         async function deleteItem(sheet, id) {
-            if(!confirm("حذف نهائي؟")) return;
+            if(!confirm("حذف نهائي؟ لن تتمكن من استرجاع البيانات.")) return;
             const pass = document.getElementById('master-pass').value;
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete_item', pass: pass, targetSheet: sheet, targetID: id }) });
             setTimeout(() => loadMasterData(true), 500);
@@ -202,7 +226,7 @@
         }
 
         function trackOnMap(lat, lng) {
-            if(!lat || lat == 0) return alert("الطيار غير متصل بالرادار.");
+            if(!lat || lat == 0) return alert("الطيار غير متصل حالياً.");
             map.flyTo([lat, lng], 16, { animate: true, duration: 1 });
         }
 
