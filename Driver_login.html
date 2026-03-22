@@ -38,7 +38,7 @@
                 <h2 class="text-2xl font-black tracking-widest uppercase italic" style="font-family: 'Orbitron', sans-serif;">
                     WHALE <span class="text-amber-500">PILOT</span>
                 </h2>
-                <p class="text-[9px] text-gray-500 mt-2 font-bold italic uppercase tracking-widest leading-loose">منظومة الحوت - كركوك V10.0</p>
+                <p class="text-[9px] text-gray-500 mt-2 font-bold italic uppercase tracking-widest leading-loose">منظومة الحوت - كركوك V6.2</p>
             </header>
 
             <form id="loginForm" class="space-y-4">
@@ -66,19 +66,19 @@
         <div id="statusMessage" class="hidden text-center py-12">
             <div id="statusIcon" class="text-6xl mb-6">🛰️</div>
             <h3 id="statusTitle" class="text-xl font-black text-amber-500 italic uppercase">بانتظار الإشارة</h3>
-            <p id="statusDesc" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">يتم مراجعة هويتك الآن من قبل طه.<br>سيفتح الرادار تلقائياً فور تفعيل حسابك.</p>
+            <p id="statusDesc" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">يتم مراجعة هويتك الآن من قبل الإدارة.<br>سيفتح الرادار تلقائياً فور تفعيل حسابك.</p>
             <button onclick="window.location.reload()" class="mt-10 text-[9px] text-red-500 font-black border-b border-red-500/30 pb-1">محاولة مرة أخرى</button>
         </div>
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzywi3-mLv5H4bNHYvQbFDpy_FwA-AceD4g8JZX6Ah3QZhmC5LGXNLvBeQBjYO9tmt9vA/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzBTRYdugjCeYZoeaHng4JPIq0vBu-b3VHNuEX9ya0H1C022PDangGTOR9I-v4i83rDoA/exec';
 
         // إخفاء التحميل الأولي
         setTimeout(() => {
             document.getElementById('loader').classList.add('hidden');
             document.getElementById('authUI').classList.remove('hidden');
-        }, 1500);
+        }, 1200);
 
         const loginForm = document.getElementById('loginForm');
         
@@ -92,47 +92,42 @@
             btnText.innerText = "جاري الاتصال بالسيرفر...";
             
             try {
-                // الخطوة 1: فحص إذا كان الرقم موجوداً أصلاً
-                const response = await fetch(`${scriptURL}?action=login_check&id=${phone}`);
+                // فحص حالة السائق من الشيت
+                const response = await fetch(`${scriptURL}?action=login_check&type=Driver&id=${phone}`);
                 const result = await response.json();
 
                 if (result.status === "active") {
-                    // الكابتن مسجل ونشط -> دخله فوراً للرادار
                     localStorage.setItem('whale_driver_phone', phone);
+                    localStorage.setItem('whale_driver_name', result.name);
                     window.location.href = "Driver.html";
                 } 
                 else if (result.status === "banned") {
-                    // الكابتن محظور
-                    showStatus("هوية محظورة 🚫", "تم حظر وصولك للمنظومة لمخالفة قوانين الحوت.", "🛑");
+                    showStatus("هوية محظورة 🚫", "تم حظر وصولك للمنظومة لمخالفة القوانين.", "🛑");
                 } 
-                else if (result.status === "waiting") {
-                    // الكابتن سجل وبانتظار موافقتك
-                    showStatus("قيد المعالجة ⏳", "أهلاً كابتن، هويتك وصلت لطه وبانتظار التفعيل النهائي.", "🛰️");
+                else if (result.status === "pending") {
+                    showStatus("قيد المعالجة ⏳", "أهلاً كابتن، حسابك بانتظار تفعيل سفيان.", "🛰️");
                 } 
                 else {
                     // الرقم غير موجود -> تسجيل جديد
-                    if (!name) {
+                    if (!regFields.classList.contains('hidden')) {
+                        // إرسال طلب تسجيل جديد
+                        await fetch(scriptURL, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                action: "register",
+                                type: "Driver",
+                                phone: phone,
+                                name: name
+                            })
+                        });
+                        showStatus("تم إرسال الطلب 🚀", "سيتم تفعيل حسابك فور مراجعته من الإدارة.", "✅");
+                    } else {
                         regFields.classList.remove('hidden');
-                        btnText.innerText = "إرسال طلب انضمام للأسطول";
-                        return;
+                        btnText.innerText = "تأكيد طلب الانضمام";
                     }
-                    
-                    // إرسال طلب تسجيل جديد (إضافة صف في شيت Drivers)
-                    await fetch(scriptURL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: "master_control",
-                            pass: "guest", // رمز افتراضي للتسجيل
-                            targetSheet: "Drivers_Pending", // نرسلها لجدول مؤقت أو نعالجها في السكربت
-                            phone: phone,
-                            name: name
-                        })
-                    });
-                    
-                    showStatus("تم إرسال الطلب 🚀", "سيتم التواصل معك فور تفعيل حسابك من قبل الإدارة.", "✅");
                 }
             } catch (err) {
-                alert("خطأ في الاتصال بالشبكة. تأكد من الإنترنت.");
+                alert("خطأ في الشبكة، يرجى المحاولة لاحقاً.");
                 btnText.innerText = "فحص حالة الهوية";
             }
         });
