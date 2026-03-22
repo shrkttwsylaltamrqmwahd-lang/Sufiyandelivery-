@@ -2,223 +2,77 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بوابة المطعم | منظومة الحوت 🐋 V10.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إرسال طلب | الحوت</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --whale-emerald: #10b981; --whale-dark: #020617; }
-        body { font-family: 'Tajawal', sans-serif; background: var(--whale-dark); color: white; overflow-x: hidden; }
-        .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-        .tab-btn { transition: 0.3s; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
-        .tab-btn.active { background: var(--whale-emerald); color: var(--whale-dark); font-weight: 900; border-color: var(--whale-emerald); transform: translateY(-2px); }
-        .whale-input { background: rgba(30, 41, 59, 0.4); border: 2px solid #1e293b; color: white; transition: 0.3s; }
-        .whale-input:focus { border-color: var(--whale-emerald); background: rgba(30, 41, 59, 0.7); outline: none; box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
-        .btn-glow { box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); }
-        .online-dot { width: 10px; height: 10px; background: var(--whale-emerald); border-radius: 50%; display: inline-block; margin-left: 10px; box-shadow: 0 0 15px var(--whale-emerald); animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
-        .hidden { display: none; }
-        select option { background: #0f172a; color: white; }
-    </style>
 </head>
-<body class="p-4 pb-12">
+<body class="bg-slate-950 p-4 text-white font-['Tajawal']">
+    <div class="max-w-md mx-auto space-y-6">
+        <header class="bg-slate-900 p-4 rounded-2xl border-b-2 border-emerald-500 flex justify-between items-center">
+            <span id="resName" class="font-black italic">...</span>
+            <div class="text-[10px] bg-emerald-500 text-black px-2 py-1 rounded-full font-bold">KIRKUK V10</div>
+        </header>
 
-    <header class="max-w-xl mx-auto mb-8 flex justify-between items-center glass-card p-5 rounded-[2rem] sticky top-4 z-50 border-b-2 border-emerald-500/20 shadow-2xl">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-slate-900 text-3xl shadow-lg shadow-emerald-500/20 font-black">🐋</div>
-            <div>
-                <p class="text-[9px] text-emerald-400 font-black uppercase tracking-[0.3em] italic" style="font-family: 'Orbitron';">KITCHEN OPS V10.0</p>
-                <h1 id="displayResName" class="text-sm font-black text-white italic tracking-wider flex items-center mt-1">
-                    <span class="online-dot"></span> جاري المزامنة..
-                </h1>
-            </div>
-        </div>
-        <button onclick="logout()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-red-500/10 text-red-500 border border-red-500/20 active:scale-90 transition-all">
-            <i class="fas fa-sign-out-alt"></i>
-        </button>
-    </header>
-
-    <div class="max-w-xl mx-auto glass-card p-8 rounded-[3rem] shadow-2xl relative border-t border-white/5">
-        <div class="text-center mb-10">
-            <div class="inline-block bg-emerald-500/10 px-6 py-1.5 rounded-full mb-3 border border-emerald-500/20">
-                <p id="resStatusText" class="text-[10px] text-emerald-500 font-black uppercase tracking-[0.2em] italic">Encryption Check 📡</p>
-            </div>
-            <h2 class="text-3xl font-black italic text-white tracking-tight">إرسال طلب جديد</h2>
-        </div>
-
-        <div class="flex gap-4 mb-8 bg-slate-900/50 p-2 rounded-2xl border border-white/5">
-            <button type="button" onclick="switchTab('manual')" id="manualBtn" class="tab-btn active flex-1 py-4 rounded-xl font-black text-[11px] italic uppercase tracking-widest transition-all">
-                <i class="fas fa-keyboard ml-2"></i> تفاصيل يدوية
-            </button>
-            <button type="button" onclick="switchTab('camera')" id="cameraBtn" class="tab-btn flex-1 py-4 rounded-xl font-black text-[11px] italic uppercase tracking-widest transition-all">
-                <i class="fas fa-camera ml-2"></i> صورة الوصل
-            </button>
-        </div>
-        
-        <form id="orderForm" class="space-y-7">
-            <div class="space-y-3">
-                <label class="text-[11px] font-black text-emerald-400 uppercase flex items-center gap-2 mr-2 italic tracking-widest">
-                    <i class="fas fa-map-marker-alt"></i> Delivery Sector (كركوك)
-                </label>
-                <div class="relative">
-                    <select id="locationSelect" class="w-full p-5 whale-input rounded-2xl font-black text-sm appearance-none cursor-pointer" required>
-                        <option value="" disabled selected>تحديد وجهة التوصيل...</option>
-                        <optgroup label="قطاعات كركوك">
-                            <option value="الماس">الماس</option>
-                            <option value="طريق بغداد">طريق بغداد</option>
-                            <option value="التسعين">التسعين</option>
-                            <option value="قورية">قورية</option>
-                            <option value="الواسطي">حي الواسطي</option>
-                            <option value="غرناطة">غرناطة</option>
-                            <option value="حي عدن">حي عدن</option>
-                            <option value="حي الخضراء">حي الخضراء</option>
-                            <option value="بنجه علي">بنجه علي</option>
-                            <option value="شارع القدس">شارع القدس</option>
-                            <option value="الشورجة">الشورجة</option>
-                        </optgroup>
-                    </select>
-                    <i class="fas fa-chevron-down absolute left-5 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none"></i>
-                </div>
+        <form id="orderForm" class="bg-slate-900 p-6 rounded-[2rem] space-y-5 shadow-2xl">
+            <select id="area" class="w-full p-4 bg-slate-800 rounded-xl font-bold outline-none border-2 border-transparent focus:border-emerald-500" required>
+                <option value="" disabled selected>اختر منطقة التوصيل</option>
+                <option value="الماس">الماس</option><option value="طريق بغداد">طريق بغداد</option>
+                <option value="التسعين">التسعين</option><option value="الواسطي">الواسطي</option>
+            </select>
+            <input type="tel" id="custPhone" placeholder="هاتف الزبون" class="w-full p-4 bg-slate-800 rounded-xl font-bold outline-none">
+            <textarea id="details" placeholder="التفاصيل أو العنوان الدقيق" class="w-full p-4 bg-slate-800 rounded-xl h-24 font-bold"></textarea>
+            
+            <div class="border-2 border-dashed border-slate-700 p-4 rounded-xl text-center">
+                <input type="file" id="imgInput" accept="image/*" capture="camera" class="hidden" onchange="preview(event)">
+                <button type="button" onclick="document.getElementById('imgInput').click()" class="text-emerald-400 font-bold text-sm"><i class="fas fa-camera"></i> تصوير الوصل</button>
+                <img id="imgPreview" class="mt-2 hidden max-h-32 mx-auto rounded-lg">
             </div>
 
-            <div id="manualSection" class="space-y-5 animate-in fade-in duration-300">
-                <div class="relative">
-                    <input type="tel" id="customerPhone" class="w-full p-5 whale-input rounded-2xl text-center font-bold tracking-[0.2em] text-xl" placeholder="رقم هاتف الزبون">
-                    <i class="fas fa-phone absolute right-5 top-1/2 -translate-y-1/2 text-slate-500/50"></i>
-                </div>
-                <textarea id="details" class="w-full p-5 whale-input rounded-2xl text-sm text-right h-28 resize-none font-bold" placeholder="العنوان الدقيق، رقم الدار، أو أي ملاحظات أخرى..."></textarea>
-            </div>
-
-            <div id="cameraSection" class="hidden space-y-5 text-center animate-in zoom-in duration-300">
-                <div onclick="document.getElementById('receiptImage').click()" class="border-3 border-dashed border-emerald-500/20 rounded-[3rem] p-12 cursor-pointer hover:bg-emerald-500/5 transition-all group">
-                    <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all">
-                        <i class="fas fa-camera text-3xl text-emerald-500"></i>
-                    </div>
-                    <p class="font-black text-[11px] text-emerald-400 uppercase tracking-widest">التصوير الفوري للوصل</p>
-                    <input type="file" id="receiptImage" accept="image/*" capture="camera" class="hidden" onchange="previewImage(event)">
-                </div>
-                <div id="previewContainer" class="hidden relative inline-block animate-bounce">
-                    <img id="imagePreview" src="#" class="rounded-3xl max-h-56 border-4 border-emerald-500/30 shadow-2xl">
-                    <button type="button" onclick="cancelImage()" class="absolute -top-3 -right-3 bg-red-500 text-white w-10 h-10 rounded-full shadow-xl flex items-center justify-center border-2 border-white">✕</button>
-                </div>
-            </div>
-
-            <button type="submit" id="submitBtn" class="w-full bg-emerald-500 text-slate-900 py-6 rounded-[2.5rem] font-black text-2xl btn-glow italic uppercase active:scale-95 transition-all flex items-center justify-center gap-4 mt-8 group">
-                <span id="btnText">إطلاق المهمة</span> 
-                <i class="fas fa-paper-plane group-hover:translate-x-2 group-hover:-translate-y-1 transition-all"></i>
-            </button>
+            <button type="submit" id="sendBtn" class="w-full bg-emerald-500 py-5 rounded-2xl text-black font-black text-xl shadow-lg shadow-emerald-500/10">بث الطلب 🐋</button>
         </form>
-
-        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-900 px-10 py-5 rounded-[2rem] font-black text-sm hidden shadow-2xl z-[100] animate-bounce border-4 border-white/20">
-            🚀 تم إرسال الطلب لأسطول كركوك!
-        </div>
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzywi3-mLv5H4bNHYvQbFDpy_FwA-AceD4g8JZX6Ah3QZhmC5LGXNLvBeQBjYO9tmt9vA/exec';
-        let base64Image = null;
-        let restaurantProfile = null;
+        const API = "https://script.google.com/macros/s/AKfycbzywi3-mLv5H4bNHYvQbFDpy_FwA-AceD4g8JZX6Ah3QZhmC5LGXNLvBeQBjYO9tmt9vA/exec";
+        let resData = null; let base64 = null;
 
         window.onload = async () => {
-            const resPhone = localStorage.getItem('whale_res_phone');
-            if (!resPhone) { window.location.href = 'restaurant_login.html'; return; }
-            
-            try {
-                // استخدام login_check لزيادة الأمان وجلب بيانات المطعم
-                const response = await fetch(`${scriptURL}?action=login_check&id=${resPhone}`);
-                const result = await response.json();
-                
-                if (result.status === 'active') {
-                    restaurantProfile = result.data; // البيانات من الصف في الإكسل
-                    document.getElementById('displayResName').innerHTML = `<span class="online-dot"></span> ${restaurantProfile[1]}`;
-                    document.getElementById('resStatusText').innerText = "SYSTEM ACTIVE 📡";
-                } else {
-                    alert("الحساب غير مفعل من قبل الإدارة."); logout();
-                }
-            } catch (e) { document.getElementById('displayResName').innerText = "Connection Error"; }
+            const phone = localStorage.getItem('whale_res_phone');
+            const data = await (await fetch(`${API}?action=get_master_data&pass=112233`)).json();
+            resData = data.restaurants.find(r => String(r[2]) === String(phone));
+            document.getElementById('resName').innerText = resData[1];
         };
 
-        function switchTab(type) {
-            document.getElementById('manualSection').classList.toggle('hidden', type === 'camera');
-            document.getElementById('cameraSection').classList.toggle('hidden', type === 'manual');
-            document.getElementById('manualBtn').classList.toggle('active', type === 'manual');
-            document.getElementById('cameraBtn').classList.toggle('active', type === 'camera');
+        function preview(e) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                document.getElementById('imgPreview').src = reader.result;
+                document.getElementById('imgPreview').classList.remove('hidden');
+                base64 = reader.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
         }
 
-        function previewImage(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('imagePreview').src = e.target.result;
-                    document.getElementById('previewContainer').classList.remove('hidden');
-                    base64Image = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function cancelImage() {
-            base64Image = null;
-            document.getElementById('previewContainer').classList.add('hidden');
-            document.getElementById('receiptImage').value = "";
-        }
-
-        document.getElementById('orderForm').onsubmit = async function(e) {
+        document.getElementById('orderForm').onsubmit = async (e) => {
             e.preventDefault();
-            if (!restaurantProfile) return alert("يرجى الانتظار حتى اكتمال المزامنة...");
+            const btn = document.getElementById('sendBtn');
+            btn.innerText = "جاري البحث عن أقرب طيار..."; btn.disabled = true;
 
-            const btn = document.getElementById('submitBtn');
-            const btnText = document.getElementById('btnText');
-            const area = document.getElementById('locationSelect').value;
-            const customerPhone = document.getElementById('customerPhone').value || "غير متوفر";
-            const detailsText = document.getElementById('details').value || "تفاصيل في صورة الوصل";
-
-            const orderData = {
-                action: 'restaurant_send_order',
-                restName: restaurantProfile[1],
-                restLocation: restaurantProfile[3], // العنوان المسجل
-                fee: restaurantProfile[5], // العمولة من شيت المطاعم
-                lat: restaurantProfile[6], // الإحداثيات المسجلة للمطعم
-                lng: restaurantProfile[7],
-                area: area,
-                details: `هاتف: ${customerPhone} | ${detailsText}`,
-                image: base64Image
+            const payload = {
+                action: "restaurant_send_order",
+                restName: resData[1],
+                restLocation: resData[3],
+                fee: resData[5],
+                lat: resData[6],
+                lng: resData[7],
+                area: document.getElementById('area').value,
+                details: "هاتف: " + document.getElementById('custPhone').value + " | " + document.getElementById('details').value,
+                image: base64
             };
 
-            btn.disabled = true;
-            btnText.innerText = "جاري البث...";
-            
-            try {
-                const response = await fetch(scriptURL, { method: 'POST', body: JSON.stringify(orderData) });
-                const res = await response.json();
-
-                if (res.status === "success") {
-                    document.getElementById('toast').classList.remove('hidden');
-                    document.getElementById('orderForm').reset();
-                    cancelImage();
-                    setTimeout(() => { 
-                        document.getElementById('toast').classList.add('hidden'); 
-                        btn.disabled = false;
-                        btnText.innerText = "إطلاق المهمة";
-                    }, 4000);
-                } else {
-                    throw new Error("Server Error");
-                }
-            } catch (err) {
-                alert("تم الإرسال بنجاح (تأكيد محلي للأسطول)");
-                btn.disabled = false;
-                btnText.innerText = "إطلاق المهمة";
-            }
+            await fetch(API, { method: 'POST', body: JSON.stringify(payload) });
+            alert("تم إطلاق الطلب بنجاح!"); location.reload();
         };
-
-        function logout() { 
-            if(confirm("هل تريد تسجيل الخروج؟")) {
-                localStorage.clear(); 
-                window.location.href = 'restaurant_login.html'; 
-            }
-        }
     </script>
 </body>
 </html>
