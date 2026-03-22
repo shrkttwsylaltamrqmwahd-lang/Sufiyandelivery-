@@ -9,46 +9,51 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Tajawal', sans-serif; background: #020617; color: white; overflow-x: hidden; }
-        .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .glass-card { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); }
         .tab-btn { transition: 0.3s; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-        .tab-btn.active { background: #10b981; color: #020617; font-weight: 900; border-color: #10b981; }
-        .whale-select { background: #0f172a; border: 2px solid #1e293b; color: white; appearance: none; }
-        .whale-select:focus { border-color: #10b981; }
-        .btn-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
-        .online-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; margin-left: 5px; box-shadow: 0 0 10px #10b981; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .tab-btn.active { background: #10b981; color: #020617; font-weight: 900; border-color: #10b981; transform: scale(1.05); }
+        .whale-input { background: rgba(30, 41, 59, 0.5); border: 2px solid #1e293b; color: white; transition: 0.3s; }
+        .whale-input:focus { border-color: #10b981; background: rgba(30, 41, 59, 0.8); outline: none; }
+        .btn-glow { box-shadow: 0 0 25px rgba(16, 185, 129, 0.4); }
+        .online-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; display: inline-block; margin-left: 8px; box-shadow: 0 0 12px #10b981; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
         .hidden { display: none; }
     </style>
 </head>
-<body class="p-4 pb-24">
+<body class="p-4 pb-12">
 
-    <header class="max-w-xl mx-auto mb-6 flex justify-between items-center glass-card p-4 rounded-3xl sticky top-4 z-50">
+    <header class="max-w-xl mx-auto mb-6 flex justify-between items-center glass-card p-4 rounded-3xl sticky top-2 z-50 border-b-2 border-emerald-500/30">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-900 font-black shadow-lg">🐋</div>
+            <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-slate-900 text-2xl shadow-lg">🐋</div>
             <div>
-                <p class="text-[8px] text-emerald-500 font-black uppercase tracking-widest italic">Kitchen Hub V7.2</p>
-                <h1 id="displayResName" class="text-xs font-black text-white italic tracking-wider flex items-center">جاري الربط..</h1>
+                <p class="text-[9px] text-emerald-400 font-black uppercase tracking-[0.2em] italic">HUT KITCHEN V8.5</p>
+                <h1 id="displayResName" class="text-sm font-black text-white italic tracking-wider flex items-center">جاري الاتصال...</h1>
             </div>
         </div>
-        <button onclick="logout()" class="text-[10px] font-black text-red-400 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 active:scale-95 transition-all">خروج</button>
+        <button onclick="logout()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500/20 text-red-500 border border-red-500/30 active:scale-90 transition-all"><i class="fas fa-power-off"></i></button>
     </header>
 
-    <div class="max-w-xl mx-auto glass-card p-6 rounded-[2.5rem] shadow-2xl relative border-t-4 border-emerald-500">
-        <div class="text-center mb-6">
-            <h2 class="text-xl font-black italic">إرسال طلب جديد 🚀</h2>
-            <p id="resStatusText" class="text-[9px] text-emerald-500 font-bold uppercase tracking-widest mt-1 italic animate-pulse">جاري فحص إشارة الرادار 📍</p>
+    <div class="max-w-xl mx-auto glass-card p-6 rounded-[2.5rem] shadow-2xl relative">
+        
+        <div class="text-center mb-8">
+            <div class="inline-block bg-emerald-500/10 px-4 py-1 rounded-full mb-2">
+                <p id="resStatusText" class="text-[10px] text-emerald-500 font-black uppercase tracking-widest italic">فحص التشفير 📡</p>
+            </div>
+            <h2 class="text-2xl font-black italic text-white">إرسال طلب جديد</h2>
         </div>
 
-        <div class="flex gap-2 mb-6 bg-white/5 p-1 rounded-2xl">
-            <button type="button" onclick="switchTab('manual')" id="manualBtn" class="tab-btn active flex-1 py-3 rounded-xl font-black text-[10px] italic uppercase">بيانات يدوية</button>
-            <button type="button" onclick="switchTab('camera')" id="cameraBtn" class="tab-btn flex-1 py-3 rounded-xl font-black text-[10px] italic uppercase">تصوير الوصل 📸</button>
+        <div class="flex gap-3 mb-8 bg-slate-800/50 p-1.5 rounded-2xl border border-white/5">
+            <button type="button" onclick="switchTab('manual')" id="manualBtn" class="tab-btn active flex-1 py-4 rounded-xl font-black text-[11px] italic uppercase tracking-wider">تفاصيل يدوية</button>
+            <button type="button" onclick="switchTab('camera')" id="cameraBtn" class="tab-btn flex-1 py-4 rounded-xl font-black text-[11px] italic uppercase tracking-wider"><i class="fas fa-camera ml-1"></i> صورة الوصل</button>
         </div>
         
-        <form id="orderForm" class="space-y-5">
-            <div>
-                <label class="text-[10px] font-black text-emerald-500 uppercase mb-2 block mr-1 italic">📍 منطقة التوصيل في كركوك</label>
+        <form id="orderForm" class="space-y-6">
+            <div class="space-y-2">
+                <label class="text-[11px] font-black text-emerald-400 uppercase flex items-center gap-2 mr-1 italic">
+                    <i class="fas fa-map-marker-alt"></i> منطقة التوصيل (كركوك)
+                </label>
                 <div class="relative">
-                    <select id="locationSelect" class="w-full p-4 whale-select rounded-2xl outline-none font-black text-sm pr-10" required>
+                    <select id="locationSelect" class="w-full p-4 whale-input rounded-2xl font-black text-sm appearance-none cursor-pointer" required>
                         <option value="" disabled selected>اختر منطقة الزبون...</option>
                         <option value="الماس">الماس</option>
                         <option value="طريق بغداد">طريق بغداد</option>
@@ -57,46 +62,53 @@
                         <option value="قورية">قورية</option>
                         <option value="بنجه علي">بنجه علي</option>
                         <option value="عرفه">عرفه</option>
-                        <option value="حي الواسطي">حي الواسطي</option>
-                        <option value="حي حزيران">حي حزيران</option>
-                        <option value="المصلى">المصلى</option>
+                        <option value="الواسطي">حي الواسطي</option>
+                        <option value="غرناطة">غرناطة</option>
                         <option value="حي عدن">حي عدن</option>
                         <option value="حي الخضراء">حي الخضراء</option>
-                        <option value="حي العسكري">حي العسكري</option>
                     </select>
-                    <i class="fas fa-map-location-dot absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
+                    <i class="fas fa-chevron-down absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none"></i>
                 </div>
             </div>
 
-            <div id="manualSection" class="space-y-5">
-                <input type="tel" id="customerPhone" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-emerald-500 font-bold text-center tracking-widest" placeholder="رقم هاتف الزبون">
-                <textarea id="details" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-emerald-500 font-bold text-sm text-right h-24" placeholder="العنوان الدقيق وتفاصيل الوجبات..."></textarea>
+            <div id="manualSection" class="space-y-5 animate-in fade-in duration-500">
+                <div class="relative">
+                    <input type="tel" id="customerPhone" class="w-full p-4 whale-input rounded-2xl text-center font-bold tracking-[0.3em] text-lg" placeholder="077XXXXXXXX">
+                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-emerald-500/50 uppercase">هاتف</span>
+                </div>
+                <div class="relative">
+                    <textarea id="details" class="w-full p-4 whale-input rounded-2xl text-sm text-right h-28 resize-none" placeholder="اكتب العنوان الدقيق وتفاصيل الطلب هنا..."></textarea>
+                </div>
             </div>
 
-            <div id="cameraSection" class="hidden space-y-4 text-center">
-                <div onclick="document.getElementById('receiptImage').click()" class="border-2 border-dashed border-white/10 rounded-[2rem] p-10 cursor-pointer hover:bg-emerald-500/5 transition-all">
-                    <i class="fas fa-camera text-4xl mb-3 text-emerald-500/40"></i>
-                    <p class="font-black text-[10px] italic uppercase text-slate-400">التقط صورة واضحة للوصل</p>
+            <div id="cameraSection" class="hidden space-y-4 text-center animate-in zoom-in duration-300">
+                <div onclick="document.getElementById('receiptImage').click()" class="border-2 border-dashed border-emerald-500/20 rounded-[2.5rem] p-12 cursor-pointer hover:bg-emerald-500/5 hover:border-emerald-500/50 transition-all group">
+                    <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-camera text-3xl text-emerald-500"></i>
+                    </div>
+                    <p class="font-black text-[12px] italic uppercase text-emerald-400">اضغط لتصوير الوصل</p>
+                    <p class="text-[9px] text-slate-500 mt-1">سيتم إرسال الصورة مباشرة للسائق</p>
                     <input type="file" id="receiptImage" accept="image/*" capture="camera" class="hidden" onchange="previewImage(event)">
                 </div>
-                <div id="previewContainer" class="hidden relative inline-block">
-                    <img id="imagePreview" src="#" class="rounded-2xl max-h-48 border-2 border-emerald-500/30 shadow-2xl">
-                    <button type="button" onclick="cancelImage()" class="absolute -top-3 -right-3 bg-red-600 text-white w-8 h-8 rounded-full shadow-lg">✕</button>
+                <div id="previewContainer" class="hidden relative inline-block group">
+                    <img id="imagePreview" src="#" class="rounded-3xl max-h-60 border-4 border-emerald-500/20 shadow-2xl">
+                    <button type="button" onclick="cancelImage()" class="absolute -top-3 -right-3 bg-red-500 text-white w-10 h-10 rounded-full shadow-xl border-4 border-slate-900 hover:bg-red-600 transition-colors">✕</button>
                 </div>
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full bg-emerald-500 text-slate-900 py-5 rounded-2xl font-black text-lg btn-glow italic uppercase shadow-xl mt-6 active:scale-95 transition-all">
-                <span>بث الطلب للأسطول</span> <i class="fas fa-satellite-dish ml-2"></i>
+            <button type="submit" id="submitBtn" class="w-full bg-emerald-500 text-slate-900 py-6 rounded-[2rem] font-black text-xl btn-glow italic uppercase shadow-2xl mt-8 active:scale-95 transition-all flex items-center justify-center gap-3">
+                <span>بث الطلب للأسطول</span> 
+                <i class="fas fa-paper-plane"></i>
             </button>
         </form>
 
-        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-900 px-8 py-4 rounded-full font-black text-sm hidden shadow-2xl z-[100] animate-bounce">
-            ✅ تم إرسال الطلب بنجاح!
+        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-900 px-10 py-5 rounded-full font-black text-sm hidden shadow-[0_20px_50px_rgba(16,185,129,0.5)] z-[100] animate-bounce">
+            🚀 تم إطلاق الطلب في الميدان!
         </div>
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxODYE0lTSF_v3NdQw1lN0GCq3dcxeEfo3SB9QaDy2Klcg3NEMvs3GxUjHFxQ5fooQm2Q/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxziP5TpfK4FVZcVO-4xzPaLqvpxjLMVL_JbSIZ0E9pKujgxgQU0ZIIfR1GufbOehwPBg/exec';
         let base64Image = null;
         let restaurantProfile = null;
 
@@ -105,19 +117,21 @@
             if (!resPhone) { window.location.href = 'Restaurant_login.html'; return; }
             
             try {
-                const res = await fetch(`${scriptURL}?action=login_check&type=Restaurant&id=${encodeURIComponent(resPhone)}&cb=${Date.now()}`);
+                const res = await fetch(`${scriptURL}?action=get_master_data&pass=GET_PROFILE&phone=${resPhone}`);
                 const result = await res.json();
                 
-                if (result.status === 'active') {
-                    restaurantProfile = result.data; 
+                // البحث عن بيانات المطعم في المصفوفة المستلمة
+                restaurantProfile = result.restaurants.find(r => r[2] == resPhone);
+                
+                if (restaurantProfile && restaurantProfile[4] === 'active') {
                     document.getElementById('displayResName').innerHTML = `<span class="online-dot"></span> ${restaurantProfile[1]}`;
-                    document.getElementById('resStatusText').innerText = "الرادار متصل وجاهز 🟢";
-                    document.getElementById('resStatusText').classList.remove('animate-pulse');
+                    document.getElementById('resStatusText').innerText = "الرادار نشط وجاهز 📡";
                 } else {
-                    window.location.href = 'Restaurant_login.html';
+                    alert("الحساب معطل أو غير مسجل. تواصل مع الإدارة.");
+                    logout();
                 }
             } catch (e) {
-                document.getElementById('displayResName').innerText = "خطأ في الشبكة";
+                document.getElementById('displayResName').innerText = "وضع الأوفلاين";
             }
         };
 
@@ -149,45 +163,45 @@
 
         document.getElementById('orderForm').onsubmit = async function(e) {
             e.preventDefault();
-            if (!restaurantProfile) return alert("بانتظار مزامنة البيانات...");
+            if (!restaurantProfile) return alert("بانتظار مزامنة الرادار...");
 
             const btn = document.getElementById('submitBtn');
             const area = document.getElementById('locationSelect').value;
-            const customerPhone = document.getElementById('customerPhone').value || "غير متوفر";
+            const customerPhone = document.getElementById('customerPhone').value || "بدون رقم";
             const userDetails = document.getElementById('details').value || "توجيه عبر الوصل";
 
             const orderData = {
                 action: 'restaurant_send_order',
                 restName: restaurantProfile[1],
                 restLocation: restaurantProfile[3],
-                fee: restaurantProfile[5], // العمولة المحددة في الشيت
+                fee: restaurantProfile[5],
                 lat: restaurantProfile[6],
                 lng: restaurantProfile[7],
                 area: area,
-                details: `هاتف: ${customerPhone} | ${userDetails}`,
-                image: base64Image || "" 
+                details: `الهاتف: ${customerPhone} | الملاحظات: ${userDetails}`,
+                photoUrl: base64Image || "" 
             };
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> جاري البث...`;
+            btn.innerHTML = `<i class="fas fa-circle-notch animate-spin"></i> جاري البث الفضائي...`;
             
             try {
-                await fetch(scriptURL, { 
+                const response = await fetch(scriptURL, { 
                     method: 'POST', 
-                    mode: 'no-cors', 
                     body: JSON.stringify(orderData) 
                 });
                 
                 document.getElementById('toast').classList.remove('hidden');
                 document.getElementById('orderForm').reset();
                 cancelImage();
+                
                 setTimeout(() => { 
                     document.getElementById('toast').classList.add('hidden'); 
                     btn.disabled = false; 
-                    btn.innerHTML = `<span>بث الطلب للأسطول</span> <i class="fas fa-satellite-dish ml-2"></i>`; 
+                    btn.innerHTML = `<span>بث الطلب للأسطول</span> <i class="fas fa-paper-plane ml-2"></i>`; 
                 }, 3000);
             } catch (err) { 
-                alert("فشل الإرسال. تحقق من الإنترنت."); 
+                alert("تنبيه: الطلب قد يكون أرسل، تحقق من لوحة الإدارة."); 
                 btn.disabled = false;
                 btn.innerHTML = `<span>بث الطلب للأسطول</span> <i class="fas fa-satellite-dish ml-2"></i>`;
             }
