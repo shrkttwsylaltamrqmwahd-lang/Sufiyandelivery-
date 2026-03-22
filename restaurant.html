@@ -1,72 +1,154 @@
-‏<!DOCTYPE html>
-‏<html lang="ar" dir="rtl">
-‏<head>
-‏    <meta charset="UTF-8">
-‏    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-‏    <title>بوابة المطعم | منظومة الحوت 🐋</title>
-‏    <script src="https://cdn.tailwindcss.com"></script>
-‏    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
-‏    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-‏    <style>
-‏        body { font-family: 'Tajawal', sans-serif; background: #020617; color: white; overflow-x: hidden; }
-‏        .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-‏        .tab-btn { transition: 0.3s; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-‏        .tab-btn.active { background: #10b981; color: #020617; font-weight: 900; border-color: #10b981; }
-‏        .whale-select { background: #0f172a; border: 2px solid #1e293b; color: white; appearance: none; }
-‏        .whale-select:focus { border-color: #10b981; }
-‏        .btn-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
-‏        .hidden { display: none; }
-‏    </style>
-‏</head>
-‏<body class="p-4 pb-24">
-‏
-‏    <header class="max-w-xl mx-auto mb-6 flex justify-between items-center glass-card p-4 rounded-3xl sticky top-4 z-50">
-‏        <div class="flex items-center gap-3">
-‏            <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-900 font-black shadow-lg">🐋</div>
-‏            <div>
-‏                <p class="text-[8px] text-emerald-500 font-black uppercase tracking-widest italic">Al-Hut Kitchen Hub V6.2</p>
-‏                <h1 id="displayResName" class="text-xs font-black text-white italic tracking-wider">جاري التوثيق...</h1>
-‏            </div>
-‏        </div>
-‏        <button onclick="logout()" class="text-[10px] font-black text-red-500 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20">خروج</button>
-‏    </header>
-‏
-‏    <div class="max-w-xl mx-auto glass-card p-6 rounded-[2.5rem] shadow-2xl relative border-t-4 border-emerald-500">
-‏        <div class="text-center mb-6">
-‏            <h2 class="text-xl font-black italic">إرسال سريع للرادار 🚀</h2>
-‏            <p class="text-[9px] text-emerald-500 font-bold uppercase tracking-widest mt-1 italic">يتم بث موقع المطعم والبيانات تلقائياً 📍</p>
-‏        </div>
-‏
-‏        <div class="flex gap-2 mb-6 bg-white/5 p-1 rounded-2xl">
-‏            <button type="button" onclick="switchTab('manual')" id="manualBtn" class="tab-btn active flex-1 py-3 rounded-xl font-black text-[10px] italic">إدخال بيانات</button>
-‏            <button type="button" onclick="switchTab('camera')" id="cameraBtn" class="tab-btn flex-1 py-3 rounded-xl font-black text-[10px] italic">تصوير الوصل 📸</button>
-‏        </div>
-‏        
-‏        <form id="orderForm" class="space-y-5">
-‏            <div>
-‏                <label class="text-[10px] font-black text-emerald-500 uppercase mb-2 block mr-1 italic">📍 منطقة توصيل الزبون</label>
-‏                <div class="relative">
-‏                    <select id="locationSelect" class="w-full p-4 whale-select rounded-2xl outline-none font-black text-sm pr-10" required>
-‏                        <option value="" disabled selected>اختر المنطقة...</option>
-‏                        <option value="الماس">الماس</option>
-‏                        <option value="طريق بغداد">طريق بغداد</option>
-‏                        <option value="التسعين">التسعين</option>
-‏                        <option value="شارع المحافظة">شارع المحافظة</option>
-‏                        <option value="قورية">قورية</option>
-‏                        <option value="بنجه علي">بنجه علي</option>
-‏                        <option value="عرفه">عرفه</option>
-‏                        <option value="حي الواسطي">حي الواسطي</option>
-‏                        <option value="حي حزيران">حي حزيران</option>
-‏                        <option value="المصلى">المصلى</option>
-‏                        <option value="حي عدن">حي عدن</option>
-‏                        <option value="حي الخضراء">حي الخضراء</option>
-‏                        <option value="حي العسكري">حي العسكري</option>
-‏                    </select>
-‏                    <i class="fas fa-map-location-dot absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
-‏                </div>
-‏            </div>
-‏
-‏            <div id="manualSection" class="space-y-5">
-‏                <input type="tel" id="customerPhone" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-emerald-500 font-bold text-center" placeholder="رقم هاتف الزبون">
-‏                <input type="text" id="details" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-emerald-500 font-bold text-sm text-right" placeholder="العنوان الدقيق وتفاصيل الطلب">
-‏         
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بوابة المطعم | منظومة الحوت 🐋</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background: #020617; color: white; overflow-x: hidden; }
+        .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .tab-btn { transition: 0.3s; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .tab-btn.active { background: #10b981; color: #020617; font-weight: 900; border-color: #10b981; }
+        .whale-select { background: #0f172a; border: 2px solid #1e293b; color: white; appearance: none; }
+        .whale-select:focus { border-color: #10b981; }
+        .btn-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+        .hidden { display: none; }
+        .loading-overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.9); z-index: 100; display: flex; align-items: center; justify-content: center; visibility: hidden; }
+        .loading-overlay.active { visibility: visible; }
+    </style>
+</head>
+<body class="p-4 pb-24">
+
+    <div id="loader" class="loading-overlay">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-emerald-500 font-bold">جاري بث الطلب للرادار...</p>
+        </div>
+    </div>
+
+    <header class="max-w-xl mx-auto mb-6 flex justify-between items-center glass-card p-4 rounded-3xl sticky top-4 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-900 font-black shadow-lg">🐋</div>
+            <div>
+                <p class="text-[8px] text-emerald-500 font-black uppercase tracking-widest italic">Al-Hut Kitchen Hub V6.2</p>
+                <h1 id="displayResName" class="text-xs font-black text-white italic tracking-wider">مطعم العساكر</h1> 
+            </div>
+        </div>
+        <button onclick="logout()" class="text-[10px] font-black text-red-400 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20">خروج</button>
+    </header>
+
+    <main class="max-w-xl mx-auto glass-card p-6 rounded-[2.5rem] shadow-2xl relative border-t-4 border-emerald-500">
+        <div class="text-center mb-6">
+            <h2 class="text-xl font-black italic">إرسال سريع للرادار 🚀</h2>
+            <p class="text-[9px] text-emerald-500 font-bold uppercase tracking-widest mt-1 italic">يتم تحديد موقعك في كركوك تلقائياً 📍</p>
+        </div>
+
+        <div class="flex gap-2 mb-6 bg-white/5 p-1 rounded-2xl">
+            <button type="button" onclick="switchTab('manual')" id="manualBtn" class="tab-btn active flex-1 py-3 rounded-xl font-black text-[10px] italic">إدخال بيانات</button>
+            <button type="button" onclick="switchTab('camera')" id="cameraBtn" class="tab-btn flex-1 py-3 rounded-xl font-black text-[10px] italic">تصوير الوصل 📸</button>
+        </div>
+        
+        <form id="orderForm" class="space-y-5">
+            <div>
+                <label class="text-[10px] font-black text-emerald-500 uppercase mb-2 block mr-1 italic">📍 منطقة توصيل الزبون</label>
+                <div class="relative">
+                    <select id="locationSelect" class="w-full p-4 whale-select rounded-2xl outline-none font-black text-sm pr-10" required>
+                        <option value="" disabled selected>اختر المنطقة...</option>
+                        <option value="الماس">الماس</option>
+                        <option value="طريق بغداد">طريق بغداد</option>
+                        <option value="التسعين">التسعين</option>
+                        <option value="حي الواسطي">حي الواسطي</option>
+                        <option value="عرفه">عرفه</option>
+                        <option value="حي حزيران">حي حزيران</option>
+                        <option value="المصلى">المصلى</option>
+                    </select>
+                    <i class="fas fa-map-location-dot absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"></i>
+                </div>
+            </div>
+
+            <div id="manualSection" class="space-y-5">
+                <div class="relative">
+                    <input type="tel" id="customerPhone" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-emerald-500 font-bold text-center placeholder:text-slate-600" placeholder="رقم هاتف الزبون">
+                    <i class="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-slate-600"></i>
+                </div>
+                <div class="relative">
+                    <textarea id="details" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-emerald-500 font-bold text-sm text-right h-24 placeholder:text-slate-600" placeholder="العنوان الدقيق وتفاصيل الطلب..."></textarea>
+                </div>
+            </div>
+
+            <div id="cameraSection" class="hidden text-center p-8 border-2 border-dashed border-white/10 rounded-3xl">
+                <div class="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-camera text-3xl text-emerald-500"></i>
+                </div>
+                <p class="text-xs font-bold text-slate-400 mb-4">قم بتصوير وصل المطعم مباشرة</p>
+                <input type="file" accept="image/*" capture="environment" class="hidden" id="cameraInput">
+                <button type="button" onclick="document.getElementById('cameraInput').click()" class="bg-emerald-500 text-slate-900 px-6 py-2 rounded-xl font-black text-xs">فتح الكاميرا</button>
+            </div>
+
+            <button type="submit" class="w-full bg-emerald-500 text-slate-900 p-5 rounded-[2rem] font-black text-lg btn-glow transition-all active:scale-95 flex items-center justify-center gap-3">
+                بث الطلب للطيارين
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </main>
+
+    <script>
+        // تبديل التبويبات
+        function switchTab(type) {
+            const manualSec = document.getElementById('manualSection');
+            const cameraSec = document.getElementById('cameraSection');
+            const manualBtn = document.getElementById('manualBtn');
+            const cameraBtn = document.getElementById('cameraBtn');
+
+            if(type === 'manual') {
+                manualSec.classList.remove('hidden');
+                cameraSec.classList.add('hidden');
+                manualBtn.classList.add('active');
+                cameraBtn.classList.remove('active');
+            } else {
+                manualSec.classList.add('hidden');
+                cameraSec.classList.remove('hidden');
+                cameraBtn.classList.add('active');
+                manualBtn.classList.remove('active');
+            }
+        }
+
+        // معالجة إرسال النموذج
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const loader = document.getElementById('loader');
+            loader.classList.add('active');
+
+            // تجهيز البيانات بناءً على جدول الطلبات (Orders) في صورتك
+            const orderData = {
+                orderId: "HUT-" + Math.floor(100000 + Math.random() * 900000),
+                restaurant: document.getElementById('displayResName').innerText,
+                area: document.getElementById('locationSelect').value,
+                phone: document.getElementById('customerPhone').value,
+                details: document.getElementById('details').value,
+                timestamp: new Date().toLocaleString('ar-EG'),
+                status: "waiting"
+            };
+
+            console.log("إرسال الطلب:", orderData);
+
+            // محاكاة الإرسال الناجح
+            setTimeout(() => {
+                loader.classList.remove('active');
+                alert("تم بث طلبك بنجاح! سيتم إخطارك عند استلامه من قبل طيار.");
+                this.reset();
+            }, 2000);
+        });
+
+        function logout() {
+            if(confirm("هل تريد تسجيل الخروج؟")) {
+                window.location.href = "Restaurant_login.html";
+            }
+        }
+    </script>
+</body>
+</html>
