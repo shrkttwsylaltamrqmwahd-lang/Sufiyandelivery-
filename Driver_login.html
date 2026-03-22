@@ -17,10 +17,6 @@
         .action-btn { background: var(--whale-amber); color: #020617; font-weight: 900; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); transition: 0.3s; cursor: pointer; }
         .action-btn:active:not(:disabled) { transform: scale(0.95); }
         .hidden { display: none; }
-        
-        /* تأثير النبض للرادار */
-        .status-pulse { animation: pulse-red 2s infinite; }
-        @keyframes pulse-red { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body class="p-6">
@@ -58,11 +54,10 @@
                         <input type="text" id="driverName" placeholder="الاسم الثلاثي واللقب" 
                                class="whale-input text-center font-bold">
                     </div>
-                    <p class="text-[9px] text-amber-500 italic">أنت جديد في الرادار، يرجى كتابة اسمك بوضوح للتفعيل</p>
                 </div>
 
                 <button type="submit" id="mainBtn" class="w-full py-5 action-btn mt-6 flex items-center justify-center gap-3 italic shadow-lg shadow-amber-500/10">
-                    <span id="btnText">دخول الرادار</span>
+                    <span id="btnText">تفعيل ودخول الرادار</span>
                     <i class="fas fa-crosshairs"></i>
                 </button>
             </form>
@@ -72,48 +67,46 @@
             <div id="statusIcon" class="text-6xl mb-6">🛰️</div>
             <h3 id="statusTitle" class="text-xl font-black text-amber-500 italic uppercase">بانتظار الإشارة</h3>
             <p id="statusDesc" class="text-[10px] text-slate-400 mt-6 leading-relaxed italic">يتم مراجعة طلبك من قبل الإدارة.<br>سيفتح الرادار تلقائياً فور التفعيل.</p>
-            <button onclick="location.reload()" class="mt-10 text-[9px] text-red-500 font-black border-b border-red-500/30 pb-1">خروج من الرادار</button>
+            <button onclick="window.location.reload()" class="mt-10 text-[9px] text-red-500 font-black border-b border-red-500/30 pb-1">خروج وتعديل البيانات</button>
         </div>
     </div>
 
     <script>
-        // إخفاء اللودر وإظهار الواجهة بعد ثانية
+        // إخفاء التحميل بعد ثانية ونصف
         setTimeout(() => {
             document.getElementById('loader').classList.add('hidden');
             document.getElementById('authUI').classList.remove('hidden');
         }, 1500);
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const loginForm = document.getElementById('loginForm');
+        
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const phone = document.getElementById('driverPhone').value;
-            const btn = document.getElementById('mainBtn');
+            const name = document.getElementById('driverName').value;
             const btnText = document.getElementById('btnText');
+            const regFields = document.getElementById('regFields');
 
-            btn.disabled = true;
-            btnText.innerText = "جاري التحقق...";
-
-            // محاكاة التحقق من قاعدة البيانات (بناءً على الصور التي أرسلتها)
+            // محاكاة الاتصال بقاعدة بياناتك
+            btnText.innerText = "جاري الفحص...";
+            
             setTimeout(() => {
-                // مثال: إذا كان الرقم هو الرقم المحظور في صورتك
-                if(phone === "9647713225471" || phone === "07713225471") {
-                    showStatus("محظور من الرادار", "تم تقييد وصولك للنظام. يرجى مراجعة الإدارة.", "🚫");
-                } 
-                // مثال للدخول الناجح
-                else if (phone === "07715225471") {
-                    window.location.href = "Driver.html";
+                // منطق: إذا لم يكن هناك اسم، نطلب الاسم أولاً (تسجيل جديد)
+                if (!name && phone !== "07713225471") { 
+                    regFields.classList.remove('hidden');
+                    btnText.innerText = "إرسال طلب الانضمام";
+                    return;
                 }
-                // مثال للتسجيل الجديد
-                else {
-                    const regFields = document.getElementById('regFields');
-                    if(regFields.classList.contains('hidden')) {
-                        regFields.classList.remove('hidden');
-                        btnText.innerText = "إرسال طلب تفعيل";
-                        btn.disabled = false;
-                    } else {
-                        showStatus("قيد المراجعة", "شكراً لك كابتن " + document.getElementById('driverName').value + ". طلبك قيد المراجعة الآن.", "⏳");
-                    }
+
+                // فحص الحظر (بناءً على صورتك لجدول السائقين)
+                if (phone === "07713225471") {
+                    showStatus("محظور من المنظومة", "تم حظر هذا الرقم بسبب مخالفة القوانين.", "🚫");
+                } else {
+                    // تسجيل دخول ناجح أو طلب جديد
+                    showStatus("قيد المراجعة", "أهلاً كابتن، طلبك الآن عند طه للموافقة.", "⏳");
+                    // هنا سيتم التوجه لـ Driver.html بعد تفعيلك له في Google Sheets
                 }
-            }, 2000);
+            }, 1500);
         });
 
         function showStatus(title, desc, icon) {
@@ -122,10 +115,6 @@
             document.getElementById('statusTitle').innerText = title;
             document.getElementById('statusDesc').innerText = desc;
             document.getElementById('statusIcon').innerText = icon;
-            if(icon === "🚫") {
-                document.getElementById('statusIcon').classList.add('status-pulse');
-                document.getElementById('statusTitle').classList.replace('text-amber-500', 'text-red-500');
-            }
         }
     </script>
 </body>
