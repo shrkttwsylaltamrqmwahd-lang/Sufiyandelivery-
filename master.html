@@ -23,6 +23,8 @@
         .bg-btn-blue { background: #3b82f6; }
         .bg-btn-red { background: #ef4444; }
         .hidden { display: none !important; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -45,7 +47,7 @@
                 <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-500/30">S</div>
                 <div>
                     <h1 class="text-xl font-black text-white leading-none tracking-tight">لوحة تحكم سفيان</h1>
-                    <span class="text-[10px] text-blue-500 font-black uppercase tracking-tighter">AL-HUT NETWORK SYSTEM V6.2</span>
+                    <span class="text-[10px] text-blue-500 font-black uppercase tracking-tighter">AL-HUT NETWORK SYSTEM V10.2</span>
                 </div>
             </div>
             <div class="flex items-center gap-4">
@@ -88,8 +90,8 @@
                 </div>
                 <div class="text-right space-y-4">
                     <div class="p-4 bg-white/5 rounded-2xl border border-white/5">
-                        <p class="text-[10px] text-slate-500 font-bold mb-1">إجمالي المهام المكتملة</p>
-                        <p class="text-xl font-black text-white italic">1,248 <span class="text-[10px] text-emerald-500">طلب</span></p>
+                        <p class="text-[10px] text-slate-500 font-bold mb-1">الرقم السري الفعال</p>
+                        <p class="text-xl font-black text-blue-400 italic">112233</p>
                     </div>
                 </div>
             </section>
@@ -97,10 +99,11 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzBTRYdugjCeYZoeaHng4JPIq0vBu-b3VHNuEX9ya0H1C022PDangGTOR9I-v4i83rDoA/exec';
+        // ضع الرابط الجديد هنا
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzf4_VqfC5fBq0uK2Hl7S-qR-XlS6Z0T5F8H4-X-Z/exec'; 
         let map, markers = {};
+        const MASTER_PASS = "112233"; // الرمز السري الفعال
 
-        // الساعة
         setInterval(() => {
             document.getElementById('clock').innerText = new Date().toLocaleTimeString('ar-EG');
         }, 1000);
@@ -108,21 +111,18 @@
         async function checkAuth() {
             const pass = document.getElementById('master-pass').value;
             const btn = document.getElementById('loginBtn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري مزامنة البيانات...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
             
-            try {
-                // ملاحظة: الرمز السري هنا 1234 أو يتم جلبه من السكريبت
-                if(pass === "1234") { 
-                    document.getElementById('login-block').classList.add('hidden');
-                    document.getElementById('main-ui').classList.remove('hidden');
-                    initMap();
-                    loadMasterData();
-                    setInterval(loadMasterData, 12000);
-                } else {
-                    alert("الرمز السري " + pass + " غير مسجل في قاعدة البيانات المركزية.");
-                    btn.innerText = "دخول النظام";
-                }
-            } catch (e) { alert("حدث خطأ في الشبكة"); btn.innerText = "دخول النظام"; }
+            if(pass === MASTER_PASS) { 
+                document.getElementById('login-block').classList.add('hidden');
+                document.getElementById('main-ui').classList.remove('hidden');
+                initMap();
+                loadMasterData();
+                setInterval(loadMasterData, 15000); // تحديث كل 15 ثانية
+            } else {
+                alert("الرمز السري غير صحيح!");
+                btn.innerText = "دخول النظام";
+            }
         }
 
         function initMap() {
@@ -132,7 +132,7 @@
 
         async function loadMasterData() {
             try {
-                const res = await fetch(`${scriptURL}?action=get_master_data&pass=1234`);
+                const res = await fetch(`${scriptURL}?action=get_master_data&pass=${MASTER_PASS}`);
                 const data = await res.json();
 
                 if(data.status === "success") {
@@ -141,7 +141,7 @@
                     renderOrders(data.orders);
                     updateMapMarkers(data.drivers);
                 }
-            } catch(e) { console.warn("Syncing Whale Network..."); }
+            } catch(e) { console.warn("Syncing..."); }
         }
 
         function renderDrivers(data) {
@@ -152,14 +152,14 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="font-black text-white text-sm">${d.name}</p>
-                            <p class="text-[10px] text-slate-500 tracking-tighter">${d.phone}</p>
+                            <p class="text-[10px] text-slate-500">${d.phone}</p>
                         </div>
                         <span class="text-[8px] px-2 py-0.5 rounded bg-white/5 font-black uppercase ${d.status === 'active' ? 'text-emerald-500' : 'text-red-500'}">${d.status}</span>
                     </div>
                     <div class="flex gap-2 mt-3">
-                        <button onclick="updateStatus('Driver', '${d.phone}', '${d.status === 'active' ? 'banned' : 'active'}')" 
+                        <button onclick="updateStatus('Drivers', '${d.phone}', '${d.status === 'active' ? 'banned' : 'active'}')" 
                                 class="flex-1 btn-action ${d.status === 'active' ? 'bg-btn-red' : 'bg-btn-blue'}">
-                            ${d.status === 'active' ? 'حظر' : 'تفعيل'}
+                            ${d.status === 'active' ? 'حظر الكابتن' : 'تفعيل الكابتن'}
                         </button>
                     </div>
                 </div>
@@ -174,7 +174,7 @@
                     <p class="font-black text-white text-sm">${r.name}</p>
                     <div class="flex justify-between mt-2">
                         <span class="text-[9px] text-slate-500">${r.phone}</span>
-                        <span class="text-[9px] text-emerald-500 font-bold">${r.pay}</span>
+                        <button onclick="deleteItem('Restaurants', '${r.phone}')" class="text-red-500 text-[10px] font-bold">حذف 🗑️</button>
                     </div>
                 </div>
             `).join('');
@@ -184,13 +184,16 @@
             document.getElementById('orders-count').innerText = data.length;
             const container = document.getElementById('orders-list');
             container.innerHTML = data.reverse().map(o => `
-                <div class="item-row border-r-4 ${o.status === 'pending' ? 'border-amber-500 animate-pulse' : 'border-blue-500'}">
+                <div class="item-row border-r-4 ${o.status === 'waiting' || o.status === 'pending_confirmation' ? 'border-amber-500 animate-pulse' : 'border-blue-500'}">
                     <div class="flex justify-between mb-1">
-                        <span class="font-black text-amber-500 text-[9px]">#${o.id}</span>
+                        <span class="font-black text-amber-500 text-[9px]">#${o.orderid || 'N/A'}</span>
                         <span class="text-[8px] font-bold text-slate-400 uppercase">${o.status}</span>
                     </div>
-                    <p class="font-bold text-white text-[11px] leading-tight">${o.restaurant} <i class="fas fa-arrow-left text-[8px] mx-1 text-slate-600"></i> ${o.area}</p>
-                    <div class="mt-2 text-[9px] text-slate-500 italic">السائق: ${o.driverPhone || 'بانتظار تخصيص'}</div>
+                    <p class="font-bold text-white text-[11px]">${o.restaurant} ➔ ${o.area}</p>
+                    <div class="mt-2 flex justify-between items-center">
+                        <span class="text-[9px] text-slate-500 italic">سائق: ${o.driver_phone || 'بحث...'}</span>
+                        <button onclick="deleteItem('Orders', '${o.orderid}')" class="text-red-500 text-[9px]">إلغاء</button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -198,10 +201,12 @@
         function updateMapMarkers(drivers) {
             drivers.forEach(d => {
                 if(d.lat && d.lng) {
+                    const latlng = [parseFloat(d.lat), parseFloat(d.lng)];
+                    if (isNaN(latlng[0])) return;
                     if(markers[d.phone]) {
-                        markers[d.phone].setLatLng([d.lat, d.lng]);
+                        markers[d.phone].setLatLng(latlng);
                     } else {
-                        markers[d.phone] = L.marker([d.lat, d.lng]).addTo(map)
+                        markers[d.phone] = L.marker(latlng).addTo(map)
                             .bindPopup(`<b class='text-slate-900'>${d.name}</b>`);
                     }
                 }
@@ -212,6 +217,15 @@
             await fetch(scriptURL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'update_status', type: type, id: id, status: status })
+            });
+            loadMasterData();
+        }
+
+        async function deleteItem(type, id) {
+            if(!confirm("هل أنت متأكد من الحذف؟")) return;
+            await fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'delete_item', type: type, id: id })
             });
             loadMasterData();
         }
