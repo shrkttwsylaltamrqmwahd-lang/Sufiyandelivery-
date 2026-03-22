@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم العليا | نظام الحوت</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --main-color: #2c3e50; --accent-color: #e67e22; }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
+        .sidebar-nav { background: var(--main-color); min-height: 100vh; color: white; padding-top: 20px; }
+        .nav-link { color: rgba(255,255,255,0.7); margin-bottom: 10px; }
+        .nav-link.active { color: white; background: rgba(255,255,255,0.1); border-radius: 5px; }
+        #adminMap { height: 500px; width: 100%; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .stat-card { border: none; border-radius: 10px; transition: 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); }
+        /* قفل كلمة السر */
+        #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--main-color); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .hidden-content { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="authOverlay">
+    <div class="card p-4 text-center" style="width: 350px;">
+        <h4>نظام الحوت | تسجيل دخول</h4>
+        <input type="password" id="masterPass" class="form-control my-3 text-center" placeholder="أدخل كلمة السر للمتابعة">
+        <button class="btn btn-primary w-100" onclick="checkAuth()">دخول</button>
+    </div>
+</div>
+
+<div class="container-fluid hidden-content" id="mainDashboard">
+    <div class="row">
+        <div class="col-md-2 sidebar-nav d-none d-md-block">
+            <h4 class="text-center mb-4">لوحة المدير</h4>
+            <nav class="nav flex-column px-3">
+                <a class="nav-link active" href="#" onclick="showTab('live')"><i class="fa fa-satellite-dish me-2"></i> المراقبة الحية</a>
+                <a class="nav-link" href="#" onclick="showTab('orders')"><i class="fa fa-shopping-cart me-2"></i> الطلبات الحالية</a>
+                <a class="nav-link" href="#" onclick="showTab('restaurants')"><i class="fa fa-utensils me-2"></i> المطاعم</a>
+                <a class="nav-link" href="#" onclick="showTab('drivers')"><i class="fa fa-motorcycle me-2"></i> السواق</a>
+                <a class="nav-link" href="#" onclick="showTab('archive')"><i class="fa fa-history me-2"></i> الأرشيف</a>
+            </nav>
+        </div>
+
+        <div class="col-md-10 p-4">
+            
+            <div id="tab-live" class="admin-tab">
+                <div class="row mb-4 text-white">
+                    <div class="col-md-4"><div class="stat-card bg-primary p-3"><h5>طلبات نشطة: <span id="count-orders">0</span></h5></div></div>
+                    <div class="col-md-4"><div class="stat-card bg-success p-3"><h5>سواق متاحين: <span id="count-drivers">0</span></h5></div></div>
+                    <div class="col-md-4"><div class="stat-card bg-warning p-3 text-dark"><h5>مطاعم مفعلة: <span id="count-res">0</span></h5></div></div>
+                </div>
+                <div id="adminMap"></div>
+            </div>
+
+            <div id="tab-orders" class="admin-tab d-none">
+                <h3>الطلبات قيد التنفيذ</h3>
+                <div class="table-responsive bg-white p-3 rounded shadow-sm">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>المطعم</th> <th>الزبون</th> <th>السائق</th> <th>الحالة</th> <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tab-restaurants" class="admin-tab d-none">
+                <div class="d-flex justify-content-between mb-3">
+                    <h3>إدارة المطاعم</h3>
+                    <span class="badge bg-danger p-2" id="pendingResCount">طلبات انضمام جديدة: 0</span>
+                </div>
+                <div id="resList" class="row">
+                    </div>
+            </div>
+
+            <div id="tab-drivers" class="admin-tab d-none">
+                <h3>إدارة السواق</h3>
+                <div id="driversList" class="row">
+                    </div>
+            </div>
+
+            <div id="tab-archive" class="admin-tab d-none">
+                <h3>أرشيف الطلبات المنجزة</h3>
+                <div class="input-group mb-3" style="max-width: 400px;">
+                    <input type="text" id="searchPhone" class="form-control" placeholder="بحث برقم هاتف الزبون...">
+                    <button class="btn btn-secondary" onclick="searchHistory()">بحث</button>
+                </div>
+                <div id="archiveResults"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=visualization&callback=initMasterMap"></script>
+
+<script>
+    let map, heatmap;
+    const MASTER_KEY = "123456"; // يمكنك تغييرها برمجياً
+
+    function checkAuth() {
+        if(document.getElementById('masterPass').value === MASTER_KEY) {
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('mainDashboard').classList.remove('hidden-content');
+        } else {
+            alert("كلمة سر خاطئة!");
+        }
+    }
+
+    function initMasterMap() {
+        map = new google.maps.Map(document.getElementById("adminMap"), {
+            zoom: 12,
+            center: { lat: 35.467, lng: 44.392 },
+            styles: [ /* أضف ستايل خريطة ليلي أو احترافي هنا */ ]
+        });
+
+        // مثال لبيانات الخريطة الحرارية (تأتي من السواق والمناطق النشطة)
+        const heatData = [
+            new google.maps.LatLng(35.467, 44.392),
+            // ... المزيد من النقاط
+        ];
+        heatmap = new google.maps.visualization.HeatmapLayer({
+            data: heatData,
+            map: map
+        });
+    }
+
+    function showTab(tabName) {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('d-none'));
+        document.getElementById('tab-' + tabName).classList.remove('d-none');
+        
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+    }
+
+    // وظائف التواصل السريع
+    function quickCall(phone) {
+        window.location.href = "tel:" + phone;
+    }
+
+    function quickWA(phone) {
+        window.open("https://wa.me/" + phone, "_blank");
+    }
+
+    // هنا يتم جلب البيانات من Google Sheets عبر Apps Script
+    function refreshData() {
+        google.script.run.withSuccessHandler(data => {
+            updateOrdersTable(data.orders);
+            updateResCards(data.restaurants);
+            updateDriverCards(data.drivers);
+        }).getGlobalData();
+    }
+
+    // تحديث البيانات كل 30 ثانية
+    setInterval(refreshData, 30000);
+</script>
+
+</body>
+</html>
+
