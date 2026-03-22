@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>مركز قيادة الحوت | Al-Hut Command Center</title>
+    <title>مركز قيادة الحوت | Al-Hut PRO 2026</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -23,7 +23,7 @@
             overflow-x: hidden; 
         }
 
-        /* شاشة القفل المحسنة */
+        /* شاشة القفل */
         #authOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #0f172a; z-index: 10000; display: flex; align-items: center; justify-content: center;
@@ -33,7 +33,7 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.2); text-align: center;
         }
 
-        /* الهيكل الجانبي - منع التداخل */
+        /* الهيكل الجانبي */
         .sidebar {
             width: var(--sidebar-width); background: var(--primary-dark);
             height: 100vh; position: fixed; right: 0; top: 0; color: white; 
@@ -47,7 +47,6 @@
             transition: margin 0.3s ease;
         }
 
-        /* قائمة التنقل */
         .nav-item {
             display: flex; align-items: center; gap: 15px; padding: 15px 20px; color: #94a3b8;
             text-decoration: none; border-radius: 15px; margin-bottom: 10px; cursor: pointer; transition: 0.3s;
@@ -55,7 +54,6 @@
         .nav-item:hover, .nav-item.active { background: #1e293b; color: white; }
         .nav-item.active { border-right: 5px solid var(--accent-orange); background: rgba(249, 115, 22, 0.1); }
 
-        /* الكروت والويدجت */
         .stat-widget {
             background: white; border-radius: 25px; padding: 25px; 
             display: flex; justify-content: space-between; align-items: center;
@@ -64,13 +62,11 @@
         }
         .icon-shape { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
 
-        /* خريطة ذكية */
         #adminMap { 
             height: 500px; width: 100%; border-radius: 30px; 
             border: 10px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        /* جداول مستجيبة */
         .custom-table-card { 
             background: white; border-radius: 30px; padding: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;
@@ -80,7 +76,6 @@
 
         .badge-status { padding: 6px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; }
 
-        /* موبايل وتصحيح التداخل */
         @media (max-width: 1100px) {
             .sidebar { transform: translateX(100%); }
             .main-content { margin-right: 0; padding: 20px; }
@@ -94,16 +89,21 @@
             color: white; border-radius: 50%; border: none; z-index: 2000;
             box-shadow: 0 10px 20px rgba(249, 115, 22, 0.4);
         }
+
+        /* Loading Spinner */
+        #refreshBtn.loading svg { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div id="authOverlay">
     <div class="auth-card">
-        <div class="mb-4"><i data-lucide="lock" size="50" color="#f97316"></i></div>
-        <h4 class="fw-black mb-3">تسجيل دخول المسؤول</h4>
-        <input type="password" id="masterPass" class="form-control form-control-lg text-center mb-3 shadow-none border-2" placeholder="كلمة المرور">
-        <button class="btn btn-dark w-100 py-3 fw-bold rounded-4" onclick="checkAuth()">دخول النظام</button>
+        <div class="mb-4"><i data-lucide="shield-check" size="60" color="#f97316"></i></div>
+        <h4 class="fw-black mb-3">نظام الحوت | كركوك</h4>
+        <p class="text-muted small">يرجى إدخال رمز الوصول للمسؤول</p>
+        <input type="password" id="masterPass" class="form-control form-control-lg text-center mb-3 shadow-none border-2" placeholder="••••••">
+        <button class="btn btn-dark w-100 py-3 fw-bold rounded-4" onclick="checkAuth()">دخول آمن</button>
     </div>
 </div>
 
@@ -113,46 +113,51 @@
     <aside class="sidebar" id="sidebar">
         <div class="d-flex align-items-center gap-3 mb-5 px-3">
             <div class="bg-warning p-2 rounded-3"><i data-lucide="waves" color="#0f172a"></i></div>
-            <h4 class="m-0 fw-black">نظام الحوت</h4>
+            <h4 class="m-0 fw-black">مركز الحوت</h4>
         </div>
         <nav>
-            <div class="nav-item active" onclick="showTab(event, 'live')"><i data-lucide="radar"></i> <span>الرصد الحي</span></div>
-            <div class="nav-item" onclick="showTab(event, 'orders')"><i data-lucide="shopping-bag"></i> <span>الطلبات</span></div>
-            <div class="nav-item" onclick="showTab(event, 'restaurants')"><i data-lucide="store"></i> <span>المطاعم</span></div>
-            <div class="nav-item" onclick="showTab(event, 'drivers')"><i data-lucide="user-check"></i> <span>الكباتن</span></div>
+            <div class="nav-item active" onclick="showTab(event, 'live')"><i data-lucide="activity"></i> <span>الرصد الحي</span></div>
+            <div class="nav-item" onclick="showTab(event, 'orders')"><i data-lucide="shopping-cart"></i> <span>الطلبات</span></div>
+            <div class="nav-item" onclick="showTab(event, 'restaurants')"><i data-lucide="utensils"></i> <span>المطاعم</span></div>
+            <div class="nav-item" onclick="showTab(event, 'drivers')"><i data-lucide="truck"></i> <span>الكباتن</span></div>
         </nav>
         <div style="position: absolute; bottom: 30px; width: calc(100% - 30px);">
-            <div class="nav-item text-danger" onclick="location.reload()"><i data-lucide="log-out"></i> <span>تسجيل خروج</span></div>
+            <div class="nav-item text-danger" onclick="location.reload()"><i data-lucide="power"></i> <span>خروج</span></div>
         </div>
     </aside>
 
     <main class="main-content">
         <header class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
             <div>
-                <h2 class="fw-black m-0">لوحة القيادة</h2>
-                <p class="text-muted m-0">متابعة الأسطول - كركوك</p>
+                <h2 class="fw-black m-0">لوحة التحكم المركزية</h2>
+                <p class="text-muted m-0" id="statusInfo">جاري جلب البيانات من السيرفر...</p>
             </div>
-            <div id="liveTime" class="bg-white px-4 py-2 rounded-pill shadow-sm fw-bold border">00:00:00</div>
+            <div class="d-flex gap-3 align-items-center">
+                <button class="btn btn-white border rounded-circle p-2 shadow-sm" id="refreshBtn" onclick="refreshData()">
+                    <i data-lucide="refresh-cw" size="20"></i>
+                </button>
+                <div id="liveTime" class="bg-white px-4 py-2 rounded-pill shadow-sm fw-bold border">00:00:00</div>
+            </div>
         </header>
 
         <div id="tab-live" class="admin-tab">
             <div class="row g-4 mb-5">
                 <div class="col-xl-4 col-md-6">
                     <div class="stat-widget">
-                        <div><small class="text-muted fw-bold">إجمالي الطلبات</small><h2 class="fw-black m-0" id="count-orders">0</h2></div>
-                        <div class="icon-shape bg-primary bg-opacity-10 text-primary"><i data-lucide="package"></i></div>
+                        <div><small class="text-muted fw-bold">إجمالي العمليات</small><h2 class="fw-black m-0" id="count-orders">0</h2></div>
+                        <div class="icon-shape bg-primary bg-opacity-10 text-primary"><i data-lucide="box"></i></div>
                     </div>
                 </div>
                 <div class="col-xl-4 col-md-6">
                     <div class="stat-widget">
-                        <div><small class="text-muted fw-bold">كابتن نشط</small><h2 class="fw-black m-0 text-success" id="count-drivers">0</h2></div>
-                        <div class="icon-shape bg-success bg-opacity-10 text-success"><i data-lucide="navigation"></i></div>
+                        <div><small class="text-muted fw-bold">كابتن متصل</small><h2 class="fw-black m-0 text-success" id="count-drivers">0</h2></div>
+                        <div class="icon-shape bg-success bg-opacity-10 text-success"><i data-lucide="map-pin"></i></div>
                     </div>
                 </div>
                 <div class="col-xl-4 col-md-12">
                     <div class="stat-widget">
-                        <div><small class="text-muted fw-bold">شركاء المطاعم</small><h2 class="fw-black m-0 text-warning" id="count-res">0</h2></div>
-                        <div class="icon-shape bg-warning bg-opacity-10 text-warning"><i data-lucide="store"></i></div>
+                        <div><small class="text-muted fw-bold">مطاعم شريكة</small><h2 class="fw-black m-0 text-warning" id="count-res">0</h2></div>
+                        <div class="icon-shape bg-warning bg-opacity-10 text-warning"><i data-lucide="layout-grid"></i></div>
                     </div>
                 </div>
             </div>
@@ -163,7 +168,7 @@
             <div class="custom-table-card table-responsive">
                 <table class="table align-middle m-0">
                     <thead>
-                        <tr><th>ID</th><th>المطعم</th><th>الكابتن</th><th>المنطقة</th><th>الحالة</th></tr>
+                        <tr><th>كود الطلب</th><th>المطعم</th><th>السائق</th><th>المنطقة</th><th>الحالة</th></tr>
                     </thead>
                     <tbody id="ordersTableBody"></tbody>
                 </table>
@@ -178,14 +183,22 @@
 <script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMasterMap"></script>
 <script>
     lucide.createIcons();
-    const API_URL = "https://script.google.com/macros/s/AKfycbwIELSbF-1Fioo5mTwhsJw4jZ3MRcAgOY5G43ma1vDu6OkOHvItLH3HOOCSZAguWd0Ssw/exec";
+    
+    // الإعدادات المحدثة
+    const API_URL = "https://script.google.com/macros/s/AKfycbw11obhblN_1MpuDLZqKk337YPRrnqbkcoVJFqDrbHxUoZdxc49qHVNv7Oq2RgD2gYbMA/exec";
+    const API_TOKEN = "HUT_SECURE_99";
     
     function checkAuth() {
+        // كلمة المرور الافتراضية كما طلبتها سابقاً
         if(document.getElementById('masterPass').value === "223344") {
             document.getElementById('authOverlay').style.display = 'none';
             document.getElementById('mainDashboard').classList.remove('d-none');
-            startClock(); refreshData(); setInterval(refreshData, 20000);
-        } else { alert("رمز خاطئ!"); }
+            startClock(); 
+            refreshData(); 
+            setInterval(refreshData, 15000); // تحديث تلقائي كل 15 ثانية
+        } else { 
+            alert("⚠️ رمز الدخول غير صحيح!"); 
+        }
     }
 
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('show'); }
@@ -200,46 +213,91 @@
     }
 
     function initMasterMap() {
+        // خريطة كركوك الافتراضية
         new google.maps.Map(document.getElementById("adminMap"), {
-            zoom: 13, center: { lat: 35.468, lng: 44.392 }, disableDefaultUI: true
+            zoom: 13, 
+            center: { lat: 35.468, lng: 44.392 }, 
+            disableDefaultUI: true,
+            styles: [{ "featureType": "all", "elementType": "labels.text.fill", "stylers": [{ "color": "#7c93a3" }] }]
         });
     }
 
-    function startClock() { setInterval(() => { document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('ar-EG'); }, 1000); }
+    function startClock() { 
+        setInterval(() => { 
+            document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('ar-EG'); 
+        }, 1000); 
+    }
 
     function refreshData() {
+        const btn = document.getElementById('refreshBtn');
+        btn.classList.add('loading');
+        
+        // استخدام JSONP لطلب البيانات مع التوكن
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=getGlobalData&callback=renderData`;
+        script.src = `${API_URL}?action=getGlobalData&token=${API_TOKEN}&callback=renderData`;
         document.body.appendChild(script);
+        script.onload = () => {
+            btn.classList.remove('loading');
+            script.remove();
+        };
     }
 
     window.renderData = function(data) {
-        document.getElementById('count-orders').innerText = (data.orders.length - 1);
-        document.getElementById('count-drivers').innerText = data.drivers.filter(d => d[4] === 'active').length;
-        document.getElementById('count-res').innerText = data.restaurants.filter(r => r[4] === 'active').length;
+        if(data.status === "unauthorized") return alert("فشل التحقق من الأمان!");
 
+        // تحديث العدادات (تجاهل سطر العناوين في الشيت)
+        document.getElementById('count-orders').innerText = Math.max(0, data.orders.length - 1);
+        document.getElementById('count-drivers').innerText = data.drivers.filter(d => d[4]?.toString().toLowerCase() === 'active').length;
+        document.getElementById('count-res').innerText = data.restaurants.filter(r => r[4]?.toString().toLowerCase() === 'active').length;
+        
+        document.getElementById('statusInfo').innerText = "تم تحديث البيانات بنجاح في " + new Date().toLocaleTimeString('ar-EG');
+
+        // جدول الطلبات
         let oHtml = '';
-        data.orders.slice(1).reverse().forEach(o => {
-            oHtml += `<tr><td>#${o[1]}</td><td>${o[2]}</td><td>${o[7] || '...'}</td><td>${o[9]}</td><td><span class="badge-status bg-light text-dark border">${o[6]}</span></td></tr>`;
+        const orderRows = data.orders.slice(1).reverse(); // أحدث الطلبات أولاً
+        orderRows.forEach(o => {
+            let statusBadge = '';
+            switch(o[6]) {
+                case 'pending_driver': statusBadge = 'bg-info bg-opacity-10 text-info'; break;
+                case 'accepted': statusBadge = 'bg-success bg-opacity-10 text-success'; break;
+                case 'rejected': statusBadge = 'bg-danger bg-opacity-10 text-danger'; break;
+                default: statusBadge = 'bg-secondary bg-opacity-10 text-secondary';
+            }
+            oHtml += `<tr>
+                <td class="fw-bold">#${o[1]}</td>
+                <td>${o[2]}</td>
+                <td>${o[7] || '<span class="text-muted">جاري البحث...</span>'}</td>
+                <td>${o[9]}</td>
+                <td><span class="badge-status ${statusBadge}">${o[6]}</span></td>
+            </tr>`;
         });
-        document.getElementById('ordersTableBody').innerHTML = oHtml;
+        document.getElementById('ordersTableBody').innerHTML = oHtml || '<tr><td colspan="5" class="text-center p-4">لا توجد طلبات مسجلة</td></tr>';
 
-        renderCards('resListContainer', data.restaurants, 'store');
-        renderCards('driverListContainer', data.drivers, 'user');
+        // عرض الكروت
+        renderCards('resListContainer', data.restaurants, 'utensils');
+        renderCards('driverListContainer', data.drivers, 'truck');
     };
 
     function renderCards(id, list, icon) {
         let html = '';
         list.slice(1).forEach(i => {
-            html += `<div class="col-md-6 col-xl-4"><div class="stat-widget">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="icon-shape bg-light"><i data-lucide="${icon}"></i></div>
-                    <div><h6 class="m-0 fw-bold">${i[1]}</h6><small>${i[2]}</small></div>
+            const isActive = i[4]?.toString().toLowerCase() === 'active';
+            html += `<div class="col-md-6 col-xl-4">
+                <div class="stat-widget">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-shape bg-light text-dark"><i data-lucide="${icon}"></i></div>
+                        <div>
+                            <h6 class="m-0 fw-bold">${i[1]}</h6>
+                            <small class="text-muted">${i[2]}</small>
+                        </div>
+                    </div>
+                    <span class="badge ${isActive ? 'bg-success' : 'bg-warning'} px-3 rounded-pill">
+                        ${isActive ? 'نشط' : 'قيد الانتظار'}
+                    </span>
                 </div>
-                <span class="badge ${i[4] === 'active' ? 'bg-success' : 'bg-secondary'}">${i[4]}</span>
-            </div></div>`;
+            </div>`;
         });
-        document.getElementById(id).innerHTML = html;
+        document.getElementById(id).innerHTML = html || '<div class="col-12 text-center">لا يوجد بيانات لعرضها</div>';
         lucide.createIcons();
     }
 </script>
