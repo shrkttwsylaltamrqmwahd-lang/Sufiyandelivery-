@@ -10,8 +10,8 @@
     
     <style>
         :root {
-            --primary: #0f172a; /* كحلي غامق جداً */
-            --accent: #f97316;  /* برتقالي حيوي */
+            --primary: #0f172a; 
+            --accent: #f97316;  
             --glass: rgba(255, 255, 255, 0.95);
             --bg: #f8fafc;
         }
@@ -23,7 +23,6 @@
             overflow-x: hidden;
         }
 
-        /* Loading Overlay Customization */
         #loadingOverlay {
             position: fixed; top:0; left:0; width:100%; height:100%; 
             background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px);
@@ -33,91 +32,56 @@
 
         .container { max-width: 600px; padding-bottom: 50px; }
 
-        /* Header Design */
-        .header-brand {
-            padding: 40px 0 20px;
-            text-align: center;
-        }
-        .header-brand h2 { font-weight: 800; letter-spacing: -1px; color: var(--primary); }
+        .header-brand { padding: 40px 0 20px; text-align: center; }
+        .header-brand h2 { font-weight: 900; letter-spacing: -1px; color: var(--primary); }
         .header-brand span { color: var(--accent); }
 
-        /* Card Modernization */
         .card {
-            border: none;
-            border-radius: 24px;
-            background: var(--glass);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-            border: 1px solid rgba(0,0,0,0.02);
+            border: none; border-radius: 24px; background: var(--glass);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: all 0.3s ease;
+            margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.02);
         }
 
         .card-title { font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
 
-        /* Form Inputs */
         .form-control, .form-select {
-            border-radius: 14px;
-            padding: 12px 18px;
-            border: 2px solid #e2e8f0;
-            background: #fff;
-            transition: 0.3s;
+            border-radius: 14px; padding: 12px 18px; border: 2px solid #e2e8f0; background: #fff; transition: 0.3s;
         }
-        .form-control:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
-        }
+        .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1); }
 
-        /* Maps Styling */
         #map { 
             height: 250px; width: 100%; border-radius: 20px; 
-            margin-top: 10px; border: 4px solid white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-top: 10px; border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
 
-        /* Buttons */
         .btn-main {
-            background: var(--primary);
-            color: white;
-            border-radius: 16px;
-            padding: 15px;
-            font-weight: 700;
-            border: none;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            background: var(--primary); color: white; border-radius: 16px; padding: 15px;
+            font-weight: 700; border: none; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
         }
         .btn-main:hover { background: #1e293b; transform: translateY(-2px); color: white; }
 
-        .btn-group .btn {
-            border-radius: 12px !important;
-            margin: 0 5px;
-            border: 2px solid #e2e8f0 !important;
-            font-weight: 600;
-        }
+        .btn-group .btn { border-radius: 12px !important; margin: 0 5px; border: 2px solid #e2e8f0 !important; font-weight: 600; }
         .btn-group .btn.active { background-color: var(--accent) !important; color: white !important; border-color: var(--accent) !important; }
 
-        .hidden-section { display: none; opacity: 0; transform: translateY(10px); }
-        .show-section { display: block; opacity: 1; transform: translateY(0); transition: 0.5s; }
+        .hidden-section { display: none; }
+        .show-section { display: block; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .status-badge {
-            background: #f0fdf4; color: #166534; padding: 10px; border-radius: 12px; font-weight: 600;
-        }
+        .status-badge { background: #f0fdf4; color: #166534; padding: 8px 15px; border-radius: 12px; font-weight: 700; font-size: 0.9rem;}
     </style>
 </head>
 <body>
 
 <div id="loadingOverlay">
     <div class="spinner-grow text-warning" role="status"></div>
-    <span class="mt-3 fw-bold">جاري الاتصال بنظام الحوت...</span>
+    <span class="mt-3 fw-bold text-white">جاري الاتصال بنظام الحوت...</span>
 </div>
 
 <div class="container">
     <div class="header-brand">
         <i data-lucide="waves" size="48" color="#f97316"></i>
         <h2 class="mt-2">نظام <span>الحوت</span></h2>
-        <p class="text-muted">بوابة الشركاء والمطاعم</p>
+        <p class="text-muted fw-bold">بوابة الشركاء والمطاعم</p>
     </div>
 
     <div id="loginCheckSection" class="card p-4">
@@ -131,12 +95,12 @@
     </div>
 
     <div id="registrationSection" class="card p-4">
-        <div class="card-title"><i data-lucide="store" color="#f97316"></i> تسجيل شريك جديد</div>
+        <div class="card-title"><i data-lucide="store" color="#f97316"></i> طلب انضمام شريك جديد</div>
         <form id="regForm">
             <div class="row g-3">
                 <div class="col-12">
                     <label class="form-label small fw-bold">اسم المطعم التجاري</label>
-                    <input type="text" id="resName" class="form-control" placeholder="مثلاً: مطعم مأكولات المدينة">
+                    <input type="text" id="resName" class="form-control" placeholder="مثلاً: مطعم مأكولات المدينة" required>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label small fw-bold">المنطقة</label>
@@ -149,7 +113,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label small fw-bold">رقم الهاتف</label>
-                    <input type="tel" id="resPhone" class="form-control">
+                    <input type="tel" id="resPhone" class="form-control" required>
                 </div>
                 <div class="col-12">
                     <label class="form-label small fw-bold">حدد موقعك على الخريطة</label>
@@ -169,8 +133,8 @@
         </div>
         
         <div class="btn-group w-100 mb-4">
-            <button class="btn btn-outline-secondary active" id="btnManual" onclick="switchMethod('manual')">إدخال يدوي</button>
-            <button class="btn btn-outline-secondary" id="btnPhoto" onclick="switchMethod('photo')">تصوير وصل</button>
+            <button class="btn btn-outline-secondary active" id="btnManual" onclick="switchMethod('manual')" type="button">إدخال يدوي</button>
+            <button class="btn btn-outline-secondary" id="btnPhoto" onclick="switchMethod('photo')" type="button">تصوير وصل</button>
         </div>
 
         <form id="orderForm">
@@ -184,8 +148,8 @@
                     </select>
                 </div>
                 <div class="mb-4">
-                    <label class="form-label small fw-bold">رقم هاتف الزبون</label>
-                    <input type="tel" id="customerPhone" class="form-control" placeholder="07XXXXXXXXX">
+                    <label class="form-label small fw-bold">رقم هاتف الزبون و التفاصيل</label>
+                    <input type="text" id="customerPhone" class="form-control" placeholder="07XXXXXXXXX - بيت أبو علي" required>
                 </div>
             </div>
 
@@ -197,7 +161,7 @@
             </div>
 
             <button type="submit" class="btn btn-main w-100">
-                <i data-lucide="navigation"></i> البحث عن أقرب سائق
+                <i data-lucide="navigation"></i> البحث عن أقرب كابتن متاح
             </button>
         </form>
         <div id="statusMsg" class="mt-4 text-center"></div>
@@ -206,20 +170,16 @@
 
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
 <script>
-    // تهيئة الأيقونات
     lucide.createIcons();
 
-    const API_URL = "https://script.google.com/macros/s/AKfycby7a-gZ44EKeTLJWHnayDvUhiWwKnX8eKZp8BudmWf7xaLLTVBnAdOSgtVa3DTJe9lUJA/exec";
+    // الرابط الجديد
+    const API_URL = "https://script.google.com/macros/s/AKfycbwIELSbF-1Fioo5mTwhsJw4jZ3MRcAgOY5G43ma1vDu6OkOHvItLH3HOOCSZAguWd0Ssw/exec";
     let map, marker;
     let currentRestaurant = null;
 
     function initMap() {
-        const defaultLoc = { lat: 35.468, lng: 44.392 }; 
-        map = new google.maps.Map(document.getElementById("map"), { 
-            zoom: 14, 
-            center: defaultLoc,
-            styles: [/* إمكانية إضافة ستايل فضي هنا */]
-        });
+        const defaultLoc = { lat: 35.468, lng: 44.392 }; // كركوك
+        map = new google.maps.Map(document.getElementById("map"), { zoom: 14, center: defaultLoc, disableDefaultUI: true });
         marker = new google.maps.Marker({ position: defaultLoc, map: map, draggable: true });
         
         marker.addListener('dragend', () => {
@@ -229,38 +189,109 @@
     }
 
     function switchMethod(method) {
-        document.getElementById('manualInput').classList.toggle('hidden-section', method === 'photo');
-        document.getElementById('photoInput').classList.toggle('hidden-section', method === 'manual');
+        document.getElementById('manualInput').style.display = method === 'manual' ? 'block' : 'none';
+        document.getElementById('photoInput').style.display = method === 'photo' ? 'block' : 'none';
         document.getElementById('btnManual').classList.toggle('active', method === 'manual');
         document.getElementById('btnPhoto').classList.toggle('active', method === 'photo');
     }
 
+    function showLoading(show) { document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; }
+
+    // التحقق من الدخول باستخدام JSONP
     function checkRestaurantStatus() {
         const phone = document.getElementById('checkPhone').value;
-        if(!phone) return;
+        if(!phone) return alert("يرجى إدخال رقم الهاتف");
         
         showLoading(true);
-        fetch(`${API_URL}?action=checkRes&phone=${phone}`)
-        .then(res => res.json())
-        .then(data => {
-            showLoading(false);
-            if(data.status === "active") {
-                currentRestaurant = data;
-                document.getElementById('registrationSection').style.display = 'none';
-                document.getElementById('loginCheckSection').style.display = 'none';
-                document.getElementById('orderSection').classList.add('show-section');
-                document.getElementById('activeResName').innerText = data.name;
-            } else {
-                alert("المطعم غير مسجل أو بانتظار التفعيل");
-            }
-        });
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=checkRes&phone=${phone}&callback=handleLogin`;
+        document.body.appendChild(script);
     }
 
-    function showLoading(show) {
-        document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
-    }
-    
-    // باقي دوال الإرسال (POST) تبقى كما هي للربط مع الشيت...
+    window.handleLogin = function(data) {
+        showLoading(false);
+        if(data.status === "active") {
+            currentRestaurant = data;
+            document.getElementById('registrationSection').style.display = 'none';
+            document.getElementById('loginCheckSection').style.display = 'none';
+            document.getElementById('orderSection').classList.remove('hidden-section');
+            document.getElementById('orderSection').classList.add('show-section');
+            document.getElementById('activeResName').innerText = data.name;
+        } else if (data.status === "pending") {
+            alert("حسابك مسجل ولكنه قيد المراجعة من قبل الإدارة.");
+        } else {
+            alert("المطعم غير مسجل في النظام.");
+        }
+    };
+
+    // تسجيل مطعم جديد (POST)
+    document.getElementById('regForm').onsubmit = function(e) {
+        e.preventDefault();
+        showLoading(true);
+        const data = {
+            action: 'RESTAURANT_REG',
+            name: document.getElementById('resName').value,
+            phone: document.getElementById('resPhone').value,
+            area: document.getElementById('resArea').value,
+            lat: document.getElementById('lat').value,
+            lng: document.getElementById('lng').value,
+            comm: 10, // عمولة افتراضية
+            pay: "cash"
+        };
+
+        fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(result => {
+            showLoading(false);
+            alert("تم إرسال طلب الانضمام بنجاح! سيتم التواصل معك لتفعيل الحساب.");
+            location.reload();
+        })
+        .catch(err => { showLoading(false); alert("تم إرسال الطلب (أو حدث خطأ بالشبكة)."); });
+    };
+
+    // إرسال طلب جديد للسائق (POST)
+    document.getElementById('orderForm').onsubmit = function(e) {
+        e.preventDefault();
+        if(!currentRestaurant) return;
+        showLoading(true);
+
+        const data = {
+            action: 'NEW_ORDER',
+            restaurantName: currentRestaurant.name,
+            area: document.getElementById('customerArea').value,
+            details: document.getElementById('customerPhone').value
+        };
+
+        fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(result => {
+            showLoading(false);
+            if(result.success) {
+                document.getElementById('statusMsg').innerHTML = `
+                    <div class="alert alert-success fw-bold rounded-4 shadow-sm">
+                        <i data-lucide="check-circle" class="mb-2" size="32"></i><br>
+                        تم إرسال الطلب للكابتن: <span class="text-primary">${result.driverName}</span><br>
+                        رقم الطلب: ${result.orderId}
+                    </div>`;
+                lucide.createIcons();
+                document.getElementById('customerPhone').value = ''; // تفريغ الحقل
+            } else {
+                document.getElementById('statusMsg').innerHTML = `
+                    <div class="alert alert-danger fw-bold rounded-4">
+                        ${result.msg}
+                    </div>`;
+            }
+        })
+        .catch(err => { showLoading(false); alert("حدث خطأ في الاتصال بالخادم."); });
+    };
 </script>
 </body>
 </html>
