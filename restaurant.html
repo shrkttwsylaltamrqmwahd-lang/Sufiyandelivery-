@@ -2,152 +2,322 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بوابة المطاعم | نظام الحوت</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>مركز قيادة الحوت | Al-Hut Command Center</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        :root { --primary: #0f172a; --accent: #f97316; --bg: #f8fafc; }
-        body { background-color: var(--bg); font-family: 'Cairo', sans-serif; color: var(--primary); }
-        #loadingOverlay {
-            position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px);
-            z-index:9999; display:none; align-items:center; justify-content:center; flex-direction: column; color: white;
+        :root {
+            --sidebar-width: 280px;
+            --primary-dark: #0f172a;
+            --accent-orange: #f97316;
+            --bg-light: #f1f5f9;
         }
-        .container { max-width: 550px; padding: 20px; }
-        .card { border: none; border-radius: 28px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px; padding: 25px; }
-        .btn-main { background: var(--primary); color: white; border-radius: 18px; padding: 15px; font-weight: 700; border: none; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .hidden-section { display: none; }
-        #map { height: 200px; width: 100%; border-radius: 15px; margin-top: 10px; border: 2px solid #eee; }
+
+        body { 
+            background-color: var(--bg-light); 
+            font-family: 'Cairo', sans-serif; 
+            margin: 0; 
+            overflow-x: hidden; 
+        }
+
+        /* شاشة القفل */
+        #authOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f172a; z-index: 10000; display: flex; align-items: center; justify-content: center;
+        }
+        .auth-card {
+            background: white; border-radius: 30px; padding: 40px; width: 90%; max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2); text-align: center;
+        }
+
+        /* الهيكل الجانبي */
+        .sidebar {
+            width: var(--sidebar-width); background: var(--primary-dark);
+            height: 100vh; position: fixed; right: 0; top: 0; color: white; 
+            padding: 25px 15px; z-index: 1001; transition: transform 0.3s ease;
+        }
+        
+        .main-content { 
+            margin-right: var(--sidebar-width); 
+            padding: 30px; 
+            min-height: 100vh; 
+            transition: margin 0.3s ease;
+        }
+
+        /* قائمة التنقل */
+        .nav-item {
+            display: flex; align-items: center; gap: 15px; padding: 15px 20px; color: #94a3b8;
+            text-decoration: none; border-radius: 15px; margin-bottom: 10px; cursor: pointer; transition: 0.3s;
+        }
+        .nav-item:hover, .nav-item.active { background: #1e293b; color: white; }
+        .nav-item.active { border-right: 5px solid var(--accent-orange); background: rgba(249, 115, 22, 0.1); }
+
+        /* الكروت والويدجت */
+        .stat-widget {
+            background: white; border-radius: 25px; padding: 25px; 
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;
+            height: 100%;
+        }
+        .icon-shape { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
+
+        /* خريطة ذكية */
+        #adminMap { 
+            height: 500px; width: 100%; border-radius: 30px; 
+            border: 10px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        /* جداول مستجيبة */
+        .custom-table-card { 
+            background: white; border-radius: 30px; padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;
+        }
+        .table thead th { background: #f8fafc; border: none; padding: 20px; font-weight: 700; color: #64748b; }
+        .table tbody td { padding: 20px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+
+        .badge-status { padding: 6px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; }
+        
+        .loading-pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        @media (max-width: 1100px) {
+            .sidebar { transform: translateX(100%); }
+            .main-content { margin-right: 0; padding: 20px; }
+            .sidebar.show { transform: translateX(0); }
+            .menu-toggle { display: block !important; }
+        }
+
+        .menu-toggle {
+            display: none; position: fixed; bottom: 20px; left: 20px; 
+            width: 60px; height: 60px; background: var(--accent-orange);
+            color: white; border-radius: 50%; border: none; z-index: 2000;
+            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.4);
+        }
     </style>
 </head>
 <body>
 
-<div id="loadingOverlay">
-    <div class="spinner-border text-warning" style="width: 3rem; height: 3rem;"></div>
-    <span class="mt-3 fw-bold" id="loadingText">جاري الاتصال بالسيرفر...</span>
-    <button id="cancelBtn" class="btn btn-sm btn-outline-light mt-3 hidden-section" onclick="location.reload()">إلغاء المحاولة</button>
+<div id="authOverlay">
+    <div class="auth-card">
+        <div class="mb-4"><i data-lucide="shield-check" size="60" color="#f97316"></i></div>
+        <h4 class="fw-black mb-3">مركز قيادة الحوت</h4>
+        <input type="password" id="masterPass" class="form-control form-control-lg text-center mb-3 shadow-none border-2" placeholder="كلمة المرور">
+        <button class="btn btn-dark w-100 py-3 fw-bold rounded-4" onclick="checkAuth()">فتح النظام</button>
+    </div>
 </div>
 
-<div class="container">
-    <div class="text-center py-4">
-        <h2 class="fw-black">بوابة <span>المطاعم</span></h2>
-        <p class="text-muted">نظام الحوت الذكي</p>
-    </div>
+<button class="menu-toggle" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
 
-    <div id="loginSection" class="card">
-        <div class="mb-3">
-            <label class="form-label fw-bold">رقم هاتف المطعم</label>
-            <input type="tel" id="checkPhone" class="form-control text-center fs-4" placeholder="07XXXXXXXXX">
+<div class="d-none" id="mainDashboard">
+    <aside class="sidebar" id="sidebar">
+        <div class="d-flex align-items-center gap-3 mb-5 px-3">
+            <div class="bg-warning p-2 rounded-3"><i data-lucide="waves" color="#0f172a"></i></div>
+            <h4 class="m-0 fw-black">نظام الحوت</h4>
         </div>
-        <button class="btn btn-main" onclick="checkRestaurantStatus()">دخول اللوحة</button>
-        <button class="btn btn-link w-100 mt-3 text-muted" onclick="showReg()">طلب انضمام جديد</button>
-    </div>
+        <nav>
+            <div class="nav-item active" onclick="showTab(event, 'live')"><i data-lucide="radar"></i> <span>الرصد الحي</span></div>
+            <div class="nav-item" onclick="showTab(event, 'orders')"><i data-lucide="shopping-bag"></i> <span>الطلبات</span></div>
+            <div class="nav-item" onclick="showTab(event, 'restaurants')"><i data-lucide="store"></i> <span>المطاعم</span></div>
+            <div class="nav-item" onclick="showTab(event, 'drivers')"><i data-lucide="user-check"></i> <span>الكباتن</span></div>
+        </nav>
+        <div style="position: absolute; bottom: 30px; width: calc(100% - 30px);">
+            <div class="nav-item text-danger" onclick="location.reload()"><i data-lucide="log-out"></i> <span>تسجيل خروج</span></div>
+        </div>
+    </aside>
 
-    <div id="orderSection" class="card hidden-section">
-        <h5 class="fw-bold mb-3" id="resTitle">مرحباً بك</h5>
-        <form id="orderForm">
-            <div class="mb-3">
-                <select id="customerArea" class="form-select">
-                    <option>المنطقة المركزية</option><option>تسعين</option><option>طريق بغداد</option>
-                </select>
+    <main class="main-content">
+        <header class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+            <div>
+                <h2 class="fw-black m-0">لوحة التحكم المركزية</h2>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                    <span class="badge bg-success rounded-pill p-1">● مباشر</span>
+                    <small class="text-muted" id="lastUpdate">جاري التحديث...</small>
+                </div>
             </div>
-            <div class="mb-3">
-                <textarea id="customerDetails" class="form-control" placeholder="رقم الزبون وتفاصيل العنوان" required></textarea>
+            <div id="liveTime" class="bg-white px-4 py-2 rounded-pill shadow-sm fw-bold border">00:00:00</div>
+        </header>
+
+        <div id="tab-live" class="admin-tab">
+            <div class="row g-4 mb-5">
+                <div class="col-xl-4 col-md-6">
+                    <div class="stat-widget">
+                        <div><small class="text-muted fw-bold">إجمالي طلبات اليوم</small><h2 class="fw-black m-0" id="count-orders">0</h2></div>
+                        <div class="icon-shape bg-primary bg-opacity-10 text-primary"><i data-lucide="package"></i></div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-md-6">
+                    <div class="stat-widget">
+                        <div><small class="text-muted fw-bold">كباتن متصلون</small><h2 class="fw-black m-0 text-success" id="count-drivers">0</h2></div>
+                        <div class="icon-shape bg-success bg-opacity-10 text-success"><i data-lucide="navigation"></i></div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-md-12">
+                    <div class="stat-widget">
+                        <div><small class="text-muted fw-bold">المطاعم النشطة</small><h2 class="fw-black m-0 text-warning" id="count-res">0</h2></div>
+                        <div class="icon-shape bg-warning bg-opacity-10 text-warning"><i data-lucide="store"></i></div>
+                    </div>
+                </div>
             </div>
-            <button type="submit" class="btn btn-main">اطلب كابتن الآن</button>
-        </form>
-        <div id="statusMsg" class="mt-3"></div>
-    </div>
+            <div id="adminMap"></div>
+        </div>
+
+        <div id="tab-orders" class="admin-tab d-none">
+            <div class="custom-table-card table-responsive">
+                <table class="table align-middle m-0">
+                    <thead>
+                        <tr><th>توقيت الطلب</th><th>كود التتبع</th><th>المطعم</th><th>الكابتن</th><th>المنطقة</th><th>الحالة</th></tr>
+                    </thead>
+                    <tbody id="ordersTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-restaurants" class="admin-tab d-none"><div class="row g-4" id="resListContainer"></div></div>
+        <div id="tab-drivers" class="admin-tab d-none"><div class="row g-4" id="driverListContainer"></div></div>
+    </main>
 </div>
 
+<script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMasterMap"></script>
 <script>
     lucide.createIcons();
     
-    // الرابط الرسمي - تأكد من تحديثه إذا قمت بنشر جديد
-    const API_URL = "https://script.google.com/macros/s/AKfycbw11obhblN_1MpuDLZqKk337YPRrnqbkcoVJFqDrbHxUoZdxc49qHVNv7Oq2RgD2gYbMA/exec";
+    // الرابط الجديد المحدث
+    const API_URL = "https://script.google.com/macros/s/AKfycbwPlcGfCcyJMwYnaR4ZHWlpNi78F1jgKkkW8NYZW1MYzSgFnlDA7QGrR2G1ys7uiUVZkA/exec";
     const API_TOKEN = "HUT_SECURE_99";
-    let currentRes = null;
+    
+    let map, markers = [];
 
-    function showLoading(s) { 
-        document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none';
-        // إظهار زر الإلغاء إذا استغرق الأمر أكثر من 5 ثوانٍ
-        if(s) setTimeout(() => document.getElementById('cancelBtn').classList.remove('hidden-section'), 5000);
+    function checkAuth() {
+        if(document.getElementById('masterPass').value === "223344") {
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('mainDashboard').classList.remove('d-none');
+            startClock(); 
+            refreshData(); 
+            setInterval(refreshData, 15000); // تحديث كل 15 ثانية
+        } else { alert("❌ رمز الدخول غير صحيح"); }
     }
 
-    function checkRestaurantStatus() {
-        const phone = document.getElementById('checkPhone').value.trim();
-        if(!phone) return alert("أدخل الرقم");
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('show'); }
 
-        showLoading(true);
-        
-        // استخدام JSONP لتفادي مشاكل CORS
-        const script = document.createElement('script');
-        // تم إضافة timestamp لمنع التخزين المؤقت (Cache)
-        script.src = `${API_URL}?action=checkRes&phone=${phone}&token=${API_TOKEN}&callback=handleLogin&ts=${Date.now()}`;
-        
-        script.onerror = () => {
-            showLoading(false);
-            alert("فشل الاتصال بالسيرفر. تأكد من أن السكريبت منشور (Deployed) كـ Anyone.");
-        };
-        
-        document.body.appendChild(script);
+    function showTab(e, name) {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('d-none'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.remove('d-none');
+        e.currentTarget.classList.add('active');
+        if(window.innerWidth < 1100 && document.getElementById('sidebar').classList.contains('show')) toggleSidebar();
+        lucide.createIcons();
     }
 
-    window.handleLogin = function(data) {
-        showLoading(false);
-        console.log("Response:", data); // للفحص في Console
-        
-        if(!data || !data.status) {
-            alert("رد غير صالح من السيرفر.");
-            return;
-        }
-
-        const status = String(data.status).trim().toLowerCase();
-        if(status === "active") {
-            currentRes = data;
-            document.getElementById('loginSection').classList.add('hidden-section');
-            document.getElementById('orderSection').classList.remove('hidden-section');
-            document.getElementById('resTitle').innerText = "مطعم: " + data.name;
-        } else if(status === "pending") {
-            alert("حسابك قيد الانتظار..");
-        } else {
-            alert("الرقم غير مسجل أو الحساب غير مفعل.");
-        }
-    };
-
-    // إرسال طلب (POST)
-    document.getElementById('orderForm').onsubmit = function(e) {
-        e.preventDefault();
-        showLoading(true);
-        const payload = {
-            action: 'NEW_ORDER',
-            token: API_TOKEN,
-            restaurantName: currentRes.name,
-            area: document.getElementById('customerArea').value,
-            details: document.getElementById('customerDetails').value
-        };
-
-        fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        })
-        .then(r => r.json())
-        .then(res => {
-            showLoading(false);
-            if(res.success) {
-                document.getElementById('statusMsg').innerHTML = `<div class="alert alert-success">تم! الكابتن: ${res.driverName}</div>`;
-                document.getElementById('customerDetails').value = "";
-            } else {
-                alert(res.msg);
-            }
-        })
-        .catch(err => {
-            showLoading(false);
-            alert("خطأ في الشبكة");
+    function initMasterMap() {
+        map = new google.maps.Map(document.getElementById("adminMap"), {
+            zoom: 13, 
+            center: { lat: 35.468, lng: 44.392 }, 
+            styles: [ { "featureType": "all", "elementType": "labels.text.fill", "stylers": [{"color": "#ffffff"}] } ], // مثال لتخصيص بسيط
+            disableDefaultUI: true 
         });
+    }
+
+    function startClock() { 
+        setInterval(() => { 
+            document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('ar-EG'); 
+        }, 1000); 
+    }
+
+    function refreshData() {
+        document.getElementById('lastUpdate').classList.add('loading-pulse');
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=getGlobalData&token=${API_TOKEN}&callback=renderData&ts=${Date.now()}`;
+        document.body.appendChild(script);
+        script.onload = () => script.remove();
+    }
+
+    window.renderData = function(data) {
+        document.getElementById('lastUpdate').classList.remove('loading-pulse');
+        document.getElementById('lastUpdate').innerText = "آخر تحديث: " + new Date().toLocaleTimeString('ar-EG');
+
+        // تحديث العدادات
+        document.getElementById('count-orders').innerText = data.orders ? data.orders.length : 0;
+        document.getElementById('count-drivers').innerText = data.drivers.filter(d => String(d[4]).trim().toLowerCase() === 'active').length;
+        document.getElementById('count-res').innerText = data.restaurants.filter(r => String(r[4]).trim().toLowerCase() === 'active').length;
+
+        // تحديث جدول الطلبات
+        let oHtml = '';
+        if(data.orders && data.orders.length > 0) {
+            data.orders.reverse().forEach(o => {
+                const timeStr = new Date(o[0]).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
+                oHtml += `<tr>
+                    <td><small>${timeStr}</small></td>
+                    <td><b class="text-primary">${o[1]}</b></td>
+                    <td>${o[2]}</td>
+                    <td>${o[7] || '<span class="text-muted">جاري البحث...</span>'}</td>
+                    <td>${o[9]}</td>
+                    <td><span class="badge-status bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">${o[6]}</span></td>
+                </tr>`;
+            });
+        }
+        document.getElementById('ordersTableBody').innerHTML = oHtml;
+
+        // تحديث القوائم (المطاعم والكباتن)
+        renderCards('resListContainer', data.restaurants, 'store');
+        renderCards('driverListContainer', data.drivers, 'navigation');
+        
+        // تحديث مواقع الخريطة
+        updateMapMarkers(data.drivers, data.restaurants);
     };
+
+    function renderCards(id, list, icon) {
+        let html = '';
+        list.slice(1).forEach(i => {
+            const status = String(i[4]).trim().toLowerCase();
+            const statusClass = status === 'active' ? 'bg-success' : (status === 'pending' ? 'bg-warning' : 'bg-danger');
+            html += `<div class="col-md-6 col-xl-4">
+                <div class="stat-widget">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="icon-shape bg-light"><i data-lucide="${icon}"></i></div>
+                        <div><h6 class="m-0 fw-bold">${i[1]}</h6><small class="text-muted">${i[2]}</small></div>
+                    </div>
+                    <span class="badge ${statusClass}">${status}</span>
+                </div>
+            </div>`;
+        });
+        document.getElementById(id).innerHTML = html;
+        lucide.createIcons();
+    }
+
+    function updateMapMarkers(drivers, restaurants) {
+        if(!map) return;
+        markers.forEach(m => m.setMap(null));
+        markers = [];
+
+        // إضافة المطاعم للخريطة
+        restaurants.slice(1).forEach(r => {
+            if(r[6] && r[7]) {
+                const m = new google.maps.Marker({
+                    position: { lat: parseFloat(r[6]), lng: parseFloat(r[7]) },
+                    map: map,
+                    icon: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png',
+                    title: r[1]
+                });
+                markers.push(m);
+            }
+        });
+
+        // إضافة الكباتن للخريطة
+        drivers.slice(1).forEach(d => {
+            if(d[5] && d[6] && String(d[4]).toLowerCase() === 'active') {
+                const m = new google.maps.Marker({
+                    position: { lat: parseFloat(d[5]), lng: parseFloat(d[6]) },
+                    map: map,
+                    icon: 'https://maps.google.com/mapfiles/ms/icons/motorcycling.png',
+                    title: d[1]
+                });
+                markers.push(m);
+            }
+        });
+    }
 </script>
 </body>
 </html>
