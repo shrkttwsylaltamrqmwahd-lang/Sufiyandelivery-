@@ -31,7 +31,7 @@
         <div id="authUI" class="hidden">
             <header class="text-center mb-6">
                 <h2 class="text-2xl font-black italic" style="font-family: 'Orbitron';">WHALE <span class="text-emerald-500">KITCHEN</span></h2>
-                <p class="text-[10px] text-gray-400 mt-1 font-bold italic opacity-60">تفعيل رادار الشركاء V10.0</p>
+                <p class="text-[10px] text-gray-400 mt-1 font-bold italic opacity-60">تفعيل رادار الشركاء V6.2</p>
             </header>
             
             <form id="smartForm" class="space-y-4">
@@ -41,7 +41,7 @@
                 </div>
                 <div class="relative">
                     <i class="fas fa-phone absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500/50"></i>
-                    <input type="tel" id="resPhone" required placeholder="رقم الهاتف (سيكون رمز دخولك)" class="whale-input text-right">
+                    <input type="tel" id="resPhone" required placeholder="رقم هاتف المطعم" class="whale-input text-right">
                 </div>
                 <div class="relative">
                     <i class="fas fa-map-marker-alt absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500/50"></i>
@@ -49,7 +49,7 @@
                 </div>
                 
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="number" id="fixedFee" required placeholder="العمولة د.ع" class="whale-input text-center p-2">
+                    <input type="number" id="fixedFee" required placeholder="العمولة" class="whale-input text-center p-2">
                     <select id="paySystem" class="whale-input bg-slate-900 text-[10px] pr-2">
                         <option value="المطعم يدفع">المطعم يدفع</option>
                         <option value="مناصفة">مناصفة</option>
@@ -66,17 +66,17 @@
 
         <div id="waitMessage" class="hidden text-center py-12">
             <div class="text-6xl mb-6 animate-bounce">⏳</div>
-            <h3 class="text-xl font-black text-emerald-500 italic uppercase">بانتظار تفعيل طه</h3>
-            <p class="text-[10px] text-slate-400 mt-6 italic">سيتم فتح النظام تلقائياً فور تفعيل حسابك من الإدارة المركزية.</p>
+            <h3 class="text-xl font-black text-emerald-500 italic uppercase">بانتظار التفعيل</h3>
+            <p class="text-[10px] text-slate-400 mt-6 italic">سيتم فتح النظام تلقائياً فور تفعيل حسابك من قبل سفيان.</p>
             <div class="mt-4 p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
-                <p id="checkingStatus" class="text-[9px] text-emerald-500 font-bold italic animate-pulse">جاري التحقق من التفعيل الآن...</p>
+                <p id="checkingStatus" class="text-[9px] text-emerald-500 font-bold italic animate-pulse">جاري فحص حالة الحساب 🛰️</p>
             </div>
-            <button onclick="clearRegistration()" class="mt-10 text-[9px] text-red-500 font-black border-b border-red-500/30 pb-1">إلغاء الطلب / تعديل البيانات</button>
+            <button onclick="clearRegistration()" class="mt-10 text-[9px] text-red-500 font-black border-b border-red-500/30 pb-1">تعديل البيانات أو تسجيل خروج</button>
         </div>
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzywi3-mLv5H4bNHYvQbFDpy_FwA-AceD4g8JZX6Ah3QZhmC5LGXNLvBeQBjYO9tmt9vA/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzBTRYdugjCeYZoeaHng4JPIq0vBu-b3VHNuEX9ya0H1C022PDangGTOR9I-v4i83rDoA/exec';
         let checkInterval;
 
         window.onload = () => {
@@ -97,7 +97,7 @@
 
         async function checkResStatus(phone) {
             try {
-                const res = await fetch(`${scriptURL}?action=login_check&id=${phone}`);
+                const res = await fetch(`${scriptURL}?action=login_check&type=Restaurant&id=${phone}`);
                 const data = await res.json();
 
                 if (data.status === 'active') {
@@ -105,7 +105,7 @@
                     localStorage.setItem('whale_res_phone', phone);
                     window.location.href = 'Restaurant.html';
                 } else if (data.status === 'banned') {
-                    alert("نأسف، تم حظر وصول مطعمكم للمنظومة.");
+                    alert("تم حظر وصول هذا المطعم للمنظومة.");
                     clearRegistration();
                 } else {
                     showView('waitMessage');
@@ -127,12 +127,13 @@
 
             const phone = document.getElementById('resPhone').value;
             const payload = {
-                action: "register_restaurant",
-                resName: document.getElementById('resName').value,
-                resPhone: phone,
-                resMap: document.getElementById('resMapLink').value,
+                action: "register",
+                type: "Restaurant",
+                name: document.getElementById('resName').value,
+                phone: phone,
+                map: document.getElementById('resMapLink').value,
                 fee: document.getElementById('fixedFee').value,
-                pay: document.getElementById('paySystem').value
+                payment: document.getElementById('paySystem').value
             };
 
             try {
@@ -144,17 +145,16 @@
                 showView('waitMessage');
                 checkResStatus(phone);
             } catch (error) {
-                alert("حدث خطأ في الاتصال بالسيرفر.");
+                alert("فشل الاتصال بالسيرفر، حاول مجدداً.");
                 btn.disabled = false;
                 btnText.innerText = "إرسال طلب الانضمام";
             }
         });
 
         function clearRegistration() {
-            if(confirm("هل تريد مسح البيانات والمحاولة مرة أخرى؟")) {
+            if(confirm("هل تريد إلغاء الطلب الحالي؟")) {
                 clearInterval(checkInterval);
-                localStorage.removeItem('whale_res_phone');
-                localStorage.removeItem('whale_res_name');
+                localStorage.clear();
                 location.reload();
             }
         }
