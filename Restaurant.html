@@ -16,7 +16,7 @@
         .whale-select:focus { border-color: #10b981; }
         .btn-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
         .hidden { display: none; }
-        .loading-overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.9); z-index: 100; display: flex; align-items: center; justify-content: center; display: none; }
+        .loading-overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.9); z-index: 100; display: none; align-items: center; justify-content: center; }
         .loading-overlay.active { display: flex; }
     </style>
 </head>
@@ -31,7 +31,7 @@
 
     <header class="max-w-xl mx-auto mb-6 flex justify-between items-center glass-card p-4 rounded-3xl sticky top-4 z-50">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-900 font-black shadow-lg">🐋</div>
+            <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-900 font-black">🐋</div>
             <div>
                 <p class="text-[8px] text-emerald-500 font-black uppercase tracking-widest italic leading-tight">Al-Hut Kitchen Hub</p>
                 <h1 id="displayResName" class="text-xs font-black text-white italic tracking-wider">جاري التحميل...</h1> 
@@ -96,12 +96,13 @@
     </main>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzywi3-mLv5H4bNHYvQbFDpy_FwA-AceD4g8JZX6Ah3QZhmC5LGXNLvBeQBjYO9tmt9vA/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzBTRYdugjCeYZoeaHng4JPIq0vBu-b3VHNuEX9ya0H1C022PDangGTOR9I-v4i83rDoA/exec';
         let userLat, userLng;
 
-        // 1. تحميل اسم المطعم المحفوظ وطلب الموقع
         window.onload = () => {
             const savedName = localStorage.getItem('whale_res_name');
+            const savedPhone = localStorage.getItem('whale_res_phone');
+            if (!savedPhone) window.location.href = "Restaurant_login.html";
             if (savedName) document.getElementById('displayResName').innerText = savedName;
             
             navigator.geolocation.getCurrentPosition(pos => {
@@ -132,20 +133,20 @@
             reader.readAsDataURL(event.target.files[0]);
         }
 
-        // 2. إرسال الطلب الفعلي للمنظومة
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const loader = document.getElementById('loader');
-            loader.style.display = 'flex';
+            loader.classList.add('active');
 
             const payload = {
-                action: "restaurant_send_order",
-                restName: document.getElementById('displayResName').innerText,
+                action: "submit_order",
+                restaurantName: document.getElementById('displayResName').innerText,
+                type: document.getElementById('manualSection').classList.contains('hidden') ? "Camera" : "Manual",
                 area: document.getElementById('locationSelect').value,
-                details: document.getElementById('details').value + " - هاتف: " + document.getElementById('customerPhone').value,
-                lat: userLat,
-                lng: userLng,
-                fee: 3000 // يمكن جعلها ديناميكية لاحقاً
+                details: "هاتف: " + document.getElementById('customerPhone').value + " | ملاحظات: " + document.getElementById('details').value,
+                lat: userLat || 0,
+                lng: userLng || 0,
+                fee: 500 // سيتم جلبه من إعداداتك لاحقاً
             };
 
             const file = document.getElementById('cameraInput').files[0];
@@ -153,7 +154,7 @@
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = async () => {
-                    payload.image = reader.result;
+                    payload.photoUrl = reader.result; // يتم معالجتها في Apps Script
                     sendToEngine(payload);
                 };
             } else {
@@ -170,21 +171,21 @@
                 const result = await response.json();
                 
                 if (result.status === "success") {
-                    alert(`تم البث بنجاح! رقم الطلب: ${result.id}\n${result.found_driver ? 'جاري توجيه كابتن إليك.' : 'بانتظار كابتن متاح.'}`);
+                    alert(`تم بث الطلب بنجاح! رقم الطلب: ${result.orderId}`);
                     location.reload();
                 } else {
                     alert("خطأ في البث: " + result.msg);
                 }
             } catch (error) {
-                alert("حدث خطأ في الاتصال بالسيرفر.");
+                alert("حدث خطأ في الاتصال بسيرفر الحوت.");
             } finally {
-                document.getElementById('loader').style.display = 'none';
+                document.getElementById('loader').classList.remove('active');
             }
         }
 
         function logout() {
             if(confirm("هل تريد تسجيل الخروج؟")) {
-                localStorage.removeItem('whale_res_phone');
+                localStorage.clear();
                 window.location.href = "Restaurant_login.html";
             }
         }
