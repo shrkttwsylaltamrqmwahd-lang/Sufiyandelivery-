@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -22,7 +21,6 @@
 
         body { background-color: var(--bg-light); font-family: 'Cairo', sans-serif; margin: 0; overflow-x: hidden; }
 
-        /* شاشة القفل */
         #authOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #0f172a; z-index: 10000; display: flex; align-items: center; justify-content: center;
@@ -32,7 +30,6 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.2); text-align: center;
         }
 
-        /* الهيكل الجانبي */
         .sidebar {
             width: var(--sidebar-width); background: var(--primary-dark);
             height: 100vh; position: fixed; right: 0; top: 0; color: white; 
@@ -46,9 +43,8 @@
             text-decoration: none; border-radius: 15px; margin-bottom: 10px; cursor: pointer; transition: 0.3s;
         }
         .nav-item:hover, .nav-item.active { background: #1e293b; color: white; }
-        .nav-item.active { border-right: 5px solid var(--accent-orange); background: rgba(249, 115, 22, 0.1); }
+        .nav-item.active { border-right: 5px solid var(--accent-orange); background: rgba(249, 115, 22, 0.1); color: white; }
 
-        /* كروت الإحصائيات */
         .stat-widget {
             background: white; border-radius: 25px; padding: 25px; 
             display: flex; justify-content: space-between; align-items: center;
@@ -57,11 +53,10 @@
 
         #adminMap { height: 450px; width: 100%; border-radius: 30px; border: 8px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
 
-        /* --- رادار الطلبات الذكي --- */
         .smart-order-card {
             background: white; border-radius: 20px; padding: 22px; margin-bottom: 20px;
             border: 1px solid #e2e8f0; border-right: 8px solid #94a3b8;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.03); position: relative; transition: 0.3s;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03); position: relative;
         }
         .status-danger { border-right-color: var(--danger); } 
         .status-warning { border-right-color: var(--warning); }
@@ -70,7 +65,7 @@
         .delay-badge {
             position: absolute; top: -12px; left: 20px; background: var(--danger); color: white;
             padding: 5px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: 900;
-            animation: pulse-red 2s infinite; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+            animation: pulse-red 2s infinite;
         }
         @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
@@ -80,21 +75,27 @@
             border: 1px solid #f1f5f9;
         }
 
-        /* --- أزرار السيادة الاحترافية --- */
         .sov-btn {
             border: none; border-radius: 12px; width: 38px; height: 38px; 
-            display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        .sov-accept { background: #dcfce7; color: #166534; }
-        .sov-pause { background: #fef9c3; color: #854d0e; }
-        .sov-delete { background: #fee2e2; color: #ef4444; }
         .sov-call { background: #e0f2fe; color: #0369a1; }
-        .sov-btn:hover { transform: translateY(-3px); filter: brightness(0.95); }
+        .sov-delete { background: #fee2e2; color: #ef4444; }
+
+        /* تعديلات الموبايل والزر */
+        .menu-toggle {
+            display: none; position: fixed; bottom: 25px; left: 25px; 
+            width: 65px; height: 65px; background: var(--accent-orange);
+            color: white; border-radius: 50%; border: none; z-index: 2000;
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
+            align-items: center; justify-content: center;
+        }
 
         @media (max-width: 1100px) {
+            .menu-toggle { display: flex; }
             .sidebar { transform: translateX(100%); }
-            .main-content { margin-right: 0; padding: 20px; }
             .sidebar.show { transform: translateX(0); }
+            .main-content { margin-right: 0; padding: 20px; }
         }
     </style>
 </head>
@@ -108,6 +109,10 @@
         <button class="btn btn-dark w-100 py-3 fw-bold rounded-4" onclick="checkAuth()">دخول السيادة</button>
     </div>
 </div>
+
+<button class="menu-toggle" onclick="toggleSidebar()">
+    <i data-lucide="menu"></i>
+</button>
 
 <div class="d-none" id="mainDashboard">
     <aside class="sidebar" id="sidebar">
@@ -138,13 +143,10 @@
                 <div class="col-md-4"><div class="stat-widget"><div><small class="fw-bold text-muted">أسطول نشط</small><h2 id="count-drivers" class="fw-black m-0 text-success">0</h2></div><i data-lucide="truck" class="text-success"></i></div></div>
                 <div class="col-md-4"><div class="stat-widget"><div><small class="fw-bold text-muted">شركاء الخدمة</small><h2 id="count-res" class="fw-black m-0 text-warning">0</h2></div><i data-lucide="store" class="text-warning"></i></div></div>
             </div>
-
             <div id="adminMap"></div>
-
             <div class="mt-5">
                 <h4 class="fw-black mb-4 d-flex align-items-center gap-2 border-bottom pb-3"><i data-lucide="activity" class="text-danger"></i> رادار الطلبات النشطة</h4>
-                <div class="row g-4" id="smartRadarContainer">
-                    </div>
+                <div class="row g-4" id="smartRadarContainer"></div>
             </div>
         </div>
 
@@ -169,6 +171,10 @@
         } else { alert("❌ رمز الدخول السيادي خاطئ!"); }
     }
 
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('show');
+    }
+
     function startClock() { setInterval(() => { document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('ar-EG'); }, 1000); }
 
     function refreshData() {
@@ -178,105 +184,34 @@
     }
 
     window.renderData = function(data) {
-        // تحديث العدادات
         document.getElementById('count-orders').innerText = data.orders.length - 1;
         document.getElementById('count-drivers').innerText = data.drivers.filter(d => d[4] === 'active').length;
         document.getElementById('count-res').innerText = data.restaurants.filter(r => r[4] === 'active').length;
 
-        // 1. بناء الرادار الذكي للطلبات الميدانية
         let radarHtml = '';
         const activeOrders = data.orders.slice(1).filter(o => o[6] !== 'completed' && o[6] !== 'مكتمل').reverse();
-        
         activeOrders.forEach(o => {
             const hasDriver = !!o[7];
             const isPicked = (o[6] === 'picked_up' || o[6] === 'في الطريق');
             const diffMins = Math.floor((new Date() - new Date(o[0])) / 60000);
             const isDelayed = diffMins > 30;
-
             let cardClass = !hasDriver ? 'status-danger' : (isPicked ? 'status-success' : 'status-warning');
-            let statusText = !hasDriver ? '🔴 بانتظار سائق' : (isPicked ? '🟢 في الطريق للزبون' : '🟠 متوجه للمطعم');
-
-            radarHtml += `
-            <div class="col-xl-6">
-                <div class="smart-order-card ${cardClass}">
-                    ${isDelayed ? `<div class="delay-badge">تأخير: ${diffMins} دقيقة</div>` : ''}
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div><h5 class="fw-black m-0">طلب #${o[1]}</h5><small class="fw-bold">${statusText}</small></div>
-                        ${hasDriver ? `<button class="btn btn-dark rounded-pill px-3 py-1 text-sm" onclick="alert('تتبع المبدع ${o[7]}')">تتبع الموقع 📍</button>` : ''}
-                    </div>
-                    <div class="info-row"><span><i data-lucide="user" size="14"></i> ${o[3]}</span> <button class="sov-btn sov-call" onclick="window.open('tel:${o[4]}')"><i data-lucide="phone" size="14"></i></button></div>
-                    <div class="info-row"><span><i data-lucide="store" size="14"></i> ${o[2]}</span> <button class="sov-btn sov-call" onclick="window.open('tel:${o[5]}')"><i data-lucide="phone" size="14"></i></button></div>
-                    <div class="info-row"><span><i data-lucide="bike" size="14"></i> ${o[7] || 'لم يحدد'}</span> ${hasDriver ? `<button class="sov-btn sov-call" onclick="window.open('tel:${o[8]}')"><i data-lucide="phone" size="14"></i></button>` : ''}</div>
-                </div>
-            </div>`;
+            radarHtml += `<div class="col-xl-6"><div class="smart-order-card ${cardClass}">${isDelayed ? `<div class="delay-badge">تأخير: ${diffMins} دقيقة</div>` : ''}<div class="info-row"><span>#${o[1]} - ${o[3]}</span> <button class="sov-btn sov-call" onclick="window.open('tel:${o[4]}')"><i data-lucide="phone" size="14"></i></button></div></div></div>`;
         });
-        document.getElementById('smartRadarContainer').innerHTML = radarHtml || '<p class="text-center p-5 fw-bold text-success">كل العمليات منجزة بنجاح!</p>';
-
-        // 2. تحديث كروت التحكم (المطاعم والسواق)
-        renderControlCards('resListContainer', data.restaurants, 'store', 'RESTAURANT');
-        renderControlCards('driverListContainer', data.drivers, 'user', 'DRIVER');
-        
-        // 3. أرشيف الطلبات
-        let oHtml = '';
-        data.orders.slice(1).reverse().forEach(o => {
-            oHtml += `<tr><td>#${o[1]}</td><td>${o[2]}</td><td>${o[7] || '---'}</td><td><span class="badge ${o[6]==='pending'?'bg-warning':'bg-success'}">${o[6]}</span></td><td><button class="sov-btn sov-delete" onclick="sovAction('DELETE', 'ORDER', '${o[1]}')"><i data-lucide="trash-2" size="16"></i></button></td></tr>`;
-        });
-        document.getElementById('ordersTableBody').innerHTML = oHtml;
-
+        document.getElementById('smartRadarContainer').innerHTML = radarHtml || '<p class="text-center p-4">لا توجد طلبات معلقة</p>';
         lucide.createIcons();
     };
 
-    function renderControlCards(id, list, icon, type) {
-        let html = '';
-        list.slice(1).forEach(item => {
-            const status = item[4] === 'active';
-            html += `
-            <div class="col-md-6 col-xl-4">
-                <div class="stat-widget flex-column align-items-stretch">
-                    <div class="d-flex align-items-center gap-3 mb-4">
-                        <div class="bg-light p-3 rounded-4"><i data-lucide="${icon}"></i></div>
-                        <div class="flex-grow-1"><h6 class="fw-black m-0">${item[1]}</h6><small class="badge ${status?'bg-success':'bg-secondary'}">${status?'نشط':'موقف'}</small></div>
-                    </div>
-                    <div class="d-flex justify-content-between pt-3 border-top">
-                        <div class="d-flex gap-2">
-                            <button class="sov-btn sov-accept" onclick="sovAction('ACTIVATE', '${type}', '${item[2]}')"><i data-lucide="check" size="18"></i></button>
-                            <button class="sov-btn sov-pause" onclick="sovAction('PAUSE', '${type}', '${item[2]}')"><i data-lucide="pause" size="18"></i></button>
-                            <button class="sov-btn sov-delete" onclick="sovAction('DELETE', '${type}', '${item[2]}')"><i data-lucide="trash-2" size="18"></i></button>
-                        </div>
-                        <button class="sov-btn sov-call" onclick="window.open('tel:${item[3]}')"><i data-lucide="phone-call" size="18"></i></button>
-                    </div>
-                </div>
-            </div>`;
-        });
-        document.getElementById(id).innerHTML = html;
-    }
-
-    function sovAction(cmd, type, id) {
-        if(confirm(`⚠️ أمر سيادي: هل أنت متأكد من تنفيذ [${cmd}] على [${id}]؟`)) {
-            const script = document.createElement('script');
-            script.src = `${API_URL}?action=ADMIN_SOV&cmd=${cmd}&type=${type}&id=${id}&token=${API_TOKEN}&callback=onSovSuccess`;
-            document.body.appendChild(script);
-        }
-    }
-
-    window.onSovSuccess = (res) => { alert("✅ تم تنفيذ الأمر وتحديث قاعدة البيانات."); refreshData(); };
-    
     function showTab(e, name) {
         document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('d-none'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById('tab-' + name).classList.remove('d-none');
         e.currentTarget.classList.add('active');
+        if(window.innerWidth < 1100) toggleSidebar();
         lucide.createIcons();
     }
 </script>
-
 <script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
-<script>
-    function initMap() {
-        new google.maps.Map(document.getElementById("adminMap"), {
-            zoom: 13, center: { lat: 35.468, lng: 44.392 }, disableDefaultUI: true
-        });
-    }
-</script>
+<script>function initMap() { new google.maps.Map(document.getElementById("adminMap"), {zoom: 13, center: { lat: 35.468, lng: 44.392 }, disableDefaultUI: true}); }</script>
 </body>
 </html>
