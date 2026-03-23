@@ -123,7 +123,7 @@
                     <i data-lucide="navigation" size="30" class="text-success"></i>
                 </div>
             </div>
-            <h5 class="fw-black">جاري البحث عن طلبات...</h5>
+            <h5 class="fw-black">جاري البحث عن طلبات في كركوك...</h5>
         </div>
 
         <div id="activeOrderBox" class="hidden">
@@ -153,12 +153,12 @@
         <div class="bg-warning d-inline-block p-3 rounded-circle mb-3">
             <i data-lucide="bell" color="#000" size="40"></i>
         </div>
-        <h2 class="fw-black">طلب جديد!</h2>
+        <h2 class="fw-black">طلب جديد للحوت!</h2>
     </div>
 
     <div class="timer-container">
         <svg class="timer-svg">
-            <circle class="timer-circle" cx="70" cy="70" r="65"></circle>
+            <circle class="timer-circle" id="timerCircle" cx="70" cy="70" r="65"></circle>
         </svg>
         <div class="position-absolute fs-1 fw-black" id="seconds">60</div>
     </div>
@@ -176,28 +176,26 @@
 
     <div class="px-3 pb-4">
         <button class="btn-big btn-accept" onclick="acceptOrder()">
-            قبول الطلب <i data-lucide="check"></i>
+            قبول الطلب فوراً <i data-lucide="check"></i>
         </button>
-        <button class="btn btn-link text-white mt-3 w-100 fw-bold" onclick="declineOrder()">تجاهل</button>
+        <button class="btn btn-link text-white mt-3 w-100 fw-bold" onclick="declineOrder()">تجاهل الطلب</button>
     </div>
 </div>
 
 <script>
     lucide.createIcons();
 
-    const API_URL = "https://script.google.com/macros/s/AKfycbwu6JbaHhvoKidHcbZP5HiYisWuBNl07OltajXKSAdEi3JWEDHwadOMybszR2CeP_WPsQ/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbznHSOuvIqqhFU5g1PiI7T-PU7gAXpzmV9NAHqb-dkg9HUCA2Nb-mVgLJYznf6CCNhAww/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     let driverData = null;
     let countdownInterval, currentOrderId, activeOrder = null;
 
-    // عند فتح الصفحة: التحقق من وجود تسجيل دخول سابق
     window.onload = function() {
         const savedDriver = localStorage.getItem('hut_driver');
         if (savedDriver) {
             driverData = JSON.parse(savedDriver);
             showDashboard();
-            // التحقق إذا كان هناك طلب نشط محفوظ
             const savedOrder = localStorage.getItem('hut_active_order');
             if (savedOrder) {
                 activeOrder = JSON.parse(savedOrder);
@@ -218,7 +216,8 @@
     window.onLogin = function(data) {
         if(data && data.drivers) {
             const inputPhone = document.getElementById('driverPhone').value.trim();
-            const driver = data.drivers.find(d => d[2] == inputPhone);
+            // البحث عن السائق: العمود C (إندكس 2) هو الهاتف
+            const driver = data.drivers.find(d => String(d[2]).includes(inputPhone));
 
             if(driver) {
                 if(driver[4] === "active") {
@@ -226,9 +225,9 @@
                     localStorage.setItem('hut_driver', JSON.stringify(driverData));
                     showDashboard();
                 } else {
-                    alert("⚠️ الحساب غير مفعل.");
+                    alert("⚠️ عذراً، حسابك غير مفعل حالياً.");
                 }
-            } else { alert("❌ رقم غير مسجل."); }
+            } else { alert("❌ هذا الرقم غير مسجل في قاعدة بيانات الحوت."); }
         }
     };
 
@@ -240,25 +239,26 @@
     }
 
     function logout() {
-        if(confirm("هل تريد الخروج وإيقاف العمل؟")) {
+        if(confirm("هل تريد تسجيل الخروج؟")) {
             localStorage.clear();
             location.reload();
         }
     }
 
     function startSystem() {
+        // فحص الطلبات كل 10 ثوانٍ
         setInterval(checkForOrders, 10000);
+        
+        // تتبع الموقع الجغرافي
         if(navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
-                const script = document.createElement('script');
-                script.src = `${API_URL}?action=DRIVER_UPDATE&phone=${driverData.phone}&lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&token=${API_TOKEN}&callback=dummy`;
-                document.body.appendChild(script);
+                const url = `${API_URL}?action=DRIVER_UPDATE&phone=${driverData.phone}&lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&token=${API_TOKEN}`;
+                fetch(url, { mode: 'no-cors' });
             }, null, { enableHighAccuracy: true });
         }
     }
 
     function checkForOrders() {
-        // لا تبحث عن طلبات جديدة إذا كان هناك طلب نشط
         if(activeOrder || !document.getElementById('orderAlertOverlay').classList.contains('hidden')) return;
         
         const script = document.createElement('script');
@@ -279,10 +279,17 @@
 
     function startCountdown(sec) {
         let remaining = sec;
+        const circle = document.getElementById('timerCircle');
         clearInterval(countdownInterval);
+        
         countdownInterval = setInterval(() => {
             remaining--;
             document.getElementById('seconds').innerText = remaining;
+            
+            // تحريك الدائرة
+            const offset = 440 - (remaining * (440 / 60));
+            circle.style.strokeDashoffset = offset;
+
             if(remaining <= 0) declineOrder();
         }, 1000);
     }
@@ -293,13 +300,11 @@
             resName: document.getElementById('alertResName').innerText,
             area: document.getElementById('alertArea').innerText
         };
-        // حفظ الطلب في ذاكرة المتصفح ليبقى حتى لو تم تحديث الصفحة
         localStorage.setItem('hut_active_order', JSON.stringify(activeOrder));
         
         displayActiveOrder();
-        updateStatusOnServer('accepted');
+        updateStatusOnServer('picked_up'); // تم الاستلام
         
-        // إغلاق التنبيه
         document.getElementById('orderAlertOverlay').classList.add('hidden');
         document.getElementById('alertSound').pause();
         clearInterval(countdownInterval);
@@ -313,7 +318,7 @@
     }
 
     function finishOrder() {
-        if(confirm("هل أنت متأكد من تسليم الطلب وإنهائه؟")) {
+        if(confirm("هل تم تسليم الطلب للزبون بنجاح؟")) {
             updateStatusOnServer('completed');
             localStorage.removeItem('hut_active_order');
             activeOrder = null;
@@ -323,7 +328,7 @@
     }
 
     function declineOrder() {
-        updateStatusOnServer('rejected');
+        updateStatusOnServer('pending_driver'); // إعادة الطلب للبحث
         document.getElementById('orderAlertOverlay').classList.add('hidden');
         document.getElementById('alertSound').pause();
         clearInterval(countdownInterval);
@@ -331,8 +336,9 @@
 
     function updateStatusOnServer(status) {
         const id = activeOrder ? activeOrder.id : currentOrderId;
+        const url = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=ORDER&id=${id}&status=${status}&token=${API_TOKEN}`;
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=ORDER&id=${id}&status=${status}&token=${API_TOKEN}&callback=dummy`;
+        script.src = `${url}&callback=dummy`;
         document.body.appendChild(script);
     }
 
