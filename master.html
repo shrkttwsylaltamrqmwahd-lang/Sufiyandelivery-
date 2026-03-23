@@ -2,303 +2,327 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>مركز قيادة الحوت | Al-Hut PRO 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Al-Hut Command Center | كابتن سفيان PRO</title>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
         :root {
+            --primary: #0f172a;
+            --accent: #f97316;
+            --success: #10b981;
             --sidebar-width: 280px;
-            --primary-dark: #0f172a;
-            --accent-orange: #f97316;
-            --bg-light: #f1f5f9;
+            --glass: rgba(255, 255, 255, 0.9);
+            --border: rgba(226, 232, 240, 0.8);
         }
 
         body { 
-            background-color: var(--bg-light); 
+            background: #f8fafc; 
             font-family: 'Cairo', sans-serif; 
-            margin: 0; 
-            overflow-x: hidden; 
+            color: var(--primary);
+            overflow-x: hidden;
         }
 
-        /* شاشة القفل */
+        /* شاشة القفل الاحترافية */
         #authOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0f172a; z-index: 10000; display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            z-index: 99999; display: flex; align-items: center; justify-content: center;
         }
-        .auth-card {
-            background: white; border-radius: 30px; padding: 40px; width: 90%; max-width: 400px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.2); text-align: center;
+        .auth-box {
+            background: white; border-radius: 40px; padding: 50px; width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); text-align: center;
         }
 
-        /* الهيكل الجانبي */
+        /* الهيكل الرئيسي */
         .sidebar {
-            width: var(--sidebar-width); background: var(--primary-dark);
-            height: 100vh; position: fixed; right: 0; top: 0; color: white; 
-            padding: 25px 15px; z-index: 1001; transition: transform 0.3s ease;
+            width: var(--sidebar-width); background: var(--primary);
+            height: 100vh; position: fixed; right: 0; top: 0;
+            padding: 30px 20px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1050; box-shadow: -10px 0 30px rgba(0,0,0,0.1);
         }
         
-        .main-content { 
+        .main-wrapper { 
             margin-right: var(--sidebar-width); 
-            padding: 30px; 
-            min-height: 100vh; 
-            transition: margin 0.3s ease;
+            padding: 40px; 
+            transition: 0.4s;
         }
 
-        .nav-item {
-            display: flex; align-items: center; gap: 15px; padding: 15px 20px; color: #94a3b8;
-            text-decoration: none; border-radius: 15px; margin-bottom: 10px; cursor: pointer; transition: 0.3s;
+        /* الأزرار والقوائم */
+        .nav-link-custom {
+            display: flex; align-items: center; gap: 15px; padding: 16px 20px;
+            color: #94a3b8; text-decoration: none; border-radius: 20px;
+            margin-bottom: 8px; font-weight: 600; transition: 0.3s;
         }
-        .nav-item:hover, .nav-item.active { background: #1e293b; color: white; }
-        .nav-item.active { border-right: 5px solid var(--accent-orange); background: rgba(249, 115, 22, 0.1); }
-
-        .stat-widget {
-            background: white; border-radius: 25px; padding: 25px; 
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;
-            height: 100%;
+        .nav-link-custom:hover, .nav-link-custom.active {
+            background: rgba(249, 115, 22, 0.1); color: var(--accent);
         }
-        .icon-shape { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
+        .nav-link-custom.active { background: var(--accent); color: white; box-shadow: 0 10px 20px rgba(249, 115, 22, 0.3); }
 
+        /* الكروت والويجيت */
+        .glass-card {
+            background: white; border-radius: 32px; padding: 25px;
+            border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            transition: 0.3s;
+        }
+        .glass-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+
+        .stat-icon {
+            width: 60px; height: 60px; border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* الخريطة */
         #adminMap { 
-            height: 500px; width: 100%; border-radius: 30px; 
-            border: 10px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            height: 450px; width: 100%; border-radius: 35px; 
+            margin-top: 20px; border: 8px solid white; box-shadow: 0 20px 40px rgba(0,0,0,0.05);
         }
 
-        .custom-table-card { 
-            background: white; border-radius: 30px; padding: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;
+        /* الجداول */
+        .table-container { 
+            background: white; border-radius: 35px; padding: 20px;
+            border: 1px solid var(--border); overflow: hidden;
         }
-        .table thead th { background: #f8fafc; border: none; padding: 20px; font-weight: 700; color: #64748b; }
-        .table tbody td { padding: 20px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+        .table thead th { background: #f8fafc; border: none; padding: 20px; font-weight: 900; color: #64748b; font-size: 0.85rem; }
+        .table tbody td { padding: 20px; border-bottom: 1px solid #f1f5f9; font-weight: 600; }
 
-        .badge-status { padding: 6px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; }
+        .status-pill {
+            padding: 8px 16px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+        }
 
-        @media (max-width: 1100px) {
+        @media (max-width: 1200px) {
             .sidebar { transform: translateX(100%); }
-            .main-content { margin-right: 0; padding: 20px; }
-            .sidebar.show { transform: translateX(0); }
-            .menu-toggle { display: block !important; }
+            .main-wrapper { margin-right: 0; padding: 20px; }
+            .sidebar.open { transform: translateX(0); }
         }
 
-        .menu-toggle {
-            display: none; position: fixed; bottom: 20px; left: 20px; 
-            width: 60px; height: 60px; background: var(--accent-orange);
-            color: white; border-radius: 50%; border: none; z-index: 2000;
-            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.4);
-        }
-
-        /* Loading Spinner */
-        #refreshBtn.loading svg { animation: spin 1s linear infinite; }
+        /* انيميشن التحميل */
+        .loader-spin { animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div id="authOverlay">
-    <div class="auth-card">
-        <div class="mb-4"><i data-lucide="shield-check" size="60" color="#f97316"></i></div>
-        <h4 class="fw-black mb-3">نظام الحوت | كركوك</h4>
-        <p class="text-muted small">يرجى إدخال رمز الوصول للمسؤول</p>
-        <input type="password" id="masterPass" class="form-control form-control-lg text-center mb-3 shadow-none border-2" placeholder="••••••">
-        <button class="btn btn-dark w-100 py-3 fw-bold rounded-4" onclick="checkAuth()">دخول آمن</button>
+    <div class="auth-box">
+        <div class="mb-4">
+            <div class="bg-light d-inline-block p-4 rounded-circle shadow-sm">
+                <i data-lucide="lock" size="48" color="#f97316"></i>
+            </div>
+        </div>
+        <h3 class="fw-black mb-2">نظام الحوت الذكي</h3>
+        <p class="text-muted mb-4">Kirkuk Operation Center v2.0</p>
+        <div class="mb-4">
+            <input type="password" id="masterPass" class="form-control form-control-lg text-center shadow-none border-2" 
+                   placeholder="رمز الدخول" style="height: 70px; border-radius: 20px; font-size: 1.5rem; letter-spacing: 8px;">
+        </div>
+        <button class="btn btn-dark w-100 py-3 fw-black rounded-4 fs-5" onclick="checkAuth()">
+            تفعيل الوصول <i data-lucide="chevron-left" class="ms-2"></i>
+        </button>
     </div>
 </div>
 
-<button class="menu-toggle" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
-
-<div class="d-none" id="mainDashboard">
+<div class="d-none" id="dashboardUI">
     <aside class="sidebar" id="sidebar">
         <div class="d-flex align-items-center gap-3 mb-5 px-3">
-            <div class="bg-warning p-2 rounded-3"><i data-lucide="waves" color="#0f172a"></i></div>
-            <h4 class="m-0 fw-black">مركز الحوت</h4>
+            <div class="bg-warning p-2 rounded-3 shadow-sm"><i data-lucide="anchor" color="#0f172a"></i></div>
+            <h4 class="m-0 fw-black text-white">لوحة القيادة</h4>
         </div>
         <nav>
-            <div class="nav-item active" onclick="showTab(event, 'live')"><i data-lucide="activity"></i> <span>الرصد الحي</span></div>
-            <div class="nav-item" onclick="showTab(event, 'orders')"><i data-lucide="shopping-cart"></i> <span>الطلبات</span></div>
-            <div class="nav-item" onclick="showTab(event, 'restaurants')"><i data-lucide="utensils"></i> <span>المطاعم</span></div>
-            <div class="nav-item" onclick="showTab(event, 'drivers')"><i data-lucide="truck"></i> <span>الكباتن</span></div>
+            <a href="#" class="nav-link-custom active" onclick="switchTab(event, 'live')"><i data-lucide="monitor"></i> الرصد الحي</a>
+            <a href="#" class="nav-link-custom" onclick="switchTab(event, 'orders')"><i data-lucide="shopping-bag"></i> السجل العام</a>
+            <a href="#" class="nav-link-custom" onclick="switchTab(event, 'restaurants')"><i data-lucide="store"></i> الشركاء</a>
+            <a href="#" class="nav-link-custom" onclick="switchTab(event, 'drivers')"><i data-lucide="users"></i> الأسطول</a>
         </nav>
-        <div style="position: absolute; bottom: 30px; width: calc(100% - 30px);">
-            <div class="nav-item text-danger" onclick="location.reload()"><i data-lucide="power"></i> <span>خروج</span></div>
+        <div style="position: absolute; bottom: 40px; width: calc(100% - 40px);">
+            <button class="btn btn-outline-danger w-100 rounded-4 py-3 border-2 fw-bold" onclick="location.reload()">
+                <i data-lucide="log-out" class="me-2"></i> خروج آمن
+            </button>
         </div>
     </aside>
 
-    <main class="main-content">
-        <header class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+    <main class="main-wrapper">
+        <header class="d-flex justify-content-between align-items-center mb-5">
             <div>
-                <h2 class="fw-black m-0">لوحة التحكم المركزية</h2>
-                <p class="text-muted m-0" id="statusInfo">جاري جلب البيانات من السيرفر...</p>
+                <h1 class="fw-black mb-1">الرؤية الشاملة</h1>
+                <span class="badge bg-success bg-opacity-10 text-success fw-bold p-2" id="syncStatus">
+                    <i data-lucide="refresh-cw" size="14" class="me-1"></i> متصل بالسيرفر
+                </span>
             </div>
             <div class="d-flex gap-3 align-items-center">
-                <button class="btn btn-white border rounded-circle p-2 shadow-sm" id="refreshBtn" onclick="refreshData()">
-                    <i data-lucide="refresh-cw" size="20"></i>
+                <div class="bg-white px-4 py-3 rounded-4 shadow-sm fw-black border d-flex align-items-center gap-2">
+                    <i data-lucide="clock" class="text-accent"></i>
+                    <span id="digitalClock">00:00:00</span>
+                </div>
+                <button class="btn btn-white border-2 rounded-4 p-3 shadow-sm" onclick="fetchData()">
+                    <i data-lucide="rotate-cw" id="refreshIcon"></i>
                 </button>
-                <div id="liveTime" class="bg-white px-4 py-2 rounded-pill shadow-sm fw-bold border">00:00:00</div>
             </div>
         </header>
 
-        <div id="tab-live" class="admin-tab">
-            <div class="row g-4 mb-5">
-                <div class="col-xl-4 col-md-6">
-                    <div class="stat-widget">
-                        <div><small class="text-muted fw-bold">إجمالي العمليات</small><h2 class="fw-black m-0" id="count-orders">0</h2></div>
-                        <div class="icon-shape bg-primary bg-opacity-10 text-primary"><i data-lucide="box"></i></div>
+        <div id="tab-live" class="tab-content">
+            <div class="row g-4 mb-4">
+                <div class="col-xl-4">
+                    <div class="glass-card d-flex align-items-center gap-4">
+                        <div class="stat-icon bg-primary text-white shadow-lg"><i data-lucide="package" size="30"></i></div>
+                        <div>
+                            <small class="text-muted fw-bold">إجمالي طلبات اليوم</small>
+                            <h2 class="fw-black m-0" id="stat-orders">0</h2>
+                        </div>
                     </div>
                 </div>
-                <div class="col-xl-4 col-md-6">
-                    <div class="stat-widget">
-                        <div><small class="text-muted fw-bold">كابتن متصل</small><h2 class="fw-black m-0 text-success" id="count-drivers">0</h2></div>
-                        <div class="icon-shape bg-success bg-opacity-10 text-success"><i data-lucide="map-pin"></i></div>
+                <div class="col-xl-4">
+                    <div class="glass-card d-flex align-items-center gap-4">
+                        <div class="stat-icon bg-success text-white shadow-lg"><i data-lucide="navigation" size="30"></i></div>
+                        <div>
+                            <small class="text-muted fw-bold">كابتن نشط الآن</small>
+                            <h2 class="fw-black m-0" id="stat-drivers">0</h2>
+                        </div>
                     </div>
                 </div>
-                <div class="col-xl-4 col-md-12">
-                    <div class="stat-widget">
-                        <div><small class="text-muted fw-bold">مطاعم شريكة</small><h2 class="fw-black m-0 text-warning" id="count-res">0</h2></div>
-                        <div class="icon-shape bg-warning bg-opacity-10 text-warning"><i data-lucide="layout-grid"></i></div>
+                <div class="col-xl-4">
+                    <div class="glass-card d-flex align-items-center gap-4">
+                        <div class="stat-icon bg-warning text-white shadow-lg"><i data-lucide="utensils" size="30"></i></div>
+                        <div>
+                            <small class="text-muted fw-bold">المطاعم المفعلة</small>
+                            <h2 class="fw-black m-0" id="stat-res">0</h2>
+                        </div>
                     </div>
                 </div>
             </div>
             <div id="adminMap"></div>
         </div>
 
-        <div id="tab-orders" class="admin-tab d-none">
-            <div class="custom-table-card table-responsive">
-                <table class="table align-middle m-0">
+        <div id="tab-orders" class="tab-content d-none">
+            <div class="table-container shadow-sm">
+                <table class="table align-middle">
                     <thead>
-                        <tr><th>كود الطلب</th><th>المطعم</th><th>السائق</th><th>المنطقة</th><th>الحالة</th></tr>
+                        <tr>
+                            <th>رقم الطلب</th>
+                            <th>المصدر (المطعم)</th>
+                            <th>المنطقة</th>
+                            <th>الكابتن</th>
+                            <th>حالة الطلب</th>
+                            <th>التوقيت</th>
+                        </tr>
                     </thead>
-                    <tbody id="ordersTableBody"></tbody>
+                    <tbody id="ordersBody"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="tab-restaurants" class="admin-tab d-none"><div class="row g-4" id="resListContainer"></div></div>
-        <div id="tab-drivers" class="admin-tab d-none"><div class="row g-4" id="driverListContainer"></div></div>
+        <div id="tab-restaurants" class="tab-content d-none"><div class="row g-4" id="resGrid"></div></div>
+        <div id="tab-drivers" class="tab-content d-none"><div class="row g-4" id="driverGrid"></div></div>
+
     </main>
 </div>
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMasterMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
 <script>
     lucide.createIcons();
     
-    // الإعدادات المحدثة
-    const API_URL = "https://script.google.com/macros/s/AKfycbw11obhblN_1MpuDLZqKk337YPRrnqbkcoVJFqDrbHxUoZdxc49qHVNv7Oq2RgD2gYbMA/exec";
+    // الرابط العالمي المحدث
+    const API_URL = "https://script.google.com/macros/s/AKfycbyj-B2X68zjPMcI7SvAT8r2n1PGG18uVKTBnsWoB82hM55cAfyZ4AIHIhtRr4AHb7b5Qw/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     function checkAuth() {
-        // كلمة المرور الافتراضية كما طلبتها سابقاً
-        if(document.getElementById('masterPass').value === "223344") {
+        const pass = document.getElementById('masterPass').value;
+        if(pass === "223344") {
             document.getElementById('authOverlay').style.display = 'none';
-            document.getElementById('mainDashboard').classList.remove('d-none');
-            startClock(); 
-            refreshData(); 
-            setInterval(refreshData, 15000); // تحديث تلقائي كل 15 ثانية
-        } else { 
-            alert("⚠️ رمز الدخول غير صحيح!"); 
+            document.getElementById('dashboardUI').classList.remove('d-none');
+            startClock();
+            fetchData();
+            setInterval(fetchData, 20000); // تحديث آلي كل 20 ثانية
+        } else {
+            alert("رمز الدخول غير معتمد!");
         }
     }
 
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('show'); }
+    function startClock() {
+        setInterval(() => {
+            document.getElementById('digitalClock').innerText = new Date().toLocaleTimeString('ar-EG');
+        }, 1000);
+    }
 
-    function showTab(e, name) {
-        document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('d-none'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('tab-' + name).classList.remove('d-none');
+    function switchTab(e, tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('d-none'));
+        document.querySelectorAll('.nav-link-custom').forEach(n => n.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.remove('d-none');
         e.currentTarget.classList.add('active');
-        if(window.innerWidth < 1100) toggleSidebar();
         lucide.createIcons();
     }
 
-    function initMasterMap() {
-        // خريطة كركوك الافتراضية
-        new google.maps.Map(document.getElementById("adminMap"), {
-            zoom: 13, 
-            center: { lat: 35.468, lng: 44.392 }, 
-            disableDefaultUI: true,
-            styles: [{ "featureType": "all", "elementType": "labels.text.fill", "stylers": [{ "color": "#7c93a3" }] }]
-        });
-    }
-
-    function startClock() { 
-        setInterval(() => { 
-            document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('ar-EG'); 
-        }, 1000); 
-    }
-
-    function refreshData() {
-        const btn = document.getElementById('refreshBtn');
-        btn.classList.add('loading');
+    function fetchData() {
+        const icon = document.getElementById('refreshIcon');
+        icon.classList.add('loader-spin');
         
-        // استخدام JSONP لطلب البيانات مع التوكن
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=getGlobalData&token=${API_TOKEN}&callback=renderData`;
+        script.src = `${API_URL}?action=getGlobalData&token=${API_TOKEN}&callback=processData&ts=${Date.now()}`;
         document.body.appendChild(script);
         script.onload = () => {
-            btn.classList.remove('loading');
+            icon.classList.remove('loader-spin');
             script.remove();
         };
     }
 
-    window.renderData = function(data) {
-        if(data.status === "unauthorized") return alert("فشل التحقق من الأمان!");
+    window.processData = function(data) {
+        // تحديث الإحصائيات
+        document.getElementById('stat-orders').innerText = Math.max(0, data.orders.length - 1);
+        document.getElementById('stat-drivers').innerText = data.drivers.filter(d => d[4] == 'active').length;
+        document.getElementById('stat-res').innerText = data.restaurants.filter(r => r[4] == 'active').length;
 
-        // تحديث العدادات (تجاهل سطر العناوين في الشيت)
-        document.getElementById('count-orders').innerText = Math.max(0, data.orders.length - 1);
-        document.getElementById('count-drivers').innerText = data.drivers.filter(d => d[4]?.toString().toLowerCase() === 'active').length;
-        document.getElementById('count-res').innerText = data.restaurants.filter(r => r[4]?.toString().toLowerCase() === 'active').length;
-        
-        document.getElementById('statusInfo').innerText = "تم تحديث البيانات بنجاح في " + new Date().toLocaleTimeString('ar-EG');
-
-        // جدول الطلبات
-        let oHtml = '';
-        const orderRows = data.orders.slice(1).reverse(); // أحدث الطلبات أولاً
-        orderRows.forEach(o => {
-            let statusBadge = '';
-            switch(o[6]) {
-                case 'pending_driver': statusBadge = 'bg-info bg-opacity-10 text-info'; break;
-                case 'accepted': statusBadge = 'bg-success bg-opacity-10 text-success'; break;
-                case 'rejected': statusBadge = 'bg-danger bg-opacity-10 text-danger'; break;
-                default: statusBadge = 'bg-secondary bg-opacity-10 text-secondary';
-            }
-            oHtml += `<tr>
-                <td class="fw-bold">#${o[1]}</td>
+        // بناء جدول الطلبات (آخر 10 طلبات)
+        let rows = "";
+        data.orders.slice(1).reverse().slice(0, 15).forEach(o => {
+            let badgeClass = o[6] === 'accepted' ? 'bg-success text-success' : 'bg-warning text-warning';
+            rows += `<tr>
+                <td><span class="text-primary fw-bold">#${o[1]}</span></td>
                 <td>${o[2]}</td>
-                <td>${o[7] || '<span class="text-muted">جاري البحث...</span>'}</td>
                 <td>${o[9]}</td>
-                <td><span class="badge-status ${statusBadge}">${o[6]}</span></td>
+                <td>${o[7] || '---'}</td>
+                <td><span class="status-pill ${badgeClass} bg-opacity-10">${o[6]}</span></td>
+                <td class="small text-muted">${new Date(o[0]).toLocaleTimeString('ar-EG')}</td>
             </tr>`;
         });
-        document.getElementById('ordersTableBody').innerHTML = oHtml || '<tr><td colspan="5" class="text-center p-4">لا توجد طلبات مسجلة</td></tr>';
+        document.getElementById('ordersBody').innerHTML = rows;
 
-        // عرض الكروت
-        renderCards('resListContainer', data.restaurants, 'utensils');
-        renderCards('driverListContainer', data.drivers, 'truck');
+        // بناء شبكة المطاعم
+        renderGrid('resGrid', data.restaurants, 'store');
+        renderGrid('driverGrid', data.drivers, 'truck');
+        
+        lucide.createIcons();
     };
 
-    function renderCards(id, list, icon) {
-        let html = '';
-        list.slice(1).forEach(i => {
-            const isActive = i[4]?.toString().toLowerCase() === 'active';
-            html += `<div class="col-md-6 col-xl-4">
-                <div class="stat-widget">
+    function renderGrid(containerId, list, iconName) {
+        let html = "";
+        list.slice(1).forEach(item => {
+            const status = item[4] === 'active' ? 'نشط' : 'معطل';
+            html += `<div class="col-md-4">
+                <div class="glass-card d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="icon-shape bg-light text-dark"><i data-lucide="${icon}"></i></div>
-                        <div>
-                            <h6 class="m-0 fw-bold">${i[1]}</h6>
-                            <small class="text-muted">${i[2]}</small>
-                        </div>
+                        <div class="bg-light p-3 rounded-4"><i data-lucide="${iconName}"></i></div>
+                        <div><h6 class="m-0 fw-black">${item[1]}</h6><small>${item[2]}</small></div>
                     </div>
-                    <span class="badge ${isActive ? 'bg-success' : 'bg-warning'} px-3 rounded-pill">
-                        ${isActive ? 'نشط' : 'قيد الانتظار'}
-                    </span>
+                    <span class="badge ${item[4] === 'active' ? 'bg-success' : 'bg-danger'} rounded-pill">${status}</span>
                 </div>
             </div>`;
         });
-        document.getElementById(id).innerHTML = html || '<div class="col-12 text-center">لا يوجد بيانات لعرضها</div>';
-        lucide.createIcons();
+        document.getElementById(containerId).innerHTML = html;
+    }
+
+    function initMap() {
+        const kirkuk = { lat: 35.468, lng: 44.392 };
+        new google.maps.Map(document.getElementById("adminMap"), {
+            zoom: 13, center: kirkuk,
+            styles: [
+                { "featureType": "water", "stylers": [{ "color": "#e9e9e9" }, { "visibility": "on" }] },
+                { "featureType": "landscape", "stylers": [{ "color": "#f5f5f5" }] }
+            ],
+            disableDefaultUI: true
+        });
     }
 </script>
 </body>
