@@ -212,7 +212,8 @@
 <script>
     lucide.createIcons();
 
-    const API_URL = "https://script.google.com/macros/s/AKfycbyj-B2X68zjPMcI7SvAT8r2n1PGG18uVKTBnsWoB82hM55cAfyZ4AIHIhtRr4AHb7b5Qw/exec";
+    // تم توحيد الرابط ليكون نفس رابط Master.html لضمان التزامن
+    const API_URL = "https://script.google.com/macros/s/AKfycbwu6JbaHhvoKidHcbZP5HiYisWuBNl07OltajXKSAdEi3JWEDHwadOMybszR2CeP_WPsQ/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     let driverData = null;
@@ -246,7 +247,7 @@
         checkInterval = setInterval(checkForOrders, 10000);
         checkForOrders();
 
-        // تفعيل الموقع (GPS)
+        // تفعيل الموقع (GPS) وإرساله للسيرفر
         if(navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
                 syncLocation(pos.coords.latitude, pos.coords.longitude);
@@ -273,14 +274,14 @@
     }
 
     window.onNewOrder = function(data) {
-        if(data.id) {
+        if(data && data.id) {
             currentOrderId = data.id;
-            document.getElementById('alertResName').innerText = data.resName;
-            document.getElementById('alertArea').innerText = data.customerArea;
+            document.getElementById('alertResName').innerText = data.resName || 'مطعم غير معروف';
+            document.getElementById('alertArea').innerText = data.customerArea || 'موقع غير معروف';
             
-            // فتح التنبيه
+            // فتح التنبيه وتشغيل الصوت والهزاز
             document.getElementById('orderAlertOverlay').classList.remove('hidden');
-            document.getElementById('alertSound').play();
+            document.getElementById('alertSound').play().catch(e => console.log('Audio autoplay prevented'));
             if(navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500]);
             
             startCountdown(60);
@@ -306,7 +307,6 @@
 
     function acceptOrder() {
         stopAlert();
-        // إرسال طلب القبول للسيرفر
         updateStatus('accepted');
     }
 
@@ -322,20 +322,21 @@
         document.getElementById('alertSound').currentTime = 0;
     }
 
+    // تم التعديل هنا لتفادي مشاكل الـ CORS في Google Apps Script باستخدام JSONP
     function updateStatus(status) {
-        const payload = {
-            action: 'UPDATE_ORDER_STATUS',
-            token: API_TOKEN,
-            orderId: currentOrderId,
-            status: status
-        };
-
-        fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) })
-        .then(res => res.json())
-        .then(res => {
-            if(status === 'accepted') alert("✅ تم القبول! توجه للمطعم الآن.");
-        });
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=DRIVER_UPDATE_ORDER&orderId=${currentOrderId}&phone=${driverData.phone}&status=${status}&token=${API_TOKEN}&callback=onStatusUpdated&ts=${Date.now()}`;
+        document.body.appendChild(script);
+        script.onload = () => script.remove();
     }
+
+    window.onStatusUpdated = function(response) {
+        if(response && response.success) {
+            if(response.status === 'accepted') {
+                alert("✅ تم القبول بنجاح! توجه للمطعم الآن.");
+            }
+        }
+    };
 </script>
 </body>
 </html>
