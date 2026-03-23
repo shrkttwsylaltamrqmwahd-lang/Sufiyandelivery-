@@ -3,339 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بوابة الكابتن | نظام الحوت الذكي</title>
+    <title>كابتن الحوت | Al-Hut Captain</title>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         :root {
-            --dark-bg: #0f172a;
-            --accent-green: #22c55e;
-            --accent-red: #ef4444;
+            --primary-dark: #0f172a;
             --accent-orange: #f97316;
-            --glass-white: rgba(255, 255, 255, 0.9);
+            --success-green: #10b981;
+            --danger-red: #ef4444;
+            --glass-bg: rgba(255, 255, 255, 0.95);
         }
 
         body { 
-            background-color: #f8fafc; 
+            background: #f1f5f9; 
             font-family: 'Cairo', sans-serif; 
-            touch-action: manipulation;
-            overflow-x: hidden;
-            color: var(--dark-bg);
+            overflow-x: hidden; 
+            user-select: none;
+            color: var(--primary-dark);
         }
 
-        .hidden-section { display: none !important; }
+        .hidden { display: none !important; }
 
-        /* شاشة التنبيه الكبرى (الرنين) */
-        #orderAlert {
+        /* شاشة التنبيه (New Order Alert) */
+        #orderAlertOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(180deg, var(--dark-bg) 0%, #1e293b 100%);
-            z-index: 10000; color: white; padding: 40px 20px;
-            text-align: center; display: flex; flex-direction: column; justify-content: space-between;
-            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            z-index: 10000; color: white; display: flex; flex-direction: column;
+            justify-content: space-between; padding: 40px 20px;
+            animation: pulseBg 2s infinite;
+        }
+        @keyframes pulseBg { 0% { background: #0f172a; } 50% { background: #1e1b4b; } 100% { background: #0f172a; } }
+
+        /* دائرة العداد */
+        .timer-container {
+            position: relative; width: 160px; height: 160px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .timer-svg { transform: rotate(-90deg); width: 160px; height: 160px; }
+        .timer-circle {
+            fill: none; stroke: var(--accent-orange); stroke-width: 8;
+            stroke-dasharray: 440; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear;
+        }
+        .timer-text { position: absolute; font-size: 3.5rem; font-weight: 900; color: white; }
+
+        /* بطاقة معلومات الكابتن */
+        .driver-header {
+            background: var(--primary-dark); color: white;
+            padding: 30px 20px 60px; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
         }
 
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        .timer-ring {
-            position: relative; width: 140px; height: 140px; margin: 20px auto;
-            border: 10px solid rgba(255,255,255,0.1); border-top: 10px solid var(--accent-orange);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            animation: spin 1.2s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .timer-text { position: absolute; font-size: 3rem; font-weight: 900; animation: none; font-family: 'Cairo'; }
-
-        /* لوحة التحكم */
-        .driver-card {
-            border: none; border-radius: 28px; background: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px; overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.03);
+        .status-badge {
+            background: rgba(16, 185, 129, 0.2); color: var(--success-green);
+            padding: 8px 16px; border-radius: 12px; font-weight: 700; font-size: 0.8rem;
         }
 
-        .status-header {
-            padding: 25px 20px; background: var(--dark-bg); color: white;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom-left-radius: 35px; border-bottom-right-radius: 35px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        /* الرادار (Radar Animation) */
+        .radar-center {
+            width: 200px; height: 200px; margin: 40px auto; position: relative;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .radar-wave {
+            position: absolute; width: 100%; height: 100%;
+            border: 2px solid var(--success-green); border-radius: 50%;
+            animation: radarWave 3s linear infinite; opacity: 0;
+        }
+        .radar-wave:nth-child(2) { animation-delay: 1s; }
+        .radar-wave:nth-child(3) { animation-delay: 2s; }
+
+        @keyframes radarWave {
+            0% { transform: scale(0.4); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
         }
 
-        .online-dot {
-            width: 12px; height: 12px; background: var(--accent-green);
-            border-radius: 50%; display: inline-block; margin-left: 8px;
-            box-shadow: 0 0 12px var(--accent-green); animation: pulse 1.5s infinite;
+        /* الأزرار */
+        .btn-big {
+            border-radius: 24px; padding: 22px; font-weight: 900; font-size: 1.2rem;
+            width: 100%; border: none; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 15px;
         }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+        .btn-accept { background: var(--success-green); color: white; box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3); }
+        .btn-decline { background: rgba(255,255,255,0.1); color: #94a3b8; margin-top: 15px; }
 
-        .stat-box {
-            background: #ffffff; border-radius: 22px; padding: 18px; text-align: center;
-            border: 1px solid #edf2f7; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-        }
+        .btn-login { background: var(--primary-dark); color: white; border-radius: 20px; padding: 18px; }
 
-        .btn-action {
-            border-radius: 22px; padding: 22px; font-weight: 900; font-size: 1.3rem;
-            border: none; transition: 0.3s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
+        /* الحقول */
+        .login-card { background: white; border-radius: 35px; padding: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .phone-input {
+            background: #f1f5f9; border: 2px solid transparent; border-radius: 20px;
+            padding: 20px; font-weight: 900; font-size: 1.5rem; letter-spacing: 2px;
         }
-        .btn-accept { background: var(--accent-green); color: white; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3); }
-        .btn-reject { background: rgba(255,255,255,0.1); color: #cbd5e1; margin-top: 15px; border: 1px solid rgba(255,255,255,0.1); }
-
-        #loadingOverlay {
-            position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px);
-            z-index:11000; display:none; align-items:center; justify-content:center; color: white;
-        }
-        
-        .radar-box { position: relative; width: 160px; height: 160px; margin: 0 auto; display: flex; align-items: center; justify-content: center;}
-        .radar-box::before { content: ''; position: absolute; width: 100%; height: 100%; background: rgba(34, 197, 94, 0.15); border-radius: 50%; animation: radarPulse 2.5s infinite; }
-        @keyframes radarPulse { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
     </style>
 </head>
 <body>
 
-<div id="loadingOverlay">
+<audio id="alertSound" loop src="https://actions.google.com/sounds/v1/alarms/beep_loop.ogg"></audio>
+
+<div id="loginPage" class="container py-5">
+    <div class="text-center mb-5">
+        <div class="d-inline-block p-4 bg-white rounded-circle shadow-sm mb-4">
+            <i data-lucide="shield-check" size="50" color="#f97316"></i>
+        </div>
+        <h1 class="fw-black">نظام الكابتن</h1>
+        <p class="text-muted fw-bold text-uppercase small">Al-Hut Logistics System</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="login-card">
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-muted">رقم الهاتف المسجل</label>
+                    <input type="tel" id="driverPhone" class="form-control phone-input text-center" placeholder="07XXXXXXXXX">
+                </div>
+                <button class="btn btn-big btn-login" onclick="login()">
+                    ابدأ العمل الآن <i data-lucide="play"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dashboardPage" class="hidden">
+    <div class="driver-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-black m-0" id="driverNameDisplay">كابتن ...</h4>
+                <div class="mt-2"><span class="status-badge"><i data-lucide="radio" size="14" class="me-1"></i> الرادار نشط</span></div>
+            </div>
+            <button class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="location.reload()">خروج</button>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: -30px;">
+        <div class="bg-white rounded-4 p-4 shadow-sm border d-flex justify-content-around">
+            <div class="text-center">
+                <small class="text-muted d-block fw-bold">الطلبات</small>
+                <span class="fw-black fs-4">0</span>
+            </div>
+            <div class="vr opacity-10"></div>
+            <div class="text-center">
+                <small class="text-muted d-block fw-bold">التقييم</small>
+                <span class="fw-black fs-4">5.0</span>
+            </div>
+        </div>
+
+        <div class="radar-center">
+            <div class="radar-wave"></div>
+            <div class="radar-wave"></div>
+            <div class="radar-wave"></div>
+            <div class="bg-success text-white rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; z-index: 10;">
+                <i data-lucide="navigation" size="35"></i>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <h4 class="fw-black">جاري البحث عن طلبات...</h4>
+            <p class="text-muted small px-5">تأكد من بقاء الشاشة تعمل وعدم قفل الهاتف لاستلام الطلب فوراً</p>
+        </div>
+    </div>
+</div>
+
+<div id="orderAlertOverlay" class="hidden">
     <div class="text-center">
-        <div class="spinner-border text-warning" role="status" style="width: 3.5rem; height: 3.5rem; border-width: 0.35em;"></div>
-        <div class="mt-4 fw-bold fs-5">جاري مزامنة بيانات الكابتن...</div>
-    </div>
-</div>
-
-<div class="container-fluid p-0">
-    <div id="driverLoginSection" class="p-4 mt-5">
-        <div class="text-center mb-5">
-            <div class="bg-dark d-inline-block p-4 rounded-circle mb-4 shadow-lg">
-                <i data-lucide="zap" size="50" color="#f97316"></i>
-            </div>
-            <h2 class="fw-black">نظام كابتن الحوت</h2>
-            <p class="text-muted fw-bold">سجل دخولك لبدء استقبال الطلبات</p>
+        <div class="bg-warning d-inline-block p-3 rounded-circle mb-3">
+            <i data-lucide="bell-ring" color="#000" size="40"></i>
         </div>
-        <div class="driver-card p-4">
-            <label class="small fw-bold text-muted mb-2 px-2">رقم الهاتف المسجل</label>
-            <input type="tel" id="checkDriverPhone" class="form-control form-control-lg mb-4 shadow-none text-center fw-bold" placeholder="07XXXXXXXXX" style="height: 65px; border-radius: 18px; font-size: 1.4rem;">
-            <button class="btn btn-dark w-100 py-3 fw-black fs-5 rounded-4 shadow-lg" onclick="checkDriverStatus()">
-                اتصال بالرادار <i data-lucide="radio" class="ms-2"></i>
-            </button>
-        </div>
+        <h2 class="fw-black mb-1">طلب جديد متاح!</h2>
+        <p class="opacity-75">قم بقبول الطلب قبل فوات الأوان</p>
     </div>
 
-    <div id="driverDashboard" class="hidden-section">
-        <div class="status-header">
+    <div class="timer-container">
+        <svg class="timer-svg">
+            <circle class="timer-circle" cx="80" cy="80" r="70"></circle>
+        </svg>
+        <div class="timer-text" id="seconds">60</div>
+    </div>
+
+    <div class="bg-white rounded-4 p-4 text-dark mx-2 shadow-lg">
+        <div class="d-flex align-items-center gap-3 mb-3 border-bottom pb-3">
+            <div class="bg-light p-3 rounded-3"><i data-lucide="store" color="#f97316"></i></div>
             <div>
-                <h5 class="m-0 fw-black" id="welcomeMsg">أهلاً كابتن</h5>
-                <small class="text-success fw-bold"><span class="online-dot"></span> الرادار يعمل الآن</small>
-            </div>
-            <button class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold" onclick="location.reload()">خروج</button>
-        </div>
-
-        <div class="p-3 mt-3">
-            <div class="row g-3 mb-4">
-                <div class="col-6">
-                    <div class="stat-box">
-                        <i data-lucide="map-pin" size="20" class="text-primary mb-1"></i>
-                        <small class="text-muted fw-bold d-block">إحداثياتك</small>
-                        <span id="locStatus" class="d-block text-dark small fw-bold mt-1">جاري التحديد...</span>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="stat-box">
-                        <i data-lucide="activity" size="20" class="text-success mb-1"></i>
-                        <small class="text-muted fw-bold d-block">حالة الاتصال</small>
-                        <h6 class="m-0 fw-bold text-success mt-1">مستقر</h6>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center mt-5 py-4">
-                <div class="radar-box mb-4">
-                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow-lg" style="width: 90px; height: 90px; z-index: 2;">
-                        <i data-lucide="navigation" size="45" class="loading-pulse"></i>
-                    </div>
-                </div>
-                <h4 class="fw-black">في انتظار طلب جديد...</h4>
-                <p class="text-muted px-4">تأكد من بقاء الشاشة تعمل لاستلام التنبيهات فوراً</p>
+                <small class="text-muted d-block fw-bold">المطعم</small>
+                <h4 class="fw-black m-0" id="alertResName">اسم المطعم</h4>
             </div>
         </div>
-    </div>
-</div>
-
-<div id="orderAlert" class="hidden-section">
-    <div>
-        <div class="mb-3"><i data-lucide="bell-ring" size="70" class="text-warning"></i></div>
-        <h1 class="fw-black">طلب توصيل قادم!</h1>
-        <p class="text-light opacity-75">لديك دقيقة واحدة لاتخاذ القرار</p>
-    </div>
-    
-    <div class="timer-ring">
-        <div class="timer-text" id="timerValue">60</div>
-    </div>
-
-    <div class="driver-card p-4 mt-2 text-dark shadow-lg text-start mx-2">
-        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
-            <span class="badge bg-primary px-3 py-2 rounded-pill fs-6">تفاصيل الرحلة</span>
-            <span class="text-muted small fw-bold" id="alertOrderId">#HUT-0000</span>
-        </div>
-        <h3 class="fw-black text-dark mb-3" id="alertResName">اسم المطعم</h3>
-        <div class="d-flex align-items-center gap-3 bg-light p-3 rounded-4">
-            <div class="bg-white p-2 rounded-3 shadow-sm"><i data-lucide="map-pinned" size="26" class="text-orange"></i></div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-light p-3 rounded-3"><i data-lucide="map-pin" color="#10b981"></i></div>
             <div>
-                <small class="text-muted d-block fw-bold">وجهة التوصيل</small>
-                <span id="alertArea" class="fs-5 fw-black text-primary">المنطقة</span>
+                <small class="text-muted d-block fw-bold">منطقة العميل</small>
+                <h4 class="fw-black m-0 text-primary" id="alertArea">---</h4>
             </div>
         </div>
     </div>
 
-    <div class="pb-4 px-3">
-        <button class="btn btn-action btn-accept mb-3" onclick="acceptOrder()">
-            قبووول الطلب <i data-lucide="check-circle" size="28" class="ms-2"></i>
+    <div class="px-3">
+        <button class="btn-big btn-accept" onclick="acceptOrder()">
+            قبووول الطلب <i data-lucide="check-circle" size="30"></i>
         </button>
-        <button class="btn btn-action btn-reject" onclick="rejectOrder()">
-            تجاهل الطلب <i data-lucide="slash" size="20" class="ms-2"></i>
+        <button class="btn-big btn-decline" onclick="declineOrder()">
+            تجاهل الطلب
         </button>
     </div>
 </div>
 
 <script>
     lucide.createIcons();
-    
-    // الرابط الجديد المحدث
-    const API_URL = "https://script.google.com/macros/s/AKfycbwPlcGfCcyJMwYnaR4ZHWlpNi78F1jgKkkW8NYZW1MYzSgFnlDA7QGrR2G1ys7uiUVZkA/exec";
+
+    const API_URL = "https://script.google.com/macros/s/AKfycbyj-B2X68zjPMcI7SvAT8r2n1PGG18uVKTBnsWoB82hM55cAfyZ4AIHIhtRr4AHb7b5Qw/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
-    let currentDriverPhone = "";
-    let currentLat = 0;
-    let currentLng = 0;
-    let currentOrderId = null;
-    let orderCheckInterval, countdownInterval, updateLocInterval;
+    let driverData = null;
+    let checkInterval, countdownInterval, currentOrderId;
 
-    function showLoading(s) { document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none'; }
+    // الدخول
+    function login() {
+        const phone = document.getElementById('driverPhone').value.trim();
+        if(!phone) return alert("يرجى إدخال رقم الهاتف");
 
-    // دخول الكابتن
-    function checkDriverStatus() {
-        const phoneInput = document.getElementById('checkDriverPhone').value.trim();
-        if(!phoneInput) return alert("يرجى إدخال رقم الهاتف");
-        
-        showLoading(true);
-        currentDriverPhone = phoneInput;
-        
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=checkDriver&phone=${phoneInput}&token=${API_TOKEN}&callback=handleLogin&ts=${Date.now()}`;
+        script.src = `${API_URL}?action=checkDriver&phone=${phone}&token=${API_TOKEN}&callback=onLogin&ts=${Date.now()}`;
         document.body.appendChild(script);
         script.onload = () => script.remove();
     }
 
-    window.handleLogin = function(data) {
-        showLoading(false);
-        const status = String(data.status || "").trim().toLowerCase();
-        
-        if(status === "active") {
-            document.getElementById('driverLoginSection').classList.add('hidden-section');
-            document.getElementById('driverDashboard').classList.remove('hidden-section');
-            document.getElementById('welcomeMsg').innerText = "كابتن " + data.name;
-            startSystem();
-        } else if (status === "pending") {
-            alert("⏳ حسابك قيد المراجعة حالياً من قبل الإدارة.");
+    window.onLogin = function(data) {
+        if(data.status === "active") {
+            driverData = data;
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.remove('hidden');
+            document.getElementById('driverNameDisplay').innerText = "كابتن " + data.name;
+            startRadar();
         } else {
-            alert("❌ هذا الرقم غير مفعل ككابتن في نظام الحوت.");
+            alert("⚠️ الحساب غير مفعل أو غير موجود.");
         }
     };
 
-    // تشغيل نظام التتبع والرادار
-    function startSystem() {
-        if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(
-                (pos) => {
-                    currentLat = pos.coords.latitude;
-                    currentLng = pos.coords.longitude;
-                    document.getElementById('locStatus').innerText = "موقعك محدث بدقة";
-                },
-                (err) => { document.getElementById('locStatus').innerText = "خطأ في GPS"; },
-                { enableHighAccuracy: true }
-            );
-        }
-
-        // تحديث الموقع للسيرفر كل 30 ثانية
-        updateLocInterval = setInterval(syncLocation, 30000);
-        syncLocation();
-
-        // فحص الطلبات كل 10 ثوانٍ
-        orderCheckInterval = setInterval(checkForOrders, 10000);
+    function startRadar() {
+        // فحص الطلبات كل 10 ثواني
+        checkInterval = setInterval(checkForOrders, 10000);
         checkForOrders();
+
+        // تفعيل الموقع (GPS)
+        if(navigator.geolocation) {
+            navigator.geolocation.watchPosition(pos => {
+                syncLocation(pos.coords.latitude, pos.coords.longitude);
+            }, null, { enableHighAccuracy: true });
+        }
     }
 
-    function syncLocation() {
-        if(currentLat === 0) return;
+    function syncLocation(lat, lng) {
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=DRIVER_UPDATE&phone=${currentDriverPhone}&lat=${currentLat}&lng=${currentLng}&token=${API_TOKEN}&callback=locSyncCallback`;
+        script.src = `${API_URL}?action=DRIVER_UPDATE&phone=${driverData.phone}&lat=${lat}&lng=${lng}&token=${API_TOKEN}&callback=dummy`;
         document.body.appendChild(script);
         script.onload = () => script.remove();
     }
-    window.locSyncCallback = function(r) {};
+    window.dummy = () => {};
 
     function checkForOrders() {
-        if (!document.getElementById('orderAlert').classList.contains('hidden-section')) return;
+        // إذا كان التنبيه مفتوحاً بالفعل، لا تطلب مجدداً
+        if(!document.getElementById('orderAlertOverlay').classList.contains('hidden')) return;
+
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=checkMyOrders&phone=${currentDriverPhone}&token=${API_TOKEN}&callback=handleNewOrder&ts=${Date.now()}`;
+        script.src = `${API_URL}?action=checkMyOrders&phone=${driverData.phone}&token=${API_TOKEN}&callback=onNewOrder&ts=${Date.now()}`;
         document.body.appendChild(script);
         script.onload = () => script.remove();
     }
 
-    window.handleNewOrder = function(data) {
-        if (data.id) {
+    window.onNewOrder = function(data) {
+        if(data.id) {
             currentOrderId = data.id;
-            document.getElementById('alertOrderId').innerText = "#" + data.id;
             document.getElementById('alertResName').innerText = data.resName;
             document.getElementById('alertArea').innerText = data.customerArea;
             
-            document.getElementById('orderAlert').classList.remove('hidden-section');
+            // فتح التنبيه
+            document.getElementById('orderAlertOverlay').classList.remove('hidden');
+            document.getElementById('alertSound').play();
+            if(navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500]);
+            
             startCountdown(60);
-            if(navigator.vibrate) navigator.vibrate([500, 300, 500, 300, 500]);
         }
     };
 
     function startCountdown(sec) {
-        let left = sec;
-        document.getElementById('timerValue').innerText = left;
+        let remaining = sec;
+        const circle = document.querySelector('.timer-circle');
+        
         clearInterval(countdownInterval);
         countdownInterval = setInterval(() => {
-            left--;
-            document.getElementById('timerValue').innerText = left;
-            if (left <= 0) rejectOrder();
+            remaining--;
+            document.getElementById('seconds').innerText = remaining;
+            
+            // تحريك دائرة العداد
+            let offset = 440 - (remaining / 60) * 440;
+            circle.style.strokeDashoffset = offset;
+
+            if(remaining <= 0) declineOrder();
         }, 1000);
     }
 
     function acceptOrder() {
-        clearInterval(countdownInterval);
-        showLoading(true);
-        updateStatus("accepted");
+        stopAlert();
+        // إرسال طلب القبول للسيرفر
+        updateStatus('accepted');
     }
 
-    function rejectOrder() {
-        clearInterval(countdownInterval);
-        document.getElementById('orderAlert').classList.add('hidden-section');
-        updateStatus("rejected");
+    function declineOrder() {
+        stopAlert();
+        updateStatus('rejected');
     }
 
-    function updateStatus(st) {
+    function stopAlert() {
+        clearInterval(countdownInterval);
+        document.getElementById('orderAlertOverlay').classList.add('hidden');
+        document.getElementById('alertSound').pause();
+        document.getElementById('alertSound').currentTime = 0;
+    }
+
+    function updateStatus(status) {
         const payload = {
             action: 'UPDATE_ORDER_STATUS',
             token: API_TOKEN,
             orderId: currentOrderId,
-            status: st
+            status: status
         };
 
-        fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        })
+        fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) })
         .then(res => res.json())
         .then(res => {
-            showLoading(false);
-            if(st === "accepted") {
-                document.getElementById('orderAlert').classList.add('hidden-section');
-                alert("✅ تم القبول! توجه للمطعم لاستلام الطلب.");
-            }
-        }).catch(() => {
-            showLoading(false);
-            document.getElementById('orderAlert').classList.add('hidden-section');
+            if(status === 'accepted') alert("✅ تم القبول! توجه للمطعم الآن.");
         });
     }
 </script>
