@@ -159,32 +159,48 @@
 <script>
     lucide.createIcons();
 
-    // الرابط المحدث بناءً على صورك الأخيرة
+    // الرابط المستخرج من الصور
     const API_URL = "https://script.google.com/macros/s/AKfycbwu6JbaHhvoKidHcbZP5HiYisWuBNl07OltajXKSAdEi3JWEDHwadOMybszR2CeP_WPsQ/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     let driverData = null;
-    let checkInterval, countdownInterval, currentOrderId;
+    let countdownInterval, currentOrderId;
 
     function login() {
         const phone = document.getElementById('driverPhone').value.trim();
         if(!phone) return alert("يرجى إدخال رقم الهاتف");
 
+        // جلب البيانات الكلية للتحقق من السائق
         const script = document.createElement('script');
-        // استخدام checkDriver مع الرمز الجديد
-        script.src = `${API_URL}?action=checkDriver&phone=${phone}&token=${API_TOKEN}&callback=onLogin&ts=${Date.now()}`;
+        script.src = `${API_URL}?action=getGlobalData&callback=onLogin&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
 
     window.onLogin = function(data) {
-        if(data.status === "active") {
-            driverData = { phone: document.getElementById('driverPhone').value.trim(), name: data.name };
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('dashboardPage').classList.remove('hidden');
-            document.getElementById('driverNameDisplay').innerText = "كابتن " + data.name;
-            startSystem();
+        if(data && data.drivers) {
+            const inputPhone = document.getElementById('driverPhone').value.trim();
+            
+            // البحث عن السائق في المصفوفة (حقل الهاتف هو الثالث Index 2)
+            const driver = data.drivers.find(d => d[2] == inputPhone);
+
+            if(driver) {
+                const status = driver[4]; // الحالة في العمود الخامس Index 4
+                const name = driver[1];   // الاسم في العمود الثاني Index 1
+
+                if(status === "active") {
+                    driverData = { phone: inputPhone, name: name };
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('dashboardPage').classList.remove('hidden');
+                    document.getElementById('driverNameDisplay').innerText = "كابتن " + name;
+                    startSystem();
+                } else {
+                    alert("⚠️ الحساب موجود ولكنه غير مفعل حالياً (الحالة: " + status + ")");
+                }
+            } else {
+                alert("❌ رقم الهاتف هذا غير مسجل في النظام.");
+            }
         } else {
-            alert("⚠️ الحساب غير مفعل أو غير موجود.");
+            alert("❌ فشل في جلب بيانات النظام.");
         }
     };
 
@@ -192,7 +208,7 @@
         // فحص الطلبات كل 15 ثانية
         setInterval(checkForOrders, 15000);
         
-        // إرسال الموقع الجغرافي
+        // إرسال وتحديث الموقع الجغرافي
         if(navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
                 const script = document.createElement('script');
@@ -211,7 +227,7 @@
     }
 
     window.onNewOrder = function(data) {
-        if(data.id) {
+        if(data && data.id) {
             currentOrderId = data.id;
             document.getElementById('alertResName').innerText = data.resName;
             document.getElementById('alertArea').innerText = data.customerArea || 'موقع محدد';
