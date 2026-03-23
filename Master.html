@@ -31,6 +31,7 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.2); text-align: center;
         }
 
+        /* الهيكل الجانبي (نفس التصميم المفضل لديك) */
         .sidebar {
             width: var(--sidebar-width); background: var(--primary-dark);
             height: 100vh; position: fixed; right: 0; top: 0; color: white; 
@@ -46,18 +47,21 @@
         .nav-item:hover, .nav-item.active { background: #1e293b; color: white; }
         .nav-item.active { border-right: 5px solid var(--accent-orange); background: rgba(249, 115, 22, 0.1); }
 
+        /* ويدجت الإحصائيات */
         .stat-widget {
-            background: white; border-radius: 25px; padding: 20px; 
+            background: white; border-radius: 25px; padding: 25px; 
+            display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;
+            transition: 0.3s;
         }
+        .icon-shape { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
 
+        /* الخريطة والرادار */
         #adminMap { height: 450px; width: 100%; border-radius: 30px; border: 8px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
 
-        /* --- كروت الرصد الذكي (الطلبات النشطة) --- */
         .order-monitor-card {
             background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px;
-            border: 1px solid #e2e8f0; border-right: 6px solid #cbd5e1;
-            transition: 0.3s;
+            border: 1px solid #e2e8f0; border-right: 6px solid #cbd5e1; transition: 0.3s;
         }
         .order-monitor-card.delayed { border-right-color: var(--danger); animation: glow-red 2s infinite; }
         .order-monitor-card.assigned { border-right-color: var(--warning); }
@@ -65,9 +69,7 @@
 
         @keyframes glow-red { 0% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.1); } 50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); } 100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.1); } }
 
-        .info-pill { background: #f8fafc; padding: 6px 12px; border-radius: 10px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; border: 1px solid #f1f5f9; }
-        
-        /* --- أزرار السيادة --- */
+        /* أزرار السيادة والتواصل */
         .sov-btn {
             width: 38px; height: 38px; border-radius: 10px; border: none; 
             display: inline-flex; align-items: center; justify-content: center; 
@@ -76,9 +78,13 @@
         .sov-btn.delete { background: #fee2e2; color: #ef4444; }
         .sov-btn.pause { background: #fef9c3; color: #854d0e; }
         .sov-btn.accept { background: #dcfce7; color: #166534; }
-        .sov-btn:hover { transform: scale(1.1); filter: brightness(0.9); }
+        
+        .contact-btn { background: #e0f2fe; color: #0369a1; border: none; border-radius: 8px; padding: 5px 12px; font-size: 0.8rem; font-weight: bold; }
+        .info-pill { background: #f8fafc; padding: 6px 12px; border-radius: 10px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
 
-        .contact-btn { background: #e0f2fe; color: #0369a1; border: none; border-radius: 8px; padding: 4px 10px; font-size: 0.8rem; font-weight: bold; }
+        /* الجداول */
+        .custom-table-card { background: white; border-radius: 30px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); }
+        .table thead th { background: #f8fafc; border: none; padding: 15px; color: #64748b; }
 
         @media (max-width: 1100px) {
             .sidebar { transform: translateX(100%); }
@@ -92,8 +98,8 @@
 <div id="authOverlay">
     <div class="auth-card">
         <div class="mb-4"><i data-lucide="shield-check" size="60" color="#f97316"></i></div>
-        <h4 class="fw-black mb-3">دخول السيادة | نظام الحوت</h4>
-        <input type="password" id="masterPass" class="form-control form-control-lg text-center mb-3 shadow-none border-2" placeholder="كلمة المرور" onkeypress="if(event.key === 'Enter') checkAuth()">
+        <h4 class="fw-black mb-3">مركز قيادة الحوت</h4>
+        <input type="password" id="masterPass" class="form-control form-control-lg text-center mb-3 shadow-none border-2" placeholder="كلمة المرور">
         <button class="btn btn-dark w-100 py-3 fw-bold rounded-4" onclick="checkAuth()">فتح بروتوكول القيادة</button>
     </div>
 </div>
@@ -102,41 +108,55 @@
     <aside class="sidebar" id="sidebar">
         <div class="d-flex align-items-center gap-3 mb-5 px-3">
             <div class="bg-warning p-2 rounded-3"><i data-lucide="waves" color="#0f172a"></i></div>
-            <h4 class="m-0 fw-black">مركز الحوت</h4>
+            <h4 class="m-0 fw-black">نظام الحوت</h4>
         </div>
         <nav>
-            <div class="nav-item active" onclick="showTab(event, 'live')"><i data-lucide="radar"></i> <span>الرصد الميداني</span></div>
-            <div class="nav-item" onclick="showTab(event, 'orders')"><i data-lucide="shopping-bag"></i> <span>الأرشيف</span></div>
-            <div class="nav-item" onclick="showTab(event, 'restaurants')"><i data-lucide="store"></i> <span>المطاعم</span></div>
-            <div class="nav-item" onclick="showTab(event, 'drivers')"><i data-lucide="user-check"></i> <span>الكباتن</span></div>
+            <div class="nav-item active" onclick="showTab(event, 'live')"><i data-lucide="radar"></i> <span>الرصد الحي</span></div>
+            <div class="nav-item" onclick="showTab(event, 'orders')"><i data-lucide="shopping-bag"></i> <span>أرشيف الطلبات</span></div>
+            <div class="nav-item" onclick="showTab(event, 'restaurants')"><i data-lucide="store"></i> <span>كادر المطاعم</span></div>
+            <div class="nav-item" onclick="showTab(event, 'drivers')"><i data-lucide="user-check"></i> <span>فريق السواق</span></div>
         </nav>
+        <div style="position: absolute; bottom: 30px; width: calc(100% - 30px);">
+            <div class="nav-item text-danger" onclick="location.reload()"><i data-lucide="log-out"></i> <span>خروج</span></div>
+        </div>
     </aside>
 
     <main class="main-content">
         <header class="d-flex justify-content-between align-items-center mb-4">
-            <div><h2 class="fw-black m-0">لوحة القيادة والسيادة</h2><p class="text-muted m-0">كركوك - بث حي ومباشر</p></div>
+            <div><h2 class="fw-black m-0">لوحة السيادة</h2><p class="text-muted m-0">كركوك - السيطرة المركزية</p></div>
             <div id="liveTime" class="bg-white px-4 py-2 rounded-pill shadow-sm fw-bold border">00:00:00</div>
         </header>
 
         <div id="tab-live" class="admin-tab">
-            <div class="stat-widget mb-4 d-flex align-items-center gap-3">
-                <input type="text" id="adminMsg" class="form-control border-0 bg-light rounded-pill px-4 shadow-none" placeholder="بث أمر فوري لجميع الكباتن...">
-                <button class="btn btn-dark rounded-pill px-4" onclick="sendBroadcast()">إرسال</button>
+            <div class="stat-widget mb-4 gap-3">
+                <div class="bg-primary bg-opacity-10 p-2 rounded-circle text-primary"><i data-lucide="megaphone"></i></div>
+                <input type="text" id="adminMsg" class="form-control bg-light border-0 rounded-pill px-4 flex-grow-1 shadow-none" placeholder="بث أمر فوري للأسطول الميداني...">
+                <button class="btn btn-dark rounded-pill px-4 fw-bold" onclick="sendBroadcast()">بث الأمر</button>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-4"><div class="stat-widget"><div><small class="text-muted fw-bold">الطلبات</small><h2 class="fw-black m-0" id="count-orders">0</h2></div><div class="icon-shape bg-primary bg-opacity-10 text-primary"><i data-lucide="package"></i></div></div></div>
+                <div class="col-md-4"><div class="stat-widget"><div><small class="text-muted fw-bold">سائق نشط</small><h2 class="fw-black m-0 text-success" id="count-drivers">0</h2></div><div class="icon-shape bg-success bg-opacity-10 text-success"><i data-lucide="navigation"></i></div></div></div>
+                <div class="col-md-4"><div class="stat-widget"><div><small class="text-muted fw-bold">مطعم شريك</small><h2 class="fw-black m-0 text-warning" id="count-res">0</h2></div><div class="icon-shape bg-warning bg-opacity-10 text-warning"><i data-lucide="store"></i></div></div></div>
             </div>
 
             <div id="adminMap"></div>
 
             <div class="mt-4">
-                <h4 class="fw-black mb-3 d-flex align-items-center gap-2"><i data-lucide="activity" class="text-danger"></i> رادار الطلبات الحالية</h4>
-                <div class="row g-3" id="activeOrdersRadar">
-                    <div class="text-center p-5 text-muted">جاري مسح الميدان بحثاً عن طلبات نشطة...</div>
-                </div>
+                <h4 class="fw-black mb-3 d-flex align-items-center gap-2"><i data-lucide="activity" class="text-danger"></i> رادار العمليات النشطة</h4>
+                <div class="row g-3" id="activeOrdersRadar"></div>
             </div>
         </div>
 
         <div id="tab-orders" class="admin-tab d-none">
-            <div class="stat-widget table-responsive"><table class="table align-middle"><thead><tr><th>ID</th><th>المطعم</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="ordersTableBody"></tbody></table></div>
+            <div class="custom-table-card table-responsive">
+                <table class="table align-middle m-0">
+                    <thead><tr><th>المعرف</th><th>المطعم</th><th>السائق</th><th>الحالة</th><th>إجراء</th></tr></thead>
+                    <tbody id="ordersTableBody"></tbody>
+                </table>
+            </div>
         </div>
+
         <div id="tab-restaurants" class="admin-tab d-none"><div class="row g-4" id="resListContainer"></div></div>
         <div id="tab-drivers" class="admin-tab d-none"><div class="row g-4" id="driverListContainer"></div></div>
     </main>
@@ -151,8 +171,8 @@
         if(document.getElementById('masterPass').value === "223344") {
             document.getElementById('authOverlay').style.display = 'none';
             document.getElementById('mainDashboard').classList.remove('d-none');
-            startClock(); refreshData(); setInterval(refreshData, 20000);
-        } else { alert("❌ رمز الدخول السيادي خاطئ!"); }
+            startClock(); refreshData(); setInterval(refreshData, 15000);
+        } else { alert("❌ الرمز غير صحيح"); }
     }
 
     function startClock() { setInterval(() => { document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('ar-EG'); }, 1000); }
@@ -164,62 +184,74 @@
     }
 
     window.renderData = function(data) {
-        // 1. معالجة رادار الطلبات النشطة
+        document.getElementById('count-orders').innerText = (data.orders.length - 1);
+        document.getElementById('count-drivers').innerText = data.drivers.filter(d => d[4] === 'active').length;
+        document.getElementById('count-res').innerText = data.restaurants.filter(r => r[4] === 'active').length;
+
+        // 1. تحديث رادار الطلبات النشطة
         let radarHtml = '';
-        const activeOrders = data.orders.slice(1).filter(o => o[6] !== 'completed');
-
+        const activeOrders = data.orders.slice(1).filter(o => o[6] !== 'completed').reverse();
         activeOrders.forEach(o => {
-            const hasDriver = o[7] ? true : false;
-            const isPickedUp = (o[6] === 'picked_up' || o[6] === 'في الطريق');
-            const startTime = new Date(o[0]);
-            const diffMins = Math.floor((new Date() - startTime) / 60000);
-            const isDelayed = diffMins > 35;
-
-            let cardClass = isDelayed ? 'delayed' : (isPickedUp ? 'picked-up' : (hasDriver ? 'assigned' : ''));
-            let statusText = isPickedUp ? 'استلم وفي الطريق' : (hasDriver ? 'تم التعيين - متوجه للمطعم' : 'بانتظار قبول سائق');
-
+            const hasDriver = !!o[7];
+            const isPicked = (o[6] === 'picked_up' || o[6] === 'في الطريق');
+            const diffMins = Math.floor((new Date() - new Date(o[0])) / 60000);
+            let statusClass = diffMins > 35 ? 'delayed' : (isPicked ? 'picked-up' : (hasDriver ? 'assigned' : ''));
+            
             radarHtml += `
             <div class="col-xl-6">
-                <div class="order-monitor-card ${cardClass}">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div><h6 class="fw-black m-0">طلب #${o[1]} - ${o[2]}</h6><small class="fw-bold ${isDelayed?'text-danger':''}">${statusText} (${diffMins} د)</small></div>
-                        ${hasDriver ? `<button class="btn btn-sm btn-dark rounded-pill px-3" onclick="trackDriver('${o[7]}')">تتبع 📍</button>` : ''}
+                <div class="order-monitor-card ${statusClass}">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="fw-black m-0">#${o[1]} | ${o[2]}</h6>
+                        <span class="badge ${diffMins>35?'bg-danger':'bg-dark'}">${diffMins} دقيقة</span>
                     </div>
-                    <div class="d-flex flex-wrap gap-2 mb-2">
-                        <div class="info-pill"><i data-lucide="user" size="14"></i> ${o[3]} <button class="contact-btn" onclick="window.open('tel:${o[4]}')">اتصال</button></div>
-                        <div class="info-pill"><i data-lucide="store" size="14"></i> ${o[2]}</div>
-                        <div class="info-pill"><i data-lucide="bike" size="14"></i> ${o[7] || 'لم يحدد'} ${hasDriver?`<button class="contact-btn" onclick="window.open('tel:${o[8]}')">اتصال</button>`:''}</div>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <div class="info-pill"><i data-lucide="user"></i> ${o[3]} <button class="contact-btn" onclick="window.open('tel:${o[4]}')">اتصال</button></div>
+                        <div class="info-pill"><i data-lucide="bike"></i> ${o[7] || 'بانتظار سائق'} ${hasDriver?`<button class="contact-btn" onclick="window.open('tel:${o[8]}')">اتصال</button>`:''}</div>
                     </div>
+                    ${hasDriver ? `<button class="btn btn-sm btn-outline-dark w-100 rounded-pill" onclick="alert('تتبع السائق ${o[7]}...')">تتبع مباشر 📍</button>` : ''}
                 </div>
             </div>`;
         });
-        document.getElementById('activeOrdersRadar').innerHTML = radarHtml || '<div class="text-center p-4">لا توجد طلبات نشطة حالياً.</div>';
+        document.getElementById('activeOrdersRadar').innerHTML = radarHtml || '<p class="text-center text-muted">لا توجد عمليات جارية حالياً</p>';
 
-        // 2. تحديث قوائم السيادة (المطاعم والكباتن)
-        renderSovereigntyCards('resListContainer', data.restaurants, 'store', 'RESTAURANT');
-        renderSovereigntyCards('driverListContainer', data.drivers, 'user', 'DRIVER');
+        // 2. أرشيف الطلبات
+        let oHtml = '';
+        data.orders.slice(1).reverse().forEach(o => {
+            oHtml += `<tr>
+                <td><strong>#${o[1]}</strong></td>
+                <td>${o[2]}</td>
+                <td>${o[7] || '---'}</td>
+                <td><span class="badge ${o[6]==='completed'?'bg-success':'bg-warning text-dark'}">${o[6]}</span></td>
+                <td><button class="sov-btn delete" onclick="sovAction('DELETE', 'ORDER', '${o[1]}')"><i data-lucide="trash-2" size="14"></i></button></td>
+            </tr>`;
+        });
+        document.getElementById('ordersTableBody').innerHTML = oHtml;
+
+        // 3. كروت السيادة (المطاعم والسواق)
+        renderSovCards('resListContainer', data.restaurants, 'store', 'RESTAURANT');
+        renderSovCards('driverListContainer', data.drivers, 'user', 'DRIVER');
         
         lucide.createIcons();
     };
 
-    function renderSovereigntyCards(id, list, icon, type) {
+    function renderSovCards(id, list, icon, type) {
         let html = '';
         list.slice(1).forEach(item => {
-            const status = item[4] === 'active' ? 'نشط' : 'موقوف';
             html += `
             <div class="col-md-6 col-xl-4">
-                <div class="stat-widget">
+                <div class="stat-widget d-block">
                     <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="bg-light p-3 rounded-4"><i data-lucide="${icon}"></i></div>
-                        <div class="flex-grow-1"><h6 class="fw-black m-0">${item[1]}</h6><small>${item[2]}</small></div>
+                        <div class="icon-shape bg-light"><i data-lucide="${icon}"></i></div>
+                        <div class="flex-grow-1"><h6 class="fw-bold m-0">${item[1]}</h6><small>${item[2]}</small></div>
+                        <span class="badge ${item[4]==='active'?'bg-success':'bg-secondary'}">${item[4]}</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <div class="d-flex justify-content-between pt-3 border-top">
                         <div class="d-flex gap-2">
-                            <button class="sov-btn accept" onclick="sovAction('ACTIVATE', '${type}', '${item[2]}')" title="قبول انضمام"><i data-lucide="check" size="18"></i></button>
-                            <button class="sov-btn pause" onclick="sovAction('PAUSE', '${type}', '${item[2]}')" title="توقيف مؤقت"><i data-lucide="pause" size="18"></i></button>
-                            <button class="sov-btn delete" onclick="sovAction('DELETE', '${type}', '${item[2]}')" title="حذف نهائي"><i data-lucide="trash-2" size="18"></i></button>
+                            <button class="sov-btn accept" onclick="sovAction('ACTIVATE', '${type}', '${item[2]}')"><i data-lucide="check" size="16"></i></button>
+                            <button class="sov-btn pause" onclick="sovAction('PAUSE', '${type}', '${item[2]}')"><i data-lucide="pause" size="16"></i></button>
+                            <button class="sov-btn delete" onclick="sovAction('DELETE', '${type}', '${item[2]}')"><i data-lucide="trash-2" size="16"></i></button>
                         </div>
-                        <button class="contact-btn py-2 px-3" onclick="window.open('tel:${item[3]}')"><i data-lucide="phone" size="16"></i></button>
+                        <button class="contact-btn" onclick="window.open('tel:${item[3]}')"><i data-lucide="phone" size="14"></i></button>
                     </div>
                 </div>
             </div>`;
@@ -228,15 +260,24 @@
     }
 
     function sovAction(cmd, type, id) {
-        if(confirm(`⚠️ سيادة المدير، هل أنت متأكد من تنفيذ أمر [${cmd}] على [${id}]؟`)) {
+        if(confirm(`⚠️ تأكيد الأمر السيادي [${cmd}] على [${id}]؟`)) {
             const script = document.createElement('script');
             script.src = `${API_URL}?action=ADMIN_SOV&cmd=${cmd}&type=${type}&id=${id}&token=${API_TOKEN}&callback=onSovSuccess`;
             document.body.appendChild(script);
         }
     }
 
-    window.onSovSuccess = (res) => { alert("✅ تم تنفيذ الأمر السيادي بنجاح."); refreshData(); };
-    function trackDriver(name) { alert("جاري فتح رادار التتبع المباشر للكابتن: " + name); }
+    window.onSovSuccess = () => { alert("✅ تم تنفيذ الأمر"); refreshData(); };
+    
+    function sendBroadcast() {
+        const msg = document.getElementById('adminMsg').value;
+        if(!msg) return;
+        fetch(`${API_URL}?action=sendBroadcast&msg=${encodeURIComponent(msg)}`).then(() => {
+            alert("تم بث الرسالة للجميع");
+            document.getElementById('adminMsg').value = '';
+        });
+    }
+
     function showTab(e, name) {
         document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('d-none'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
