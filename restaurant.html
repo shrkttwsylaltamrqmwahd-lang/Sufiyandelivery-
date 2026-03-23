@@ -27,7 +27,6 @@
 
         .hidden-section { display: none !important; }
 
-        /* Modern Loading Overlay */
         #loadingOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
@@ -35,7 +34,6 @@
             flex-direction: column; color: white;
         }
 
-        /* Branding Header */
         .app-header {
             background: var(--primary);
             color: white;
@@ -46,7 +44,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
-        /* Card Styling */
         .glass-card {
             background: var(--card-bg);
             border-radius: 30px;
@@ -56,7 +53,6 @@
             margin-top: -50px;
         }
 
-        /* Inputs & Buttons */
         .form-label { font-weight: 700; color: #64748b; font-size: 0.9rem; margin-bottom: 10px; display: block; }
         
         .custom-input {
@@ -93,7 +89,6 @@
         }
         .btn-action:active { transform: scale(0.96); }
 
-        /* Notification Toast */
         .success-toast {
             background: var(--success);
             color: white;
@@ -108,7 +103,6 @@
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Recent Orders Section */
         .recent-orders-title { font-weight: 900; margin-top: 40px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
@@ -116,7 +110,7 @@
 
 <div id="loadingOverlay">
     <div class="spinner-grow text-warning" role="status"></div>
-    <span class="mt-3 fw-bold">جاري المزامنة...</span>
+    <span class="mt-3 fw-bold">جاري المزامنة مع الحوت...</span>
 </div>
 
 <div id="loginSection" class="container py-5">
@@ -147,8 +141,8 @@
     <div class="app-header">
         <div class="d-flex justify-content-between align-items-center container">
             <div class="text-end">
-                <h2 class="fw-black m-0" id="resTitle">---</h2>
-                <small class="opacity-75" id="resPhoneDisplay">---</small>
+                <h2 class="fw-black m-0" id="resTitle">جاري التحميل...</h2>
+                <small class="opacity-75" id="resPhoneDisplay"></small>
             </div>
             <button class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="location.reload()">خروج</button>
         </div>
@@ -161,21 +155,27 @@
                     <h4 class="fw-black mb-4"><i data-lucide="send" class="me-2 text-accent"></i> إرسال طلب توصيل</h4>
                     
                     <form id="orderForm">
-                        <div class="mb-3">
-                            <label class="form-label">منطقة العميل</label>
-                            <select id="customerArea" class="custom-input form-select">
-                                <option>المنطقة المركزية</option>
-                                <option>حي الواسطي</option>
-                                <option>حي تسعين</option>
-                                <option>طريق بغداد</option>
-                                <option>القورية</option>
-                                <option>روناكي</option>
-                                <option>بنجة علي</option>
-                            </select>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">منطقة العميل</label>
+                                <select id="customerArea" class="custom-input form-select">
+                                    <option>المنطقة المركزية</option>
+                                    <option>حي الواسطي</option>
+                                    <option>حي تسعين</option>
+                                    <option>طريق بغداد</option>
+                                    <option>القورية</option>
+                                    <option>روناكي</option>
+                                    <option>بنجة علي</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">سعر الطلب (دينار)</label>
+                                <input type="number" id="orderPrice" class="custom-input" placeholder="مثلاً: 15000" required>
+                            </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">بيانات الطلب (العنوان والهاتف)</label>
+                            <label class="form-label">بيانات الطلب (العنوان وهاتف الزبون)</label>
                             <textarea id="customerDetails" class="custom-input" rows="4" placeholder="مثال: شارع 30، قرب صيدلية السلام، هاتف: 0770XXXXXXX" required></textarea>
                         </div>
 
@@ -196,12 +196,12 @@
                 </div>
 
                 <div class="recent-orders-title">
-                    <i data-lucide="history"></i> ملاحظة هامة
+                    <i data-lucide="alert-circle" class="text-warning"></i> تنبيهات هامة
                 </div>
                 <div class="p-4 bg-white rounded-4 border">
                     <p class="small text-muted mb-0">
-                        * يرجى التأكد من تجهيز الطلب قبل طلب الكابتن بـ 5 دقائق لضمان سرعة التوصيل. <br>
-                        * في حال وجود مشكلة، يرجى التواصل مع الدعم الفني مباشرة.
+                        * يرجى تجهيز الطلب قبل طلب الكابتن لضمان استلامه فور وصوله. <br>
+                        * سعر التوصيل يتم احتسابه آلياً بناءً على المسافة والمنطقة.
                     </p>
                 </div>
             </div>
@@ -212,44 +212,43 @@
 <script>
     lucide.createIcons();
 
-    // الرابط الموحد والتوكن
-    const API_URL = "https://script.google.com/macros/s/AKfycbyj-B2X68zjPMcI7SvAT8r2n1PGG18uVKTBnsWoB82hM55cAfyZ4AIHIhtRr4AHb7b5Qw/exec";
+    // الإعدادات السيادية الموحدة
+    const API_URL = "https://script.google.com/macros/s/AKfycbznHSOuvIqqhFU5g1PiI7T-PU7gAXpzmV9NAHqb-dkg9HUCA2Nb-mVgLJYznf6CCNhAww/exec";
     const API_TOKEN = "HUT_SECURE_99";
-    let currentRes = null;
+    let currentResName = "";
 
     function showLoading(s) { 
         document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none';
     }
 
-    // التحقق من هوية المطعم
+    // التحقق من المطعم
     function checkRestaurantStatus() {
         const phone = document.getElementById('checkPhone').value.trim();
-        if(!phone) return alert("يرجى إدخال رقم الهاتف");
+        if(!phone) return alert("يرجى إدخال رقم هاتف المطعم");
 
         showLoading(true);
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=checkRes&phone=${phone}&token=${API_TOKEN}&callback=handleLogin&ts=${Date.now()}`;
+        script.src = `${API_URL}?action=checkRes&phone=${phone}&callback=handleLogin&ts=${Date.now()}`;
         document.body.appendChild(script);
-        script.onload = () => script.remove();
     }
 
     window.handleLogin = function(data) {
         showLoading(false);
-        const status = String(data.status || "").trim().toLowerCase();
-        
-        if(status === "active") {
-            currentRes = data;
+        if(data.status === "active") {
+            currentResName = data.name;
             document.getElementById('loginSection').classList.add('hidden-section');
             document.getElementById('orderSection').classList.remove('hidden-section');
             document.getElementById('resTitle').innerText = data.name;
-            document.getElementById('resPhoneDisplay').innerText = "مطعم شريك: " + document.getElementById('checkPhone').value;
+            document.getElementById('resPhoneDisplay').innerText = "رقم المتصل: " + document.getElementById('checkPhone').value;
             lucide.createIcons();
+        } else if(data.status === "pending") {
+            alert("⏳ حسابكم قيد المراجعة من قبل إدارة الحوت.");
         } else {
-            alert("⚠️ عذراً، هذا الرقم غير مفعل في نظام الحوت.");
+            alert("⚠️ هذا الرقم غير مسجل لدينا كشريك.");
         }
     };
 
-    // إرسال الطلب الجديد
+    // إرسال طلب جديد
     document.getElementById('orderForm').onsubmit = function(e) {
         e.preventDefault();
         showLoading(true);
@@ -257,8 +256,9 @@
         const payload = {
             action: 'NEW_ORDER',
             token: API_TOKEN,
-            restaurantName: currentRes.name,
+            restaurantName: currentResName,
             area: document.getElementById('customerArea').value,
+            price: document.getElementById('orderPrice').value,
             details: document.getElementById('customerDetails').value
         };
 
@@ -271,20 +271,21 @@
             showLoading(false);
             if(res.success) {
                 document.getElementById('orderStatusBox').classList.remove('hidden-section');
-                document.getElementById('statusMsg').innerHTML = `تم توجيه الكابتن: <b>${res.driverName}</b> <br> سيصلكم خلال دقائق.`;
+                document.getElementById('statusMsg').innerHTML = `تم توجيه الكابتن: <b>${res.driverName}</b><br>رقم الطلب: ${res.orderId}`;
                 document.getElementById('customerDetails').value = "";
+                document.getElementById('orderPrice').value = "";
                 
-                // إخفاء رسالة النجاح بعد 15 ثانية
+                // إخفاء التنبيه بعد 20 ثانية
                 setTimeout(() => {
                     document.getElementById('orderStatusBox').classList.add('hidden-section');
-                }, 15000);
+                }, 20000);
             } else {
-                alert(res.msg || "حدث خطأ أثناء إرسال الطلب");
+                alert(res.msg || "عذراً، لا يوجد كباتن متاحين حالياً.");
             }
         })
         .catch(err => {
             showLoading(false);
-            alert("خطأ في الاتصال بالسيرفر، تأكد من وجود إنترنت.");
+            alert("حدث خطأ في الاتصال بالسيرفر، يرجى المحاولة لاحقاً.");
         });
     };
 </script>
