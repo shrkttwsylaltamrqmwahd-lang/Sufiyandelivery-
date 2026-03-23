@@ -10,10 +10,23 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        :root { --primary-dark: #0f172a; --accent-orange: #f97316; --success-green: #10b981; }
-        body { background: #f1f5f9; font-family: 'Cairo', sans-serif; color: var(--primary-dark); }
+        :root {
+            --primary-dark: #0f172a;
+            --accent-orange: #f97316;
+            --success-green: #10b981;
+            --danger-red: #ef4444;
+        }
+
+        body { 
+            background: #f1f5f9; 
+            font-family: 'Cairo', sans-serif; 
+            overflow-x: hidden; 
+            user-select: none;
+            color: var(--primary-dark);
+        }
+
         .hidden { display: none !important; }
-        
+
         /* شاشة التنبيه */
         #orderAlertOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -22,14 +35,46 @@
             justify-content: space-between; padding: 40px 20px;
         }
 
-        /* واجهة الطلب النشط بعد القبول */
-        #activeOrderPage { background: white; min-height: 100vh; position: fixed; top: 0; width: 100%; z-index: 999; padding: 20px; }
-        .order-step { border-right: 3px solid #e2e8f0; padding-right: 20px; position: relative; margin-bottom: 30px; }
-        .order-step::after { content: ''; position: absolute; right: -8px; top: 0; width: 15px; height: 15px; background: var(--accent-orange); border-radius: 50%; }
+        .timer-container {
+            position: relative; width: 140px; height: 140px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .timer-svg { transform: rotate(-90deg); width: 140px; height: 140px; }
+        .timer-circle {
+            fill: none; stroke: var(--accent-orange); stroke-width: 8;
+            stroke-dasharray: 440; stroke-dashoffset: 0; transition: 1s linear;
+        }
 
-        .btn-big { border-radius: 20px; padding: 18px; font-weight: 900; width: 100%; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-success { background: var(--success-green); color: white; }
-        .phone-input { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 20px; padding: 15px; text-align: center; font-weight: 900; }
+        /* الرادار */
+        .radar-center {
+            width: 150px; height: 150px; margin: 20px auto; position: relative;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .radar-wave {
+            position: absolute; width: 100%; height: 100%;
+            border: 2px solid var(--success-green); border-radius: 50%;
+            animation: radarWave 3s linear infinite; opacity: 0;
+        }
+        @keyframes radarWave { 0% { transform: scale(0.4); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+
+        .btn-big {
+            border-radius: 24px; padding: 20px; font-weight: 900; font-size: 1.2rem;
+            width: 100%; border: none; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 15px;
+        }
+        .btn-accept { background: var(--success-green); color: white; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .btn-finish { background: var(--primary-dark); color: white; margin-top: 15px; }
+        .btn-login { background: var(--primary-dark); color: white; border-radius: 20px; padding: 18px; }
+
+        .phone-input {
+            background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 20px;
+            padding: 15px; font-weight: 900; font-size: 1.4rem; text-align: center;
+        }
+        
+        .order-card {
+            background: white; border-radius: 25px; padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;
+        }
     </style>
 </head>
 <body>
@@ -38,87 +83,168 @@
 
 <div id="loginPage" class="container py-5">
     <div class="text-center mb-5">
-        <i data-lucide="truck" size="50" color="#f97316"></i>
-        <h2 class="fw-black mt-3">دخول الكباتن</h2>
+        <div class="d-inline-block p-4 bg-white rounded-circle shadow-sm mb-3">
+            <i data-lucide="truck" size="40" color="#f97316"></i>
+        </div>
+        <h2 class="fw-black">دخول الكباتن</h2>
     </div>
-    <div class="bg-white p-4 rounded-4 shadow-sm border">
-        <input type="tel" id="driverPhone" class="form-control phone-input mb-4" placeholder="07XXXXXXXXX">
-        <button class="btn btn-big btn-dark" onclick="login()">ابدأ العمل</button>
+
+    <div class="bg-white p-4 rounded-4 shadow-sm border mx-2">
+        <div class="mb-4 text-center">
+            <label class="form-label fw-bold text-muted small mb-3">أدخل رقم هاتفك المسجل</label>
+            <input type="tel" id="driverPhone" class="form-control phone-input" placeholder="07XXXXXXXXX">
+        </div>
+        <button class="btn btn-big btn-login" onclick="login()">
+            ابدأ العمل <i data-lucide="arrow-left-circle"></i>
+        </button>
     </div>
 </div>
 
-<div id="dashboardPage" class="hidden text-center py-5">
-    <div class="p-4 bg-dark text-white rounded-bottom-5 mb-5">
-        <h4 id="driverNameDisplay">...</h4>
-        <small class="text-success">متصل بالرادار وجاري البحث عن طلبات</small>
+<div id="dashboardPage" class="hidden">
+    <div class="bg-dark text-white p-4 rounded-bottom-5 shadow-lg mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-black m-0" id="driverNameDisplay">...</h4>
+                <small class="text-success fw-bold"><i data-lucide="circle" size="10" fill="currentColor"></i> متصل بالرادار</small>
+            </div>
+            <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" onclick="logout()">
+                <i data-lucide="log-out"></i>
+            </button>
+        </div>
     </div>
-    <div class="spinner-grow text-success" style="width: 100px; height: 100px;"></div>
+
+    <div class="container">
+        <div id="searchingStatus" class="text-center py-4">
+            <div class="radar-center">
+                <div class="radar-wave" style="animation-delay: 0s"></div>
+                <div class="radar-wave" style="animation-delay: 1s"></div>
+                <div class="radar-wave" style="animation-delay: 2s"></div>
+                <div class="bg-white rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 70px; height: 70px; z-index: 10;">
+                    <i data-lucide="navigation" size="30" class="text-success"></i>
+                </div>
+            </div>
+            <h5 class="fw-black">جاري البحث عن طلبات...</h5>
+        </div>
+
+        <div id="activeOrderBox" class="hidden">
+            <div class="order-card">
+                <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                    <div class="bg-warning p-2 rounded-3"><i data-lucide="shopping-bag" size="20"></i></div>
+                    <h5 class="fw-black m-0">لديك طلب نشط حالياً</h5>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted d-block fw-bold">اسم المطعم:</small>
+                    <span class="fs-5 fw-black text-orange" id="activeResName">---</span>
+                </div>
+                <div class="mb-4">
+                    <small class="text-muted d-block fw-bold">منطقة التوصيل:</small>
+                    <span class="fs-5 fw-black" id="activeArea">---</span>
+                </div>
+                <button class="btn-big btn-finish" onclick="finishOrder()">
+                    إتمام التوصيل وتسليم الطلب <i data-lucide="check-circle"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="orderAlertOverlay" class="hidden">
     <div class="text-center">
+        <div class="bg-warning d-inline-block p-3 rounded-circle mb-3">
+            <i data-lucide="bell" color="#000" size="40"></i>
+        </div>
         <h2 class="fw-black">طلب جديد!</h2>
-        <div class="fs-1 fw-black my-4" id="seconds">60</div>
-    </div>
-    <div class="bg-white rounded-4 p-4 text-dark shadow-lg">
-        <p class="mb-1 text-muted">المطعم:</p>
-        <h4 id="alertResName" class="fw-black mb-3">...</h4>
-        <p class="mb-1 text-muted">منطقة التوصيل:</p>
-        <h4 id="alertArea" class="fw-black">...</h4>
-    </div>
-    <div class="px-2">
-        <button class="btn-big btn-success mb-3" onclick="acceptOrder()">قبول الطلب</button>
-        <button class="btn btn-link text-white w-100" onclick="declineOrder()">تجاهل</button>
-    </div>
-</div>
-
-<div id="activeOrderPage" class="hidden">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-black m-0">تفاصيل الطلب</h3>
-        <span class="badge bg-warning text-dark p-2">جاري التنفيذ</span>
     </div>
 
-    <div class="order-step">
-        <small class="text-muted">المرحلة الأولى: استلام الطلب</small>
-        <h5 id="activeResName" class="fw-black">...</h5>
-        <a id="resPhoneLink" href="#" class="btn btn-sm btn-outline-primary mt-2">اتصال بالمطعم</a>
+    <div class="timer-container">
+        <svg class="timer-svg">
+            <circle class="timer-circle" cx="70" cy="70" r="65"></circle>
+        </svg>
+        <div class="position-absolute fs-1 fw-black" id="seconds">60</div>
     </div>
 
-    <div class="order-step">
-        <small class="text-muted">المرحلة الثانية: التوصيل للزبون</small>
-        <h5 id="activeCustomerArea" class="fw-black">...</h5>
-        <h6 id="activeCustomerPhone" class="fw-bold text-primary mt-2">...</h6>
+    <div class="bg-white rounded-4 p-4 text-dark mx-2">
+        <div class="mb-3 border-bottom pb-2">
+            <small class="text-muted fw-bold">المطعم:</small>
+            <h4 class="fw-black m-0 text-orange" id="alertResName">اسم المطعم</h4>
+        </div>
+        <div>
+            <small class="text-muted fw-bold">الوجهة:</small>
+            <h4 class="fw-black m-0" id="alertArea">---</h4>
+        </div>
     </div>
 
-    <div class="fixed-bottom p-3 bg-white border-top">
-        <button class="btn-big btn-success" onclick="completeOrder()">تم تسليم الطلب للزبون ✅</button>
+    <div class="px-3 pb-4">
+        <button class="btn-big btn-accept" onclick="acceptOrder()">
+            قبول الطلب <i data-lucide="check"></i>
+        </button>
+        <button class="btn btn-link text-white mt-3 w-100 fw-bold" onclick="declineOrder()">تجاهل</button>
     </div>
 </div>
 
 <script>
     lucide.createIcons();
+
     const API_URL = "https://script.google.com/macros/s/AKfycbwu6JbaHhvoKidHcbZP5HiYisWuBNl07OltajXKSAdEi3JWEDHwadOMybszR2CeP_WPsQ/exec";
     const API_TOKEN = "HUT_SECURE_99";
-    let driverData = null, currentOrder = null;
+    
+    let driverData = null;
+    let countdownInterval, currentOrderId, activeOrder = null;
+
+    // عند فتح الصفحة: التحقق من وجود تسجيل دخول سابق
+    window.onload = function() {
+        const savedDriver = localStorage.getItem('hut_driver');
+        if (savedDriver) {
+            driverData = JSON.parse(savedDriver);
+            showDashboard();
+            // التحقق إذا كان هناك طلب نشط محفوظ
+            const savedOrder = localStorage.getItem('hut_active_order');
+            if (savedOrder) {
+                activeOrder = JSON.parse(savedOrder);
+                displayActiveOrder();
+            }
+        }
+    };
 
     function login() {
         const phone = document.getElementById('driverPhone').value.trim();
+        if(!phone) return alert("يرجى إدخال رقم الهاتف");
+
         const script = document.createElement('script');
         script.src = `${API_URL}?action=getGlobalData&callback=onLogin&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
 
     window.onLogin = function(data) {
-        const phone = document.getElementById('driverPhone').value.trim();
-        const driver = data.drivers.find(d => d[2] == phone); //
-        if(driver && driver[4] === "active") { //
-            driverData = { phone: phone, name: driver[1] };
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('dashboardPage').classList.remove('hidden');
-            document.getElementById('driverNameDisplay').innerText = "كابتن " + driverData.name;
-            startSystem();
-        } else { alert("الحساب غير مفعل"); }
+        if(data && data.drivers) {
+            const inputPhone = document.getElementById('driverPhone').value.trim();
+            const driver = data.drivers.find(d => d[2] == inputPhone);
+
+            if(driver) {
+                if(driver[4] === "active") {
+                    driverData = { phone: inputPhone, name: driver[1] };
+                    localStorage.setItem('hut_driver', JSON.stringify(driverData));
+                    showDashboard();
+                } else {
+                    alert("⚠️ الحساب غير مفعل.");
+                }
+            } else { alert("❌ رقم غير مسجل."); }
+        }
     };
+
+    function showDashboard() {
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('dashboardPage').classList.remove('hidden');
+        document.getElementById('driverNameDisplay').innerText = "كابتن " + driverData.name;
+        startSystem();
+    }
+
+    function logout() {
+        if(confirm("هل تريد الخروج وإيقاف العمل؟")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
 
     function startSystem() {
         setInterval(checkForOrders, 10000);
@@ -127,58 +253,86 @@
                 const script = document.createElement('script');
                 script.src = `${API_URL}?action=DRIVER_UPDATE&phone=${driverData.phone}&lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&token=${API_TOKEN}&callback=dummy`;
                 document.body.appendChild(script);
-            });
+            }, null, { enableHighAccuracy: true });
         }
     }
 
     function checkForOrders() {
-        if(!document.getElementById('orderAlertOverlay').classList.contains('hidden') || 
-           !document.getElementById('activeOrderPage').classList.contains('hidden')) return;
+        // لا تبحث عن طلبات جديدة إذا كان هناك طلب نشط
+        if(activeOrder || !document.getElementById('orderAlertOverlay').classList.contains('hidden')) return;
         
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=checkMyOrders&phone=${driverData.phone}&token=${API_TOKEN}&callback=onNewOrder`;
+        script.src = `${API_URL}?action=checkMyOrders&phone=${driverData.phone}&token=${API_TOKEN}&callback=onNewOrder&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
 
     window.onNewOrder = function(data) {
         if(data && data.id) {
-            currentOrder = data;
+            currentOrderId = data.id;
             document.getElementById('alertResName').innerText = data.resName;
-            document.getElementById('alertArea').innerText = data.customerArea;
+            document.getElementById('alertArea').innerText = data.customerArea || 'موقع محدد';
             document.getElementById('orderAlertOverlay').classList.remove('hidden');
             document.getElementById('alertSound').play();
+            startCountdown(60);
         }
     };
 
-    function acceptOrder() {
-        // 1. إخفاء التنبيه وإيقاف الصوت
-        document.getElementById('orderAlertOverlay').classList.add('hidden');
-        document.getElementById('alertSound').pause();
-        
-        // 2. ملء بيانات واجهة الطلب النشط
-        document.getElementById('activeResName').innerText = currentOrder.resName;
-        document.getElementById('activeCustomerArea').innerText = currentOrder.customerArea;
-        document.getElementById('activeCustomerPhone').innerText = "هاتف الزبون: " + currentOrder.customerPhone;
-        document.getElementById('resPhoneLink').href = "tel:" + currentOrder.resPhone;
-        
-        // 3. إظهار واجهة الطلب النشط لكي لا يختفي الطلب
-        document.getElementById('activeOrderPage').classList.remove('hidden');
-        
-        // 4. تحديث السيرفر
-        updateStatus('accepted');
+    function startCountdown(sec) {
+        let remaining = sec;
+        clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+            remaining--;
+            document.getElementById('seconds').innerText = remaining;
+            if(remaining <= 0) declineOrder();
+        }, 1000);
     }
 
-    function completeOrder() {
-        if(confirm("هل تأكدت من استلام المبلغ وتسليم الطلب؟")) {
-            updateStatus('completed');
-            document.getElementById('activeOrderPage').classList.add('hidden');
-            alert("أحسنت يا بطل! تم إنهاء الطلب.");
+    function acceptOrder() {
+        activeOrder = {
+            id: currentOrderId,
+            resName: document.getElementById('alertResName').innerText,
+            area: document.getElementById('alertArea').innerText
+        };
+        // حفظ الطلب في ذاكرة المتصفح ليبقى حتى لو تم تحديث الصفحة
+        localStorage.setItem('hut_active_order', JSON.stringify(activeOrder));
+        
+        displayActiveOrder();
+        updateStatusOnServer('accepted');
+        
+        // إغلاق التنبيه
+        document.getElementById('orderAlertOverlay').classList.add('hidden');
+        document.getElementById('alertSound').pause();
+        clearInterval(countdownInterval);
+    }
+
+    function displayActiveOrder() {
+        document.getElementById('searchingStatus').classList.add('hidden');
+        document.getElementById('activeOrderBox').classList.remove('hidden');
+        document.getElementById('activeResName').innerText = activeOrder.resName;
+        document.getElementById('activeArea').innerText = activeOrder.area;
+    }
+
+    function finishOrder() {
+        if(confirm("هل أنت متأكد من تسليم الطلب وإنهائه؟")) {
+            updateStatusOnServer('completed');
+            localStorage.removeItem('hut_active_order');
+            activeOrder = null;
+            document.getElementById('activeOrderBox').classList.add('hidden');
+            document.getElementById('searchingStatus').classList.remove('hidden');
         }
     }
 
-    function updateStatus(status) {
+    function declineOrder() {
+        updateStatusOnServer('rejected');
+        document.getElementById('orderAlertOverlay').classList.add('hidden');
+        document.getElementById('alertSound').pause();
+        clearInterval(countdownInterval);
+    }
+
+    function updateStatusOnServer(status) {
+        const id = activeOrder ? activeOrder.id : currentOrderId;
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=ORDER&id=${currentOrder.id}&status=${status}&token=${API_TOKEN}&callback=dummy`;
+        script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=ORDER&id=${id}&status=${status}&token=${API_TOKEN}&callback=dummy`;
         document.body.appendChild(script);
     }
 
