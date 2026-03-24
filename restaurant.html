@@ -58,12 +58,10 @@
         }
         .btn-action:active { transform: scale(0.96); }
 
-        /* ستايلات الإحصائيات (Stats) */
         .stat-box { background: #f8fafc; border-radius: 20px; padding: 15px; text-align: center; border: 1px solid #e2e8f0; }
         .stat-box h3 { margin: 0; font-weight: 900; color: var(--primary-blue); }
         .stat-box p { margin: 0; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-top: 5px; }
 
-        /* ستايل التبديل (Tab Switcher) */
         .order-type-toggle { display: flex; background: #f1f5f9; border-radius: 20px; padding: 6px; margin-bottom: 25px; }
         .toggle-btn {
             flex: 1; text-align: center; padding: 12px; font-weight: 800; color: #64748b;
@@ -72,27 +70,34 @@
         }
         .toggle-btn.active { background: white; color: var(--primary-blue); box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
 
-        /* زر التقاط الكاميرا */
-        .camera-btn {
-            background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; border-radius: 20px;
-            padding: 30px; text-align: center; color: #3b82f6; font-weight: 800; cursor: pointer;
-            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px;
-        }
+        .camera-btn { background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; border-radius: 20px; padding: 30px; text-align: center; color: #3b82f6; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .camera-btn:hover, .camera-btn:active { background: rgba(59, 130, 246, 0.2); transform: scale(0.98); }
         .preview-img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 15px; border: 2px solid #e2e8f0; margin-top: 15px; }
 
-        /* كروت الطلبات الحية */
-        .live-order-card {
-            background: white; border-radius: 20px; padding: 15px; margin-bottom: 15px;
-            border: 1px solid #e2e8f0; border-right: 5px solid var(--accent);
-            display: flex; flex-direction: column; gap: 10px;
-        }
-        .btn-call-mini {
-            background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 50%; width: 35px; height: 35px;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; color: #10b981;
-        }
+        /* ستايلات الرصد الميداني (شريط التقدم وزر الإلغاء) */
+        .live-order-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-right: 5px solid var(--primary-blue); display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .btn-call-mini { background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #10b981; }
+        
+        .btn-cancel-grace { background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn-cancel-grace:active { transform: scale(0.95); }
 
+        /* Progress Bar Styles */
+        .progress-tracker { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; position: relative; padding: 0 10px; }
+        .progress-line { position: absolute; top: 12px; left: 20px; right: 20px; height: 3px; background: #e2e8f0; z-index: 1; }
+        .progress-line-fill { position: absolute; top: 12px; right: 20px; height: 3px; background: var(--success); z-index: 2; transition: 0.4s width; }
+        .progress-step { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 25%; }
+        .progress-dot { width: 26px; height: 26px; border-radius: 50%; background: #e2e8f0; border: 3px solid white; display: flex; align-items: center; justify-content: center; transition: 0.3s; box-shadow: 0 0 0 1px #e2e8f0; }
+        .progress-step.active .progress-dot { background: var(--success); box-shadow: 0 0 0 2px var(--success); }
+        .progress-step.current .progress-dot { background: var(--accent); box-shadow: 0 0 0 2px var(--accent); animation: pulseDot 1.5s infinite; }
+        .progress-label { font-size: 0.65rem; font-weight: 800; color: #64748b; text-align: center; }
+        .progress-step.active .progress-label, .progress-step.current .progress-label { color: var(--primary-dark); }
+        
+        @keyframes pulseDot { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
+
+        /* ستايل الأرشيف اليومي */
+        .archive-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 8px; }
         .success-toast { background: var(--success); color: white; border-radius: 20px; padding: 20px; margin-top: 20px; display: flex; align-items: center; gap: 15px; animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -265,16 +270,34 @@
                             <i data-lucide="check-circle" size="30"></i>
                             <div>
                                 <div class="fw-black">تم إرسال الإشارة!</div>
-                                <div class="small" id="statusMsg">الرادار يبحث عن أقرب كابتن...</div>
+                                <div class="small mt-1" id="statusMsg">الرادار يبحث عن كابتن متاح...</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <h5 class="fw-black mb-3" style="color: var(--primary-blue);"><i data-lucide="activity" class="text-accent"></i> طلبات قيد التوصيل</h5>
+                    <div class="order-type-toggle mb-3" style="background: #e2e8f0;">
+                        <div class="toggle-btn active py-2" id="tabLiveOrders" onclick="switchListTab('live')">
+                            <i data-lucide="activity" size="18"></i> قيد التوصيل
+                        </div>
+                        <div class="toggle-btn py-2" id="tabTodayArchive" onclick="switchListTab('archive')">
+                            <i data-lucide="check-circle-2" size="18"></i> مكتملة اليوم
+                        </div>
+                    </div>
+
                     <div id="activeOrdersList">
                         <div class="text-center text-muted fw-bold py-3 small">لا توجد طلبات نشطة حالياً.</div>
+                    </div>
+
+                    <div id="todayArchiveList" class="hidden-section">
+                        <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                            <span class="fw-bold text-muted small">إجمالي مبيعات التوصيل اليوم:</span>
+                            <span class="fw-black text-success fs-5" id="todayTotalSales">0 <small class="fs-6">د.ع</small></span>
+                        </div>
+                        <div id="todayArchiveItems">
+                            <div class="text-center text-muted fw-bold py-3 small">لم تكتمل أي طلبات اليوم بعد.</div>
+                        </div>
                     </div>
                 </div>
 
@@ -299,7 +322,6 @@
         document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none';
     }
 
-    // تبديل بين الإدخال اليدوي والتصوير السريع مع إخفاء السعر
     function switchTab(mode) {
         currentOrderMode = mode;
         document.getElementById('tabManual').classList.remove('active');
@@ -314,7 +336,6 @@
             document.getElementById('manualSection').classList.remove('hidden-section');
             document.getElementById('photoSection').classList.add('hidden-section');
             
-            // إظهار حقل السعر في اليدوي وجعله إجبارياً
             priceContainer.classList.remove('hidden-section');
             areaContainer.classList.replace('col-md-12', 'col-md-6');
             priceInput.required = true;
@@ -324,11 +345,25 @@
             document.getElementById('photoSection').classList.remove('hidden-section');
             document.getElementById('manualSection').classList.add('hidden-section');
             
-            // إخفاء حقل السعر في التصوير وتمديد حقل المنطقة
             priceContainer.classList.add('hidden-section');
             areaContainer.classList.replace('col-md-6', 'col-md-12');
             priceInput.required = false;
             document.getElementById('customerPhone').required = false;
+        }
+    }
+
+    function switchListTab(tab) {
+        document.getElementById('tabLiveOrders').classList.remove('active');
+        document.getElementById('tabTodayArchive').classList.remove('active');
+        
+        if (tab === 'live') {
+            document.getElementById('tabLiveOrders').classList.add('active');
+            document.getElementById('activeOrdersList').classList.remove('hidden-section');
+            document.getElementById('todayArchiveList').classList.add('hidden-section');
+        } else {
+            document.getElementById('tabTodayArchive').classList.add('active');
+            document.getElementById('todayArchiveList').classList.remove('hidden-section');
+            document.getElementById('activeOrdersList').classList.add('hidden-section');
         }
     }
 
@@ -415,7 +450,6 @@
             document.getElementById('resPhoneDisplay').innerText = "شريك معتمد - الحوت";
             lucide.createIcons();
             
-            // بدء جلب بيانات المطعم (الطلبات والإحصائيات) كل 15 ثانية
             fetchResDashboardData();
             dataRefreshInterval = setInterval(fetchResDashboardData, 15000);
 
@@ -433,89 +467,159 @@
         }
     };
 
-    // جلب البيانات الكلية لمعالجتها في لوحة المطعم
+    function cancelOrderGrace(orderId) {
+        if(confirm("هل أنت متأكد من إلغاء وحذف هذا الطلب؟")) {
+            showLoading(true, "جاري إلغاء الطلب...");
+            const script = document.createElement('script');
+            script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=ORDER&id=${orderId}&status=deleted&token=${API_TOKEN}&callback=onCancelSuccess`;
+            document.body.appendChild(script);
+        }
+    }
+    
+    window.onCancelSuccess = function(response) {
+        showLoading(false);
+        if(response.success) {
+            fetchResDashboardData(); 
+        } else {
+            alert("حدث خطأ. قد يكون الكابتن قد استلم الطلب للتو.");
+        }
+    };
+
     function fetchResDashboardData() {
         const script = document.createElement('script');
         script.src = `${API_URL}?action=getGlobalData&callback=renderResDashboard&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
 
-    // بناء الإحصائيات والطلبات الحية
     window.renderResDashboard = function(data) {
         if(!data || !data.restaurants || !data.orders) return;
 
         const resInfo = data.restaurants.find(r => r[1] === currentResName);
         if(!resInfo) return;
 
-        const commRate = parseFloat(resInfo[5]) || 0; // مقدار العمولة
-        const paySystem = resInfo[8] || 'المطعم يدفع'; // نظام الدفع
+        const commRate = parseFloat(resInfo[5]) || 0;
+        const paySystem = resInfo[8] || 'المطعم يدفع';
         document.getElementById('statPayType').innerText = paySystem.includes("مناصفة") ? "مناصفة" : "المطعم";
 
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
+        const today = new Date();
+        const todayISO = today.toISOString().split('T')[0];
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        
         let monthlyCount = 0;
         let totalUnpaid = 0;
         
         let activeOrdersHtml = '';
+        let todayArchiveHtml = '';
+        let todaySalesTotal = 0;
 
         data.orders.slice(1).forEach(o => {
             if(o[1] === currentResName) {
                 const status = o[5];
-                const orderDate = new Date(o[7]);
-                const isThisMonth = orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
+                const orderDateStr = o[7];
+                const orderDateObj = new Date(orderDateStr);
+                const orderISO = orderDateObj.toISOString().split('T')[0];
+                const isThisMonth = orderDateObj.getMonth() === currentMonth && orderDateObj.getFullYear() === currentYear;
 
-                // حساب الإحصائيات للطلبات المنجزة
-                if (status === 'completed' || status === 'مكتمل') {
+                // 1. حساب الإحصائيات 
+                if (status === 'completed' || status === 'مكتمل' || status === 'settled') {
                     if(isThisMonth) monthlyCount++;
-                    if(paySystem.includes('مناصفة')) totalUnpaid += (commRate / 2);
-                    else totalUnpaid += commRate;
+                    if(status !== 'settled') {
+                        if(paySystem.includes('مناصفة')) totalUnpaid += (commRate / 2);
+                        else totalUnpaid += commRate;
+                    }
+                    
+                    // 2. أرشيف اليوم
+                    if(orderISO === todayISO) {
+                        const priceVal = parseFloat(o[4]) || 0;
+                        todaySalesTotal += priceVal;
+                        
+                        let driverName = "مكتمل";
+                        const dInfo = data.drivers.find(d => String(d[2]) === String(o[6]));
+                        if(dInfo) driverName = dInfo[1];
+
+                        todayArchiveHtml += `
+                        <div class="archive-item">
+                            <div>
+                                <span class="fw-black text-dark">#${o[0]}</span>
+                                <div class="small text-muted fw-bold">الكابتن: ${driverName}</div>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-black text-success">${o[4]} <small class="fs-6">د.ع</small></span>
+                                <div class="small text-muted">${orderDateObj.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'})}</div>
+                            </div>
+                        </div>`;
+                    }
                 } 
-                // بناء كروت الطلبات الحية (التي لم تكتمل ولم تحذف)
+                // 3. بناء الطلبات الحية مع شريط التقدم 
                 else if (status !== 'deleted') {
                     const orderId = o[0];
                     const driverPhone = o[6];
                     let driverName = 'جاري البحث...';
-                    let statusLabel = 'بانتظار كابتن';
-                    let statusColor = 'text-danger';
+                    
+                    let step = 1; 
+                    let fillWidth = "0%";
+                    let isCancelable = true;
 
                     if (driverPhone && driverPhone !== "pending_driver") {
+                        isCancelable = false; 
                         const dInfo = data.drivers.find(d => String(d[2]) === String(driverPhone));
                         if(dInfo) driverName = dInfo[1];
                         
                         if (status === 'picked_up' || status === 'في الطريق') {
-                            statusLabel = 'في الطريق للزبون'; statusColor = 'text-success';
+                            step = 4; fillWidth = "100%";
                         } else if (status === 'arrived_at_res') {
-                            statusLabel = 'الكابتن بانتظار الطلب'; statusColor = 'text-warning';
-                        } else {
-                            statusLabel = 'الكابتن متوجه إليك'; statusColor = 'text-primary';
+                            step = 3; fillWidth = "66%";
+                        } else { 
+                            step = 2; fillWidth = "33%";
                         }
                     }
 
                     activeOrdersHtml += `
                     <div class="live-order-card">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-black text-dark">طلب #${orderId}</span>
-                            <span class="small fw-bold ${statusColor}">${statusLabel}</span>
+                        <div class="d-flex justify-content-between align-items-center pb-2 border-bottom">
+                            <span class="fw-black text-dark fs-5">طلب #${orderId}</span>
+                            ${isCancelable ? `<button class="btn-cancel-grace" onclick="cancelOrderGrace('${orderId}')"><i data-lucide="x" size="14"></i> إلغاء الطلب</button>` : 
+                            `<span class="small fw-bold text-success"><i data-lucide="phone" size="12"></i> ${driverName}</span>`}
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mt-1 pt-2 border-top">
-                            <div class="small text-muted fw-bold">الكابتن: <span class="text-dark">${driverName}</span></div>
-                            ${driverPhone && driverPhone !== "pending_driver" ? `<button class="btn-call-mini" onclick="window.open('tel:${driverPhone}')"><i data-lucide="phone" size="14"></i></button>` : ''}
+                        
+                        <div class="progress-tracker">
+                            <div class="progress-line"></div>
+                            <div class="progress-line-fill" style="width: ${fillWidth};"></div>
+                            
+                            <div class="progress-step ${step >= 1 ? (step === 1 ? 'current' : 'active') : ''}">
+                                <div class="progress-dot"><i data-lucide="radar" size="14"></i></div>
+                                <span class="progress-label">بانتظار</span>
+                            </div>
+                            <div class="progress-step ${step >= 2 ? (step === 2 ? 'current' : 'active') : ''}">
+                                <div class="progress-dot"><i data-lucide="truck" size="14"></i></div>
+                                <span class="progress-label">متوجه</span>
+                            </div>
+                            <div class="progress-step ${step >= 3 ? (step === 3 ? 'current' : 'active') : ''}">
+                                <div class="progress-dot"><i data-lucide="store" size="14"></i></div>
+                                <span class="progress-label">بالمطعم</span>
+                            </div>
+                            <div class="progress-step ${step >= 4 ? (step === 4 ? 'current' : 'active') : ''}">
+                                <div class="progress-dot"><i data-lucide="user" size="14"></i></div>
+                                <span class="progress-label">بالطريق</span>
+                            </div>
                         </div>
                     </div>`;
                 }
             }
         });
 
-        // تحديث الأرقام
         document.getElementById('statMonthOrders').innerText = monthlyCount;
         document.getElementById('statUnpaid').innerText = totalUnpaid;
+        document.getElementById('todayTotalSales').innerHTML = `${todaySalesTotal} <small class="fs-6">د.ع</small>`;
+
+        document.getElementById('activeOrdersList').innerHTML = activeOrdersHtml || `<div class="text-center text-muted fw-bold py-4 small">لا توجد طلبات نشطة حالياً.</div>`;
+        document.getElementById('todayArchiveItems').innerHTML = todayArchiveHtml || `<div class="text-center text-muted fw-bold py-4 small">لم تكتمل أي طلبات اليوم بعد.</div>`;
         
-        // تحديث قائمة الطلبات الحية
-        const activeListContainer = document.getElementById('activeOrdersList');
-        activeListContainer.innerHTML = activeOrdersHtml || `<div class="text-center text-muted fw-bold py-3 small">لا توجد طلبات قيد التوصيل حالياً.</div>`;
         lucide.createIcons();
     };
 
+    // الإرسال الصفري الذكي (Asynchronous Dispatch)
     document.getElementById('orderForm').onsubmit = function(e) {
         e.preventDefault();
 
@@ -533,10 +637,10 @@
             if (!base64Receipt) return alert("يرجى التقاط صورة للوصل أولاً.");
             finalDetails = "طلب مصور سريع (انظر الوصل)";
             imagePayload = base64Receipt;
-            finalPrice = "حسب الوصل"; // السعر غير مطلوب في هذه الحالة
+            finalPrice = "حسب الوصل";
         }
 
-        showLoading(true, "جاري إرسال الإشارة للرادار...");
+        showLoading(true, "جاري رفع الطلب للرادار...");
         
         const payload = {
             action: 'NEW_ORDER',
@@ -554,20 +658,20 @@
             showLoading(false);
             if(res.success) {
                 document.getElementById('orderStatusBox').classList.remove('hidden-section');
-                document.getElementById('statusMsg').innerHTML = `رقم الطلب: ${res.orderId}`;
                 
-                // תصفير الحقول
+                // رسالة النجاح الخاصة بالإرسال الصفري
+                document.getElementById('statusMsg').innerHTML = `رقم الطلب: #${res.orderId} <br><span class="text-warning small fw-bold">الطلب الآن يسبح في الرادار بانتظار كابتن 📡</span>`;
+                
                 document.getElementById('customerPhone').value = "";
                 document.getElementById('customerDetails').value = "";
-                document.getElementById('orderPrice').value = "";
+                if(document.getElementById('orderPrice')) document.getElementById('orderPrice').value = "";
                 removePhoto();
                 
-                // تحديث البيانات فوراً لرؤية الطلب في القائمة
                 fetchResDashboardData();
 
                 setTimeout(() => { document.getElementById('orderStatusBox').classList.add('hidden-section'); }, 10000);
             } else {
-                alert(res.msg || "عذراً، لا يوجد كباتن متاحين حالياً.");
+                alert("حدث خطأ في النظام: " + (res.msg || "يرجى المحاولة مرة أخرى."));
             }
         })
         .catch(err => { showLoading(false); alert("تأكد من قوة شبكة الإنترنت لديك."); });
