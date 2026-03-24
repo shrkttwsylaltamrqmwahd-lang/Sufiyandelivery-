@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بوابة المطاعم | Al-Hut PRO</title>
+    <title>بوابة المطاعم | مكتب سفيان</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -16,15 +16,10 @@
             --bg: #f8fafc;
             --card-bg: #ffffff;
             --success: #10b981;
+            --primary-blue: #1e3a8a;
         }
 
-        body { 
-            background: var(--bg); 
-            font-family: 'Cairo', sans-serif; 
-            color: var(--primary);
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        body { background: var(--bg); font-family: 'Cairo', sans-serif; color: var(--primary); -webkit-tap-highlight-color: transparent; }
         .hidden-section { display: none !important; }
 
         #loadingOverlay {
@@ -35,103 +30,119 @@
         }
 
         .app-header {
-            background: var(--primary);
-            color: white;
-            padding: 40px 20px 80px 20px;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: var(--primary-blue); color: white;
+            padding: 40px 20px 80px 20px; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
+            text-align: center; box-shadow: 0 10px 30px rgba(30, 58, 138, 0.2);
         }
 
         .glass-card {
-            background: var(--card-bg);
-            border-radius: 30px;
-            padding: 30px;
-            border: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-            margin-top: -50px;
+            background: var(--card-bg); border-radius: 30px; padding: 30px;
+            border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 15px 35px rgba(0,0,0,0.05); margin-top: -50px;
         }
-
-        .form-label { font-weight: 700; color: #64748b; font-size: 0.9rem; margin-bottom: 10px; display: block; }
+        
+        .login-card { background: var(--card-bg); border-radius: 30px; padding: 40px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+        .form-label { font-weight: 700; color: #64748b; font-size: 0.9rem; margin-bottom: 10px; display: block; text-align: right; }
         
         .custom-input {
-            background: #f1f5f9;
-            border: 2px solid transparent;
-            border-radius: 18px;
-            padding: 18px;
-            font-weight: 600;
-            transition: 0.3s;
-            width: 100%;
+            background: #f1f5f9; border: 2px solid transparent; border-radius: 18px;
+            padding: 16px; font-weight: 700; transition: 0.3s; width: 100%; font-size: 1rem; color: var(--primary-blue);
         }
-        .custom-input:focus {
-            background: white;
-            border-color: var(--accent);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
-        }
+        .custom-input.phone-format { letter-spacing: 2px; font-size: 1.4rem; text-align: center; }
+        .custom-input:focus { background: white; border-color: var(--accent); outline: none; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1); }
 
         .btn-action {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 18px;
-            padding: 20px;
-            font-weight: 900;
-            width: 100%;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            transition: 0.3s;
-            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+            background: var(--primary-blue); color: white; border: none; border-radius: 18px;
+            padding: 20px; font-weight: 900; width: 100%; font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            transition: 0.3s; box-shadow: 0 10px 20px rgba(30, 58, 138, 0.2);
         }
         .btn-action:active { transform: scale(0.96); }
 
-        .success-toast {
-            background: var(--success);
-            color: white;
-            border-radius: 20px;
-            padding: 20px;
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        /* ستايل التبديل بين نوعي الطلب (Tab Switcher) */
+        .order-type-toggle {
+            display: flex; background: #f1f5f9; border-radius: 20px; padding: 6px; margin-bottom: 25px;
+        }
+        .toggle-btn {
+            flex: 1; text-align: center; padding: 12px; font-weight: 800; color: #64748b;
+            border-radius: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem;
+        }
+        .toggle-btn.active {
+            background: white; color: var(--primary-blue); box-shadow: 0 4px 15px rgba(0,0,0,0.06);
         }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* زر التقاط الكاميرا */
+        .camera-btn {
+            background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; border-radius: 20px;
+            padding: 30px; text-align: center; color: #3b82f6; font-weight: 800; cursor: pointer;
+            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .camera-btn:hover, .camera-btn:active { background: rgba(59, 130, 246, 0.2); transform: scale(0.98); }
+        
+        .preview-img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 15px; border: 2px solid #e2e8f0; margin-top: 15px; }
 
-        .recent-orders-title { font-weight: 900; margin-top: 40px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .success-toast { background: var(--success); color: white; border-radius: 20px; padding: 20px; margin-top: 20px; display: flex; align-items: center; gap: 15px; animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div id="loadingOverlay">
     <div class="spinner-grow text-warning" role="status"></div>
-    <span class="mt-3 fw-bold">جاري المزامنة مع الحوت...</span>
+    <span class="mt-3 fw-bold" id="loadingText">جاري المزامنة مع النظام...</span>
 </div>
 
 <div id="loginSection" class="container py-5">
     <div class="text-center mb-5">
         <div class="d-inline-block p-4 bg-white rounded-circle shadow-sm mb-4">
-            <i data-lucide="store" size="50" color="#f97316"></i>
+            <i data-lucide="store" size="50" color="#1e3a8a"></i>
         </div>
-        <h1 class="fw-black">بوابة الشركاء</h1>
-        <p class="text-muted">أهلاً بك في نظام الحوت للإدارة الذكية</p>
+        <h2 class="fw-black" style="color: var(--primary-blue);">مكتب سفيان للشركاء</h2>
+        <p class="text-muted fw-bold">المنصة المدعومة بنظام الحوت</p>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-lg-5">
-            <div class="glass-card mt-0">
-                <div class="mb-4">
-                    <label class="form-label">رقم الهاتف المسجل</label>
-                    <input type="tel" id="checkPhone" class="custom-input text-center fs-3" placeholder="07XXXXXXXXX">
+            <div class="login-card" id="authBox">
+                <div class="mb-4 text-center">
+                    <label class="form-label text-center">رقم هاتف الإدارة المسجل</label>
+                    <input type="tel" id="checkPhone" class="custom-input phone-format" placeholder="07XXXXXXXXX" dir="ltr">
                 </div>
-                <button class="btn-action" onclick="checkRestaurantStatus()">
+
+                <div id="registerFields" class="hidden-section text-start" style="animation: fadeIn 0.5s;">
+                    <hr class="my-4 opacity-10">
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-4 text-success">
+                        <i data-lucide="sparkles"></i>
+                        <h5 class="fw-black m-0">تسجيل مطعم جديد</h5>
+                    </div>
+                    
+                    <div class="mb-3"><input type="text" id="regName" class="custom-input" placeholder="الاسم التجاري للمطعم"></div>
+                    <div class="mb-3"><input type="text" id="regArea" class="custom-input" placeholder="منطقة المطعم (مثال: طريق بغداد)"></div>
+                    <div class="mb-3"><input type="url" id="regMap" class="custom-input" placeholder="رابط موقع المطعم (Google Maps)" dir="ltr"></div>
+                    <div class="row g-2 mb-4">
+                        <div class="col-6"><input type="number" id="regComm" class="custom-input" placeholder="العمولة (د.ع)"></div>
+                        <div class="col-6">
+                            <select id="regPay" class="custom-input px-2">
+                                <option value="المطعم يدفع" selected>المطعم يدفع</option>
+                                <option value="مناصفة">مناصفة مع السائق</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-action" id="mainAuthBtn" onclick="authAction()">
                     دخول المنصة <i data-lucide="arrow-left"></i>
                 </button>
+            </div>
+
+            <div class="login-card hidden-section text-center" id="waitingBox">
+                <div class="d-inline-block p-4 rounded-circle mb-3" style="background: rgba(245, 158, 11, 0.1);">
+                    <i data-lucide="clock" size="60" color="#d97706"></i>
+                </div>
+                <h3 class="fw-black mb-3 text-dark">الطلب قيد المراجعة</h3>
+                <p class="text-muted fw-bold mb-0">تم إرسال بيانات المطعم للإدارة المركزية.<br>يرجى الانتظار حتى يتم تفعيل الشراكة.</p>
+                <button class="btn btn-outline-secondary rounded-pill mt-4 fw-bold px-4" onclick="location.reload()">تحديث الحالة</button>
             </div>
         </div>
     </div>
@@ -144,7 +155,7 @@
                 <h2 class="fw-black m-0" id="resTitle">جاري التحميل...</h2>
                 <small class="opacity-75" id="resPhoneDisplay"></small>
             </div>
-            <button class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="location.reload()">خروج</button>
+            <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="location.reload()"><i data-lucide="power" size="14" class="me-1"></i> خروج</button>
         </div>
     </div>
 
@@ -152,12 +163,20 @@
         <div class="row justify-content-center">
             <div class="col-lg-6">
                 <div class="glass-card">
-                    <h4 class="fw-black mb-4"><i data-lucide="send" class="me-2 text-accent"></i> إرسال طلب توصيل</h4>
+                    
+                    <div class="order-type-toggle">
+                        <div class="toggle-btn active" id="tabManual" onclick="switchTab('manual')">
+                            <i data-lucide="keyboard"></i> إدخال يدوي
+                        </div>
+                        <div class="toggle-btn" id="tabPhoto" onclick="switchTab('photo')">
+                            <i data-lucide="camera"></i> تصوير الوصل
+                        </div>
+                    </div>
                     
                     <form id="orderForm">
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">منطقة العميل</label>
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label class="form-label">منطقة الزبون</label>
                                 <select id="customerArea" class="custom-input form-select">
                                     <option>المنطقة المركزية</option>
                                     <option>حي الواسطي</option>
@@ -168,19 +187,43 @@
                                     <option>بنجة علي</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">سعر الطلب (دينار)</label>
-                                <input type="number" id="orderPrice" class="custom-input" placeholder="مثلاً: 15000" required>
+                            <div class="col-6">
+                                <label class="form-label">سعر الطلب (د.ع)</label>
+                                <input type="number" id="orderPrice" class="custom-input" placeholder="الواصل للحساب" required>
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label">بيانات الطلب (العنوان وهاتف الزبون)</label>
-                            <textarea id="customerDetails" class="custom-input" rows="4" placeholder="مثال: شارع 30، قرب صيدلية السلام، هاتف: 0770XXXXXXX" required></textarea>
+                        <div id="manualSection">
+                            <div class="mb-4">
+                                <label class="form-label">رقم هاتف الزبون</label>
+                                <input type="tel" id="customerPhone" class="custom-input phone-format" placeholder="07XXXXXXXXX" dir="ltr">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">تفاصيل إضافية (اختياري)</label>
+                                <input type="text" id="customerDetails" class="custom-input" placeholder="مثال: قرب صيدلية السلام">
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn-action bg-accent">
-                            طلب كابتن الآن <i data-lucide="zap"></i>
+                        <div id="photoSection" class="hidden-section">
+                            <div class="mb-4">
+                                <label class="form-label">صورة الوصل (تحتوي العنوان والهاتف)</label>
+                                
+                                <input type="file" id="receiptPhoto" accept="image/*" capture="environment" class="d-none" onchange="processImage(this)">
+                                
+                                <label for="receiptPhoto" class="camera-btn" id="cameraBtn">
+                                    <i data-lucide="scan-line" size="40"></i>
+                                    <span>اضغط هنا لفتح الكاميرا والتقاط الوصل</span>
+                                </label>
+
+                                <div id="photoPreviewContainer" class="hidden-section text-center">
+                                    <img id="photoPreview" class="preview-img" src="" alt="معاينة الوصل">
+                                    <button type="button" class="btn btn-sm btn-outline-danger mt-2 fw-bold" onclick="removePhoto()">إلغاء الصورة</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-action" style="background: var(--accent);">
+                            إرسال للكباتن <i data-lucide="zap"></i>
                         </button>
                     </form>
 
@@ -188,21 +231,11 @@
                         <div class="success-toast">
                             <i data-lucide="check-circle" size="30"></i>
                             <div>
-                                <div class="fw-black">تم قبول الطلب فوراً!</div>
-                                <div class="small" id="statusMsg">جاري توجيه الكابتن...</div>
+                                <div class="fw-black">تم إرسال الإشارة!</div>
+                                <div class="small" id="statusMsg">جاري توجيه كابتن...</div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="recent-orders-title">
-                    <i data-lucide="alert-circle" class="text-warning"></i> تنبيهات هامة
-                </div>
-                <div class="p-4 bg-white rounded-4 border">
-                    <p class="small text-muted mb-0">
-                        * يرجى تجهيز الطلب قبل طلب الكابتن لضمان استلامه فور وصوله. <br>
-                        * سعر التوصيل يتم احتسابه آلياً بناءً على المسافة والمنطقة.
-                    </p>
                 </div>
             </div>
         </div>
@@ -212,24 +245,116 @@
 <script>
     lucide.createIcons();
 
-    // الإعدادات السيادية الموحدة
     const API_URL = "https://script.google.com/macros/s/AKfycbznHSOuvIqqhFU5g1PiI7T-PU7gAXpzmV9NAHqb-dkg9HUCA2Nb-mVgLJYznf6CCNhAww/exec";
     const API_TOKEN = "HUT_SECURE_99";
     let currentResName = "";
+    let isRegistering = false;
+    let currentOrderMode = 'manual';
+    let base64Receipt = null;
 
-    function showLoading(s) { 
+    function showLoading(s, text = "جاري المعالجة...") { 
+        document.getElementById('loadingText').innerText = text;
         document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none';
     }
 
-    // التحقق من المطعم
-    function checkRestaurantStatus() {
-        const phone = document.getElementById('checkPhone').value.trim();
-        if(!phone) return alert("يرجى إدخال رقم هاتف المطعم");
+    // تبديل بين الإدخال اليدوي وتصوير الوصل
+    function switchTab(mode) {
+        currentOrderMode = mode;
+        document.getElementById('tabManual').classList.remove('active');
+        document.getElementById('tabPhoto').classList.remove('active');
+        
+        if (mode === 'manual') {
+            document.getElementById('tabManual').classList.add('active');
+            document.getElementById('manualSection').classList.remove('hidden-section');
+            document.getElementById('photoSection').classList.add('hidden-section');
+            document.getElementById('customerPhone').required = true;
+        } else {
+            document.getElementById('tabPhoto').classList.add('active');
+            document.getElementById('photoSection').classList.remove('hidden-section');
+            document.getElementById('manualSection').classList.add('hidden-section');
+            document.getElementById('customerPhone').required = false;
+        }
+    }
 
-        showLoading(true);
+    // ضغط وقراءة الصورة الملتقطة عبر تقنية Canvas
+    function processImage(input) {
+        if (input.files && input.files[0]) {
+            showLoading(true, "جاري تحسين الصورة...");
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600; // ضغط الصورة ليكون عرضها الأقصى 600 بكسل
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // تحويل الصورة لـ Base64 بجودة 70% لتقليل الحجم
+                    base64Receipt = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    document.getElementById('photoPreview').src = base64Receipt;
+                    document.getElementById('cameraBtn').classList.add('hidden-section');
+                    document.getElementById('photoPreviewContainer').classList.remove('hidden-section');
+                    showLoading(false);
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function removePhoto() {
+        base64Receipt = null;
+        document.getElementById('receiptPhoto').value = "";
+        document.getElementById('cameraBtn').classList.remove('hidden-section');
+        document.getElementById('photoPreviewContainer').classList.add('hidden-section');
+    }
+
+    // دالة فحص وتأكيد التسجيل
+    function authAction() {
+        const phone = document.getElementById('checkPhone').value.trim();
+        if(!phone) return alert("يرجى إدخال رقم الهاتف");
+
+        if (isRegistering) {
+            const name = document.getElementById('regName').value.trim();
+            const area = document.getElementById('regArea').value.trim();
+            const mapLink = document.getElementById('regMap').value.trim();
+            const comm = document.getElementById('regComm').value.trim();
+            const pay = document.getElementById('regPay').value;
+
+            if(!name || !area || !mapLink || !comm) return alert("يرجى ملئ جميع التفاصيل.");
+
+            showLoading(true, "جاري إرسال طلب الشراكة...");
+            const fullArea = `${area} | ${mapLink}`;
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => sendRegistration(name, phone, fullArea, comm, pay, pos.coords.latitude, pos.coords.longitude),
+                    err => sendRegistration(name, phone, fullArea, comm, pay, 0, 0),
+                    { timeout: 5000 }
+                );
+            } else { sendRegistration(name, phone, fullArea, comm, pay, 0, 0); }
+            return;
+        }
+
+        showLoading(true, "جاري فحص حالة المطعم...");
         const script = document.createElement('script');
         script.src = `${API_URL}?action=checkRes&phone=${phone}&callback=handleLogin&ts=${Date.now()}`;
         document.body.appendChild(script);
+    }
+
+    function sendRegistration(name, phone, area, comm, pay, lat, lng) {
+        const payload = { action: 'RESTAURANT_REG', token: API_TOKEN, name: name, phone: phone, area: area, comm: comm, pay: pay, lat: lat, lng: lng };
+        fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+        .then(() => {
+            showLoading(false);
+            document.getElementById('authBox').classList.add('hidden-section');
+            document.getElementById('waitingBox').classList.remove('hidden-section');
+        }).catch(() => { showLoading(false); alert("حدث خطأ أثناء الإرسال."); });
     }
 
     window.handleLogin = function(data) {
@@ -239,19 +364,41 @@
             document.getElementById('loginSection').classList.add('hidden-section');
             document.getElementById('orderSection').classList.remove('hidden-section');
             document.getElementById('resTitle').innerText = data.name;
-            document.getElementById('resPhoneDisplay').innerText = "رقم المتصل: " + document.getElementById('checkPhone').value;
+            document.getElementById('resPhoneDisplay').innerText = "شريك معتمد";
             lucide.createIcons();
-        } else if(data.status === "pending") {
-            alert("⏳ حسابكم قيد المراجعة من قبل إدارة الحوت.");
+        } else if(data.status === "pending" || data.status === "waiting") {
+            document.getElementById('authBox').classList.add('hidden-section');
+            document.getElementById('waitingBox').classList.remove('hidden-section');
         } else {
-            alert("⚠️ هذا الرقم غير مسجل لدينا كشريك.");
+            isRegistering = true;
+            document.getElementById('registerFields').classList.remove('hidden-section');
+            document.getElementById('checkPhone').disabled = true;
+            const btn = document.getElementById('mainAuthBtn');
+            btn.innerHTML = `إرسال طلب الانضمام <i data-lucide="send"></i>`;
+            btn.style.background = 'var(--accent)';
+            lucide.createIcons();
         }
     };
 
-    // إرسال طلب جديد
+    // الإرسال الذكي للطلب
     document.getElementById('orderForm').onsubmit = function(e) {
         e.preventDefault();
-        showLoading(true);
+
+        let finalDetails = "";
+        let imagePayload = "";
+
+        if (currentOrderMode === 'manual') {
+            const custPhone = document.getElementById('customerPhone').value.trim();
+            const extra = document.getElementById('customerDetails').value.trim();
+            if (!custPhone) return alert("يرجى كتابة رقم الزبون.");
+            finalDetails = `الهاتف: ${custPhone} | ${extra}`;
+        } else {
+            if (!base64Receipt) return alert("يرجى التقاط صورة للوصل أولاً.");
+            finalDetails = "طلب مصور (يحتوي الوصل على تفاصيل الزبون)";
+            imagePayload = base64Receipt;
+        }
+
+        showLoading(true, "جاري إرسال الإشارة للرادار...");
         
         const payload = {
             action: 'NEW_ORDER',
@@ -259,34 +406,30 @@
             restaurantName: currentResName,
             area: document.getElementById('customerArea').value,
             price: document.getElementById('orderPrice').value,
-            details: document.getElementById('customerDetails').value
+            details: finalDetails,
+            image: imagePayload // سيتم إرسال الصورة في الـ Payload (جاهزة لكي يستقبلها السيرفر إذا برمجتها مستقبلاً)
         };
 
-        fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        })
+        fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) })
         .then(r => r.json())
         .then(res => {
             showLoading(false);
             if(res.success) {
                 document.getElementById('orderStatusBox').classList.remove('hidden-section');
                 document.getElementById('statusMsg').innerHTML = `تم توجيه الكابتن: <b>${res.driverName}</b><br>رقم الطلب: ${res.orderId}`;
+                
+                // تصفير الحقول بعد الإرسال الناجح
+                document.getElementById('customerPhone').value = "";
                 document.getElementById('customerDetails').value = "";
                 document.getElementById('orderPrice').value = "";
+                removePhoto();
                 
-                // إخفاء التنبيه بعد 20 ثانية
-                setTimeout(() => {
-                    document.getElementById('orderStatusBox').classList.add('hidden-section');
-                }, 20000);
+                setTimeout(() => { document.getElementById('orderStatusBox').classList.add('hidden-section'); }, 20000);
             } else {
                 alert(res.msg || "عذراً، لا يوجد كباتن متاحين حالياً.");
             }
         })
-        .catch(err => {
-            showLoading(false);
-            alert("حدث خطأ في الاتصال بالسيرفر، يرجى المحاولة لاحقاً.");
-        });
+        .catch(err => { showLoading(false); alert("تأكد من قوة شبكة الإنترنت لديك."); });
     };
 </script>
 </body>
