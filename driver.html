@@ -42,26 +42,25 @@
         .btn-login { background: var(--primary-blue); color: white; }
         .btn-accept { background: var(--success-green); color: white; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); font-size: 1.4rem; padding: 25px; border-radius: 25px;}
         
-        /* أزرار الحالات المتتابعة */
         .btn-arrived { background: #f59e0b; color: white; margin-top: 20px; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3); }
         .btn-picked { background: #8b5cf6; color: white; margin-top: 20px; box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3); }
         .btn-finish { background: var(--success-green); color: white; margin-top: 20px; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
 
-        /* شاشة التحكم (Dashboard) */
+        /* زر الدعم الطارئ */
+        .btn-whatsapp { background: #ecfdf5; color: #10b981; border: 1px solid #a7f3d0; border-radius: 12px; padding: 8px 14px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+        .btn-whatsapp:active { transform: scale(0.95); }
+
         .dash-header { background: var(--primary-blue); color: white; padding: 30px 20px 60px 20px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; box-shadow: 0 10px 30px rgba(30, 58, 138, 0.2); }
         .status-badge { background: rgba(16, 185, 129, 0.15); color: #34d399; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(16, 185, 129, 0.3); }
 
-        /* لوحة الإحصائيات (Stats Widget) */
         .stats-wrapper { margin-top: -35px; position: relative; z-index: 10; }
         .stat-box { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; border: 1px solid #e2e8f0; }
 
-        /* الرادار */
         .radar-container { background: var(--card-bg); border-radius: 35px; padding: 40px 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; text-align: center; margin: 20px 15px 0 15px; }
         .radar-center { width: 160px; height: 160px; margin: 0 auto 30px auto; position: relative; display: flex; align-items: center; justify-content: center; }
         .radar-wave { position: absolute; width: 100%; height: 100%; border: 3px solid var(--accent-blue); border-radius: 50%; animation: radarWave 2.5s cubic-bezier(0.25, 1, 0.5, 1) infinite; opacity: 0; }
         @keyframes radarWave { 0% { transform: scale(0.3); opacity: 1; border-width: 3px; } 100% { transform: scale(1.6); opacity: 0; border-width: 1px; } }
 
-        /* كرت الطلب النشط */
         .active-order-card { background: var(--card-bg); border-radius: 30px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; border-top: 8px solid var(--primary-blue); margin: 20px 15px 0 15px; }
         .info-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 15px 20px; border-radius: 16px; margin-bottom: 12px; border: 1px solid #f1f5f9; }
         .info-label { color: var(--text-muted); font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
@@ -70,7 +69,6 @@
         .btn-call-mini { background: white; border: 1px solid #e2e8f0; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: var(--primary-blue); flex-shrink: 0; }
         .btn-call-mini:active { transform: scale(0.9); }
 
-        /* شاشة التنبيه */
         #orderAlertOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px); z-index: 10000; color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 50px 20px; text-align: center; }
         .alert-pulse { width: 80px; height: 80px; background: var(--accent-orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); animation: pulseOrange 2s infinite; }
         @keyframes pulseOrange { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(249, 115, 22, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
@@ -161,12 +159,17 @@
 
         <div id="activeOrderBox" class="hidden">
             <div class="active-order-card">
-                <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-warning bg-opacity-10 p-2 rounded-3"><i data-lucide="package-check" class="text-warning" size="24"></i></div>
-                        <h4 class="fw-black m-0" style="color: var(--primary-blue);" id="orderStateTitle">الطلب الحالي</h4>
+                <div class="d-flex justify-content-between align-items-start mb-4 pb-3 border-bottom">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <div class="bg-warning bg-opacity-10 p-1 rounded-2"><i data-lucide="package-check" class="text-warning" size="20"></i></div>
+                            <h5 class="fw-black m-0" style="color: var(--primary-blue);" id="orderStateTitle">الطلب الحالي</h5>
+                        </div>
+                        <span class="badge bg-primary px-3 py-1 rounded-pill" id="activeOrderId">#---</span>
                     </div>
-                    <span class="badge bg-primary px-3 py-2 rounded-pill fs-6" id="activeOrderId">#---</span>
+                    <button class="btn-whatsapp shadow-sm" onclick="window.open('https://wa.me/9647828942660', '_blank')">
+                        <i data-lucide="headset" size="18"></i> الدعم
+                    </button>
                 </div>
                 
                 <div class="info-row">
@@ -180,13 +183,16 @@
 
                 <div class="info-row flex-column align-items-stretch gap-2">
                     <div class="d-flex justify-content-between align-items-center w-100">
-                        <div class="info-label"><i data-lucide="user" size="18"></i> تفاصيل الزبون</div>
+                        <div class="info-label"><i data-lucide="user" size="18"></i> المنطقة و تفاصيل الزبون</div>
                         <button class="btn-call-mini" id="btnCallCust" style="display: none; background: #ecfdf5; color: #10b981; border-color: #10b981;"><i data-lucide="phone" size="16"></i></button>
                     </div>
-                    <div class="info-value text-end fw-bold" style="font-size: 0.9rem;" id="activeDetails">---</div>
+                    <div class="info-value text-end fw-bold" style="font-size: 0.9rem;">
+                        <span id="activeArea" class="text-success d-block mb-1">---</span>
+                        <span id="activeDetails" class="text-muted">---</span>
+                    </div>
                 </div>
 
-                <div class="info-row">
+                <div class="info-row mt-3">
                     <div class="info-label"><i data-lucide="banknote" size="18"></i> السعر المطلوب أخذه</div>
                     <div class="info-value text-success fs-4" id="activePrice">--- <small class="fs-6 text-muted">د.ع</small></div>
                 </div>
@@ -223,8 +229,8 @@
             <h3 class="fw-black m-0 text-warning" id="alertResName">---</h3>
         </div>
         <div class="d-flex justify-content-between align-items-center">
-            <small class="text-white-50 fw-bold">تفاصيل مبدئية</small>
-            <h5 class="fw-bold m-0 text-truncate" style="max-width: 60%;" id="alertArea">---</h5>
+            <small class="text-white-50 fw-bold">منطقة التوصيل</small>
+            <h4 class="fw-bold m-0 text-success text-truncate" style="max-width: 60%;" id="alertArea">---</h4>
         </div>
     </div>
 
@@ -337,7 +343,7 @@
     function startSystem() {
         setInterval(checkForOrders, 10000);
         updateStats(); 
-        setInterval(updateStats, 30000); 
+        setInterval(updateStats, 20000); // تحديث أسرع كل 20 ثانية لتفعيل المزامنة الذاتية
         
         if(navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
@@ -353,9 +359,37 @@
         document.body.appendChild(script);
     }
 
+    // دالة الإنقاذ والتحديث التلقائي (Auto-Sync Recovery)
+    function forceRemoveActiveOrder(msg) {
+        alert("⚠️ تنبيه النظام: " + msg);
+        localStorage.removeItem('hut_active_order');
+        activeOrder = null;
+        document.getElementById('activeOrderBox').classList.add('hidden');
+        document.getElementById('searchingStatus').classList.remove('hidden');
+    }
+
     window.renderDriverData = function(data) {
         if(!data || !data.orders) return;
         
+        // 1. مزامنة حالة الطلب النشط للإنقاذ من الأخطاء
+        if (activeOrder) {
+            const myActiveOrderInServer = data.orders.find(o => String(o[0]) === String(activeOrder.id));
+            if (!myActiveOrderInServer) {
+                forceRemoveActiveOrder("تم حذف هذا الطلب من قبل الإدارة.");
+            } else {
+                const status = myActiveOrderInServer[5];
+                const assignedDriver = String(myActiveOrderInServer[6]);
+                
+                // إذا الإدارة سحبت الطلب أو ألغته
+                if (status === 'deleted' || status === 'completed' || status === 'settled') {
+                    forceRemoveActiveOrder("تم إنهاء أو إلغاء هذا الطلب من قبل الإدارة.");
+                } else if (assignedDriver !== String(driverData.phone) && assignedDriver !== "pending_driver") {
+                    forceRemoveActiveOrder("تم سحب هذا الطلب وتعيينه لكابتن آخر.");
+                }
+            }
+        }
+
+        // 2. حساب الإحصائيات
         let myCompletedCount = 0;
         let myDebt = 0;
         const myPhone = String(driverData.phone);
@@ -377,6 +411,7 @@
         document.getElementById('statOrdersCount').innerText = myCompletedCount;
         document.getElementById('statDebt').innerHTML = `${myDebt} <small class="fs-6 text-muted">د.ع</small>`;
 
+        // 3. تحديث أزرار المطعم
         if(activeOrder && data.restaurants) {
             const resInfo = data.restaurants.find(r => r[1] === activeOrder.resName);
             if(resInfo) {
@@ -413,7 +448,8 @@
         if(data && data.id) {
             currentOrderData = data; 
             document.getElementById('alertResName').innerText = data.resName || 'غير متوفر';
-            document.getElementById('alertArea').innerText = data.details ? data.details.substring(0, 30) + '...' : '---';
+            // عرض المنطقة بوضوح
+            document.getElementById('alertArea').innerText = data.area || 'منطقة غير محددة';
 
             document.getElementById('orderAlertOverlay').classList.remove('hidden');
             
@@ -449,30 +485,30 @@
             details: currentOrderData.details || 'لا توجد تفاصيل',
             price: currentOrderData.price || '---', 
             area: currentOrderData.area || '---',
-            state: 'heading' // المرحلة 1: متوجه للمطعم
+            state: 'heading' 
         };
         localStorage.setItem('hut_active_order', JSON.stringify(activeOrder));
         
         displayActiveOrder();
-        updateStatusOnServer('accepted'); // يرسل للإدارة أن الكابتن متوجه
+        updateStatusOnServer('accepted'); 
         closeAlert();
         updateStats(); 
     }
 
     // الوصول للمطعم
     function arriveAtRestaurant() {
-        activeOrder.state = 'arrived'; // المرحلة 2: في المطعم
+        activeOrder.state = 'arrived';
         localStorage.setItem('hut_active_order', JSON.stringify(activeOrder));
         displayActiveOrder();
-        updateStatusOnServer('arrived_at_res'); // يرسل إشعار وصول للمطعم
+        updateStatusOnServer('arrived_at_res'); 
     }
 
     // استلام الطلب والتوجه للزبون
     function pickUpOrder() {
-        activeOrder.state = 'picked_up'; // المرحلة 3: استلم الطلب
+        activeOrder.state = 'picked_up'; 
         localStorage.setItem('hut_active_order', JSON.stringify(activeOrder));
         displayActiveOrder();
-        updateStatusOnServer('picked_up'); // يرسل إشعار أنه في الطريق للزبون
+        updateStatusOnServer('picked_up'); 
     }
 
     // تسليم الطلب
@@ -493,17 +529,17 @@
         clearInterval(countdownInterval);
     }
 
-    // عرض الأزرار المناسبة حسب حالة الطلب
     function displayActiveOrder() {
         document.getElementById('searchingStatus').classList.add('hidden');
         document.getElementById('activeOrderBox').classList.remove('hidden');
         
         document.getElementById('activeOrderId').innerText = "#" + activeOrder.id;
         document.getElementById('activeResName').innerText = activeOrder.resName;
+        
+        document.getElementById('activeArea').innerText = activeOrder.area || 'غير محدد';
         document.getElementById('activeDetails').innerText = activeOrder.details;
         document.getElementById('activePrice').innerHTML = `${activeOrder.price || '---'} <small class="fs-6 text-muted">د.ع</small>`;
 
-        // إظهار وإخفاء الأزرار حسب المرحلة
         const btnArrived = document.getElementById('btnArrived');
         const btnPickedUp = document.getElementById('btnPickedUp');
         const btnFinish = document.getElementById('btnFinish');
