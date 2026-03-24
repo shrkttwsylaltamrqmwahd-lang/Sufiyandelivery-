@@ -41,8 +41,11 @@
         .btn-big:active { transform: scale(0.96); }
         .btn-login { background: var(--primary-blue); color: white; }
         .btn-accept { background: var(--success-green); color: white; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); font-size: 1.4rem; padding: 25px; border-radius: 25px;}
+        
+        /* أزرار الحالات المتتابعة */
         .btn-arrived { background: #f59e0b; color: white; margin-top: 20px; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3); }
-        .btn-finish { background: var(--primary-blue); color: white; margin-top: 20px; }
+        .btn-picked { background: #8b5cf6; color: white; margin-top: 20px; box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3); }
+        .btn-finish { background: var(--success-green); color: white; margin-top: 20px; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
 
         /* شاشة التحكم (Dashboard) */
         .dash-header { background: var(--primary-blue); color: white; padding: 30px 20px 60px 20px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; box-shadow: 0 10px 30px rgba(30, 58, 138, 0.2); }
@@ -161,7 +164,7 @@
                 <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
                     <div class="d-flex align-items-center gap-3">
                         <div class="bg-warning bg-opacity-10 p-2 rounded-3"><i data-lucide="package-check" class="text-warning" size="24"></i></div>
-                        <h4 class="fw-black m-0" style="color: var(--primary-blue);">الطلب الحالي</h4>
+                        <h4 class="fw-black m-0" style="color: var(--primary-blue);" id="orderStateTitle">الطلب الحالي</h4>
                     </div>
                     <span class="badge bg-primary px-3 py-2 rounded-pill fs-6" id="activeOrderId">#---</span>
                 </div>
@@ -184,12 +187,15 @@
                 </div>
 
                 <div class="info-row">
-                    <div class="info-label"><i data-lucide="banknote" size="18"></i> السعر</div>
+                    <div class="info-label"><i data-lucide="banknote" size="18"></i> السعر المطلوب أخذه</div>
                     <div class="info-value text-success fs-4" id="activePrice">--- <small class="fs-6 text-muted">د.ع</small></div>
                 </div>
 
                 <button class="btn-big btn-arrived" id="btnArrived" onclick="arriveAtRestaurant()">
                     أنا في المطعم <i data-lucide="map-pin" size="24"></i>
+                </button>
+                <button class="btn-big btn-picked hidden" id="btnPickedUp" onclick="pickUpOrder()">
+                    استلمت الطلب <i data-lucide="shopping-bag" size="24"></i>
                 </button>
                 <button class="btn-big btn-finish hidden" id="btnFinish" onclick="finishOrder()">
                     تأكيد تسليم الطلب <i data-lucide="check-circle-2" size="24"></i>
@@ -330,8 +336,8 @@
 
     function startSystem() {
         setInterval(checkForOrders, 10000);
-        updateStats(); // جلب الإحصائيات عند الدخول
-        setInterval(updateStats, 30000); // تحديث الإحصائيات كل 30 ثانية
+        updateStats(); 
+        setInterval(updateStats, 30000); 
         
         if(navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
@@ -341,7 +347,6 @@
         }
     }
 
-    // جلب وحساب الإحصائيات وبيانات المطعم
     function updateStats() {
         const script = document.createElement('script');
         script.src = `${API_URL}?action=getGlobalData&callback=renderDriverData&ts=${Date.now()}`;
@@ -355,14 +360,13 @@
         let myDebt = 0;
         const myPhone = String(driverData.phone);
         
-        // 1. حساب الإحصائيات (الطلبات والديون)
         data.orders.slice(1).forEach(o => {
             if(String(o[6]) === myPhone && (o[5] === 'completed' || o[5] === 'مكتمل')) {
                 myCompletedCount++;
                 const rest = data.restaurants.find(r => r[1] === o[1]);
                 if(rest) {
-                    const comm = parseFloat(rest[5]) || 0; // عمولة الخدمة من المطعم
-                    const paySystem = String(rest[8]); // نظام الدفع
+                    const comm = parseFloat(rest[5]) || 0; 
+                    const paySystem = String(rest[8]); 
                     if(paySystem.includes("مناصفة")) {
                         myDebt += (comm / 2);
                     }
@@ -373,7 +377,6 @@
         document.getElementById('statOrdersCount').innerText = myCompletedCount;
         document.getElementById('statDebt').innerHTML = `${myDebt} <small class="fs-6 text-muted">د.ع</small>`;
 
-        // 2. تحديث أزرار المطعم إذا كان هناك طلب نشط
         if(activeOrder && data.restaurants) {
             const resInfo = data.restaurants.find(r => r[1] === activeOrder.resName);
             if(resInfo) {
@@ -438,6 +441,7 @@
         }, 1000);
     }
 
+    // قبول الطلب
     function acceptOrder() {
         activeOrder = {
             id: currentOrderData.id,
@@ -445,21 +449,42 @@
             details: currentOrderData.details || 'لا توجد تفاصيل',
             price: currentOrderData.price || '---', 
             area: currentOrderData.area || '---',
-            state: 'heading' // السائق متوجه للمطعم
+            state: 'heading' // المرحلة 1: متوجه للمطعم
         };
         localStorage.setItem('hut_active_order', JSON.stringify(activeOrder));
         
         displayActiveOrder();
-        updateStatusOnServer('accepted'); // يظهر في لوحة التحكم أن السائق متوجه
+        updateStatusOnServer('accepted'); // يرسل للإدارة أن الكابتن متوجه
         closeAlert();
-        updateStats(); // جلب الإحداثيات مباشرة للمطعم
+        updateStats(); 
     }
 
+    // الوصول للمطعم
     function arriveAtRestaurant() {
-        activeOrder.state = 'arrived';
+        activeOrder.state = 'arrived'; // المرحلة 2: في المطعم
         localStorage.setItem('hut_active_order', JSON.stringify(activeOrder));
         displayActiveOrder();
-        updateStatusOnServer('picked_up'); // يظهر في لوحة التحكم أن الطلب تم استلامه وفي الطريق للزبون
+        updateStatusOnServer('arrived_at_res'); // يرسل إشعار وصول للمطعم
+    }
+
+    // استلام الطلب والتوجه للزبون
+    function pickUpOrder() {
+        activeOrder.state = 'picked_up'; // المرحلة 3: استلم الطلب
+        localStorage.setItem('hut_active_order', JSON.stringify(activeOrder));
+        displayActiveOrder();
+        updateStatusOnServer('picked_up'); // يرسل إشعار أنه في الطريق للزبون
+    }
+
+    // تسليم الطلب
+    function finishOrder() {
+        if(confirm("تأكيد إتمام التوصيل للزبون واستلام المبلغ؟")) {
+            updateStatusOnServer('completed');
+            localStorage.removeItem('hut_active_order');
+            activeOrder = null;
+            document.getElementById('activeOrderBox').classList.add('hidden');
+            document.getElementById('searchingStatus').classList.remove('hidden');
+            updateStats(); 
+        }
     }
 
     function closeAlert() {
@@ -468,6 +493,7 @@
         clearInterval(countdownInterval);
     }
 
+    // عرض الأزرار المناسبة حسب حالة الطلب
     function displayActiveOrder() {
         document.getElementById('searchingStatus').classList.add('hidden');
         document.getElementById('activeOrderBox').classList.remove('hidden');
@@ -477,16 +503,29 @@
         document.getElementById('activeDetails').innerText = activeOrder.details;
         document.getElementById('activePrice').innerHTML = `${activeOrder.price || '---'} <small class="fs-6 text-muted">د.ع</small>`;
 
-        // التحكم في أزرار (الوصول للمطعم / إنهاء الطلب) بناءً على حالة الطلب
-        if (activeOrder.state === 'arrived') {
-            document.getElementById('btnArrived').classList.add('hidden');
-            document.getElementById('btnFinish').classList.remove('hidden');
-        } else {
-            document.getElementById('btnArrived').classList.remove('hidden');
-            document.getElementById('btnFinish').classList.add('hidden');
+        // إظهار وإخفاء الأزرار حسب المرحلة
+        const btnArrived = document.getElementById('btnArrived');
+        const btnPickedUp = document.getElementById('btnPickedUp');
+        const btnFinish = document.getElementById('btnFinish');
+        const stateTitle = document.getElementById('orderStateTitle');
+
+        if (activeOrder.state === 'heading') {
+            btnArrived.classList.remove('hidden');
+            btnPickedUp.classList.add('hidden');
+            btnFinish.classList.add('hidden');
+            stateTitle.innerText = "متوجه إلى المطعم";
+        } else if (activeOrder.state === 'arrived') {
+            btnArrived.classList.add('hidden');
+            btnPickedUp.classList.remove('hidden');
+            btnFinish.classList.add('hidden');
+            stateTitle.innerText = "أنت في المطعم";
+        } else if (activeOrder.state === 'picked_up') {
+            btnArrived.classList.add('hidden');
+            btnPickedUp.classList.add('hidden');
+            btnFinish.classList.remove('hidden');
+            stateTitle.innerText = "في الطريق للزبون";
         }
 
-        // استخراج رقم الزبون
         let custPhoneMatch = activeOrder.details ? activeOrder.details.match(/(07[0-9]{8,9})/) : null;
         let custPhone = custPhoneMatch ? custPhoneMatch[0] : null;
 
@@ -496,17 +535,6 @@
             btnCust.onclick = () => window.open(`tel:${custPhone}`);
         } else {
             btnCust.style.display = 'none';
-        }
-    }
-
-    function finishOrder() {
-        if(confirm("تأكيد إتمام التوصيل؟ لا يمكن التراجع.")) {
-            updateStatusOnServer('completed');
-            localStorage.removeItem('hut_active_order');
-            activeOrder = null;
-            document.getElementById('activeOrderBox').classList.add('hidden');
-            document.getElementById('searchingStatus').classList.remove('hidden');
-            updateStats(); // تحديث الإحصائيات مباشرة بعد التسليم
         }
     }
 
