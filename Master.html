@@ -7,130 +7,39 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <style>
-        :root {
-            --sidebar-width: 280px;
-            --primary-blue: #1e3a8a; /* أزرق مؤسسي عميق */
-            --accent-blue: #3b82f6; /* أزرق ساطع للأكشن */
-            --bg-light: #f8fafc; /* أبيض مائل للرمادي الفاتح جداً للخلفية */
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-        }
-
+        :root { --sidebar-width: 280px; --primary-blue: #1e3a8a; --accent-blue: #3b82f6; --bg-light: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; }
         body { background-color: var(--bg-light); font-family: 'Cairo', sans-serif; margin: 0; overflow-x: hidden; color: var(--text-main); }
-
-        /* شاشة القفل المحسنة - ثيم عالمي */
-        #authOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%); 
-            z-index: 10000; display: flex; align-items: center; justify-content: center;
-        }
-        .auth-card {
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-            border-radius: 30px; padding: 50px 40px; width: 90%; max-width: 420px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3); text-align: center;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        /* القائمة الجانبية */
-        .sidebar {
-            width: var(--sidebar-width); background: var(--primary-blue);
-            height: 100vh; position: fixed; right: 0; top: 0; color: white; 
-            padding: 30px 20px; z-index: 1005; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: -5px 0 25px rgba(0,0,0,0.05);
-        }
-        
+        #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 30px; padding: 50px 40px; width: 90%; max-width: 420px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); text-align: center; border: 1px solid rgba(255,255,255,0.2); }
+        .sidebar { width: var(--sidebar-width); background: var(--primary-blue); height: 100vh; position: fixed; right: 0; top: 0; color: white; padding: 30px 20px; z-index: 1005; transition: transform 0.3s ease; box-shadow: -5px 0 25px rgba(0,0,0,0.05); }
         .main-content { margin-right: var(--sidebar-width); padding: 40px; min-height: 100vh; transition: margin 0.3s ease; }
-
-        .nav-item {
-            display: flex; align-items: center; gap: 15px; padding: 16px 20px; color: #cbd5e1;
-            text-decoration: none; border-radius: 16px; margin-bottom: 8px; cursor: pointer; transition: all 0.3s ease;
-            font-weight: 600;
-        }
+        .nav-item { display: flex; align-items: center; gap: 15px; padding: 16px 20px; color: #cbd5e1; text-decoration: none; border-radius: 16px; margin-bottom: 8px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; }
         .nav-item:hover { background: rgba(255,255,255,0.05); color: white; transform: translateX(-5px); }
-        .nav-item.active { 
-            background: white; color: var(--primary-blue); 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1); font-weight: 900;
-        }
-
-        .stat-widget {
-            background: var(--card-bg); border-radius: 24px; padding: 30px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #e2e8f0;
-            height: 100%; transition: 0.3s;
-        }
+        .nav-item.active { background: white; color: var(--primary-blue); box-shadow: 0 10px 20px rgba(0,0,0,0.1); font-weight: 900; }
+        .stat-widget { background: var(--card-bg); border-radius: 24px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; height: 100%; transition: 0.3s; }
         .stat-widget:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.06); }
-
         #adminMap { height: 450px; width: 100%; border-radius: 24px; border: 8px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.06); background: #e2e8f0; }
-
-        /* أزرار الإجراءات */
-        .sov-btn {
-            border: none; border-radius: 14px; width: 45px; height: 45px; 
-            display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer;
-        }
+        .sov-btn { border: none; border-radius: 14px; width: 45px; height: 45px; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; }
         .sov-accept { background: #eff6ff; color: var(--accent-blue); }
         .sov-pause { background: #fffbeb; color: #d97706; }
         .sov-delete { background: #fef2f2; color: #ef4444; }
         .sov-call { background: var(--primary-blue); color: white; }
         .sov-btn:hover { filter: brightness(0.95); transform: scale(1.05); }
-
-        /* كروت الطلبات */
-        .smart-order-card {
-            background: var(--card-bg); border-radius: 20px; padding: 25px; margin-bottom: 20px;
-            border: 1px solid #e2e8f0; border-right: 6px solid #94a3b8;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02); position: relative;
-            transition: 0.3s;
-        }
+        .smart-order-card { background: var(--card-bg); border-radius: 20px; padding: 25px; margin-bottom: 20px; border: 1px solid #e2e8f0; border-right: 6px solid #94a3b8; box-shadow: 0 4px 15px rgba(0,0,0,0.02); position: relative; transition: 0.3s; }
         .smart-order-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        .status-danger { border-right-color: #ef4444; }
-        .status-warning { border-right-color: #f59e0b; }
-        .status-success { border-right-color: #10b981; }
-        
-        .delay-badge {
-            position: absolute; top: -12px; left: 20px; background: #ef4444; color: white;
-            padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 900;
-            animation: pulse 2s infinite; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
-        }
+        .status-danger { border-right-color: #ef4444; } .status-warning { border-right-color: #f59e0b; } .status-success { border-right-color: #10b981; }
+        .delay-badge { position: absolute; top: -12px; left: 20px; background: #ef4444; color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 900; animation: pulse 2s infinite; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-        .info-row {
-            display: flex; justify-content: space-between; align-items: center; 
-            background: #f8fafc; padding: 12px 18px; border-radius: 14px; margin-bottom: 10px;
-            border: 1px solid #f1f5f9; transition: 0.2s; font-weight: 600;
-        }
-
-        /* زر الاتصال السريع الدائري */
-        .btn-call-mini {
-            background: white; border: 1px solid #e2e8f0; border-radius: 50%; width: 34px; height: 34px;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+        .info-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px 18px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #f1f5f9; transition: 0.2s; font-weight: 600; }
+        .btn-call-mini { background: white; border: 1px solid #e2e8f0; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .btn-call-mini:hover { transform: scale(1.1); }
         .btn-call-mini.call-primary:hover { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
         .btn-call-mini.call-warning:hover { background: #f59e0b; color: white; border-color: #f59e0b; }
         .btn-call-mini.call-success:hover { background: #10b981; color: white; border-color: #10b981; }
-
-        /* زر القائمة للموبايل (Hamburger) */
-        .menu-toggle-btn {
-            display: none; background: white; border: 1px solid #e2e8f0; 
-            border-radius: 14px; padding: 12px; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: var(--primary-blue);
-        }
-
-        .sidebar-overlay {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1002;
-            display: none; backdrop-filter: blur(4px);
-        }
-
-        /* استجابة الشاشات */
-        @media (max-width: 1100px) {
-            .sidebar { transform: translateX(100%); }
-            .main-content { margin-right: 0; padding: 20px; }
-            .sidebar.show { transform: translateX(0); box-shadow: -10px 0 50px rgba(0,0,0,0.5); }
-            .menu-toggle-btn { display: flex; align-items: center; justify-content: center; }
-            .sidebar-overlay.show { display: block; }
-            #adminMap { height: 300px; }
-        }
+        .menu-toggle-btn { display: none; background: white; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: var(--primary-blue); }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1002; display: none; backdrop-filter: blur(4px); }
+        @media (max-width: 1100px) { .sidebar { transform: translateX(100%); } .main-content { margin-right: 0; padding: 20px; } .sidebar.show { transform: translateX(0); box-shadow: -10px 0 50px rgba(0,0,0,0.5); } .menu-toggle-btn { display: flex; align-items: center; justify-content: center; } .sidebar-overlay.show { display: block; } #adminMap { height: 350px; } }
     </style>
 </head>
 <body>
@@ -142,7 +51,6 @@
         </div>
         <h3 class="fw-black text-dark mb-1">مكتب سفيان</h3>
         <p class="text-muted small fw-bold mb-4">بالتعاون مع نظام الحوت</p>
-        
         <input type="password" id="masterPass" class="form-control form-control-lg text-center mb-4 shadow-none bg-light border-0 py-3 rounded-4" placeholder="رمز المرور الآمن" onkeypress="if(event.key === 'Enter') checkAuth()">
         <button class="btn w-100 py-3 fw-bold rounded-4 text-white" style="background: var(--primary-blue);" onclick="checkAuth()">تسجيل الدخول</button>
     </div>
@@ -150,7 +58,6 @@
 
 <div class="d-none" id="mainDashboard">
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
     <aside class="sidebar" id="sidebar">
         <div class="d-flex align-items-start justify-content-between mb-5">
             <div class="d-flex flex-column">
@@ -160,11 +67,8 @@
                 </div>
                 <small class="text-white-50 fw-bold" style="font-size: 0.8rem; padding-right: 50px;">بالتعاون مع نظام الحوت</small>
             </div>
-            <button class="btn btn-sm text-white border-0 d-block d-xl-none p-0" onclick="toggleSidebar()">
-                <i data-lucide="x" size="28"></i>
-            </button>
+            <button class="btn btn-sm text-white border-0 d-block d-xl-none p-0" onclick="toggleSidebar()"><i data-lucide="x" size="28"></i></button>
         </div>
-        
         <nav>
             <div class="nav-item active" onclick="showTab(event, 'live')"><i data-lucide="layout-dashboard"></i> <span>الرصد الميداني</span></div>
             <div class="nav-item" onclick="showTab(event, 'orders')"><i data-lucide="database"></i> <span>الأرشيف المركزي</span></div>
@@ -176,9 +80,7 @@
     <main class="main-content">
         <header class="d-flex justify-content-between align-items-center mb-5">
             <div class="d-flex align-items-center gap-3">
-                <button class="menu-toggle-btn" onclick="toggleSidebar()">
-                    <i data-lucide="menu"></i>
-                </button>
+                <button class="menu-toggle-btn" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
                 <div>
                     <h2 class="fw-black m-0" style="color: var(--primary-blue);">لوحة الإدارة المركزية</h2>
                     <p class="text-muted m-0 fw-bold">مكتب سفيان - كركوك</p>
@@ -193,21 +95,22 @@
                 <div class="col-md-4"><div class="stat-widget d-flex justify-content-between align-items-center"><div><small class="fw-bold text-muted">كباتن نشطين</small><h2 id="count-drivers" class="fw-black m-0 text-success">0</h2></div><div class="bg-success bg-opacity-10 p-3 rounded-4"><i data-lucide="truck" class="text-success" size="30"></i></div></div></div>
                 <div class="col-md-4"><div class="stat-widget d-flex justify-content-between align-items-center"><div><small class="fw-bold text-muted">مطاعم شريكة</small><h2 id="count-res" class="fw-black m-0 text-warning">0</h2></div><div class="bg-warning bg-opacity-10 p-3 rounded-4"><i data-lucide="store" class="text-warning" size="30"></i></div></div></div>
             </div>
-            
             <div id="adminMap"></div>
-
             <div class="mt-5">
                 <h4 class="fw-black mb-4 d-flex align-items-center gap-2 border-bottom pb-3" style="color: var(--primary-blue);">
                     <i data-lucide="activity" class="text-danger"></i> رادار الطلبات النشطة
                 </h4>
-                <div class="row g-4" id="smartOrdersContainer">
-                    <div class="text-center p-5 text-muted fw-bold">جاري المزامنة مع الخوادم...</div>
-                </div>
+                <div class="row g-4" id="smartOrdersContainer"><div class="text-center p-5 text-muted fw-bold">جاري المزامنة مع الخوادم...</div></div>
             </div>
         </div>
 
         <div id="tab-orders" class="admin-tab d-none">
-            <div class="stat-widget table-responsive"><table class="table align-middle"><thead><tr><th>ID</th><th>المطعم</th><th>السائق</th><th>الحالة</th></tr></thead><tbody id="ordersTableBody"></tbody></table></div>
+            <div class="stat-widget table-responsive">
+                <table class="table align-middle">
+                    <thead><tr style="color: var(--primary-blue);"><th>ID الطلب</th><th>المطعم</th><th>هاتف السائق</th><th>الحالة</th></tr></thead>
+                    <tbody id="ordersTableBody"></tbody>
+                </table>
+            </div>
         </div>
         <div id="tab-restaurants" class="admin-tab d-none"><div class="row g-4" id="resListContainer"></div></div>
         <div id="tab-drivers" class="admin-tab d-none"><div class="row g-4" id="driverListContainer"></div></div>
@@ -226,17 +129,12 @@
             document.getElementById('authOverlay').style.display = 'none';
             document.getElementById('mainDashboard').classList.remove('d-none');
             startClock(); refreshData(); setInterval(refreshData, 15000);
-            
-            if(typeof google !== 'undefined') initMap();
+            if(typeof google !== 'undefined' && !map) initMap();
         } else { alert("❌ رمز المرور غير صحيح"); }
     }
 
     function startClock() { setInterval(() => { document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('ar-EG'); }, 1000); }
-
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('show');
-        document.getElementById('sidebarOverlay').classList.toggle('show');
-    }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('show'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
 
     function refreshData() {
         const script = document.createElement('script');
@@ -249,7 +147,6 @@
         document.getElementById('count-drivers').innerText = data.drivers.filter(d => d[4] === 'active').length;
         document.getElementById('count-res').innerText = data.restaurants.filter(r => r[4] === 'active').length;
 
-        // --- 1. بناء الرادار الذكي للطلبات الميدانية ---
         let smartHtml = '';
         const activeOrders = data.orders.slice(1).filter(o => o[5] !== 'completed' && o[5] !== 'مكتمل' && o[5] !== 'deleted');
         
@@ -258,8 +155,7 @@
             const hasDriver = (driverPhone && driverPhone.toString().trim() !== "" && driverPhone !== "pending_driver");
             const isPickedUp = (status === 'picked_up' || status === 'في الطريق');
             
-            // استخراج اسم السائق وهاتف المطعم
-            let driverName = 'غير محدد';
+            let driverName = 'جاري البحث...';
             let restPhone = '';
             
             if(hasDriver) {
@@ -270,7 +166,6 @@
             const restInfo = data.restaurants.find(r => r[1] === restName);
             if(restInfo) restPhone = restInfo[2];
 
-            // استخراج هاتف الزبون من التفاصيل
             let custPhoneMatch = details ? details.match(/(07[0-9]{8,9})/) : null;
             let custPhone = custPhoneMatch ? custPhoneMatch[0] : '';
             let shortDetails = details ? (details.length > 35 ? details.substring(0, 35) + '...' : details) : 'لا توجد تفاصيل';
@@ -321,30 +216,133 @@
         });
         document.getElementById('smartOrdersContainer').innerHTML = smartHtml || '<div class="col-12 text-center p-4 fw-bold text-success">الرادار نظيف، لا توجد طلبات معلقة حالياً.</div>';
 
-        // --- 2. تحديث بيانات الخريطة الحرارية (Heatmap) ---
         if (map && heatmap) {
             const heatMapPoints = [];
-            
-            // إضافة المطاعم كنقاط عادية للخريطة الحرارية
             data.restaurants.slice(1).forEach(r => {
                 if(r[4] === 'active' && r[6] && r[7]) { 
                     const lat = parseFloat(r[6]), lng = parseFloat(r[7]);
                     if(!isNaN(lat) && !isNaN(lng)) heatMapPoints.push(new google.maps.LatLng(lat, lng));
                 }
             });
-
-            // مسح علامات السائقين القديمة
             driverMarkers.forEach(m => m.setMap(null));
             driverMarkers = [];
-
-            // إضافة السائقين بوزن أعلى (Weight: 3) للكثافة، ورسم أيقوناتهم
             data.drivers.slice(1).forEach(d => {
                 if(d[4] === 'active' && d[5] && d[6]) { 
                     const lat = parseFloat(d[5]), lng = parseFloat(d[6]);
                     if(!isNaN(lat) && !isNaN(lng)) {
                         heatMapPoints.push({location: new google.maps.LatLng(lat, lng), weight: 3});
-                        
                         const marker = new google.maps.Marker({
-                            position: {lat: lat, lng: lng},
-                            map: map,
-              
+                            position: {lat: lat, lng: lng}, map: map,
+                            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#10b981', fillOpacity: 1, strokeWeight: 3, strokeColor: '#ffffff' },
+                            title: `الكابتن: ${d[1]}`
+                        });
+                        driverMarkers.push(marker);
+                    }
+                }
+            });
+            heatmap.setData(heatMapPoints); 
+        }
+
+        let archiveHtml = '';
+        const completedOrders = data.orders.slice(1).filter(o => o[5] === 'completed' || o[5] === 'مكتمل');
+        completedOrders.forEach(o => {
+            archiveHtml += `<tr style="border-bottom: 1px solid #e2e8f0; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                <td class="fw-bold" style="color: var(--primary-blue);">${o[0] || '-'}</td>
+                <td class="fw-bold text-dark">${o[1] || '-'}</td>
+                <td dir="ltr" class="text-muted fw-bold">${o[6] || '-'}</td>
+                <td><span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">مكتمل</span></td>
+            </tr>`;
+        });
+        document.getElementById('ordersTableBody').innerHTML = archiveHtml || `<tr><td colspan="4" class="text-center text-muted py-4 fw-bold">لا توجد طلبات منجزة في الأرشيف حالياً</td></tr>`;
+
+        renderControlCards('resListContainer', data.restaurants, 'store', 'RESTAURANT', 2);
+        renderControlCards('driverListContainer', data.drivers, 'user', 'DRIVER', 2);
+        lucide.createIcons();
+    };
+
+    function renderControlCards(containerId, list, icon, type, phoneIndex) {
+        let html = '';
+        list.slice(1).filter(item => item[4] !== 'deleted').forEach(item => {
+            const name = item[1], phone = item[phoneIndex], isActive = item[4] === 'active';
+            html += `
+            <div class="col-md-6 col-xl-4">
+                <div class="stat-widget flex-column align-items-stretch">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="bg-light p-3 rounded-4"><i data-lucide="${icon}" size="24" style="color: var(--primary-blue);"></i></div>
+                        <div class="flex-grow-1">
+                            <h6 class="m-0 fw-black mb-1">${name}</h6>
+                            <span class="badge ${isActive ? 'bg-success' : 'bg-secondary'} px-2 py-1 rounded-2">${isActive ? 'نشط' : 'غير نشط'}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <div class="d-flex gap-2">
+                            <button class="sov-btn sov-accept" onclick="adminAction('ACCEPT', '${type}', '${phone}')" title="تفعيل"><i data-lucide="check" size="20"></i></button>
+                            <button class="sov-btn sov-pause" onclick="adminAction('PAUSE', '${type}', '${phone}')" title="إيقاف"><i data-lucide="pause" size="20"></i></button>
+                            <button class="sov-btn sov-delete" onclick="adminAction('DELETE', '${type}', '${phone}')" title="حذف"><i data-lucide="trash-2" size="20"></i></button>
+                        </div>
+                        <button class="sov-btn sov-call shadow-sm" onclick="window.open('tel:${phone}')"><i data-lucide="phone-call" size="20"></i></button>
+                    </div>
+                </div>
+            </div>`;
+        });
+        document.getElementById(containerId).innerHTML = html;
+    }
+
+    function adminAction(cmd, type, id) {
+        const statusMap = { 'ACCEPT': 'active', 'PAUSE': 'inactive', 'DELETE': 'deleted' };
+        if(confirm(`هل أنت متأكد من الإجراء؟`)) {
+            const script = document.createElement('script');
+            script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=${type}&id=${id}&status=${statusMap[cmd]}&token=${API_TOKEN}&callback=afterAdminAction`;
+            document.body.appendChild(script);
+        }
+    }
+
+    window.afterAdminAction = function(response) {
+        if(response.success) { alert("تم التنفيذ بنجاح."); refreshData(); } 
+        else { alert("حدث خطأ."); }
+    };
+
+    function showTab(e, name) {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('d-none'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.remove('d-none');
+        e.currentTarget.classList.add('active');
+        lucide.createIcons();
+        if(window.innerWidth <= 1100) { toggleSidebar(); }
+    }
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?libraries=visualization&callback=initMap"></script>
+<script>
+    function initMap() {
+        const kirkukLocation = { lat: 35.468, lng: 44.392 };
+        const mapOptions = {
+            zoom: 13, center: kirkukLocation, mapTypeControl: false, streetViewControl: false, fullscreenControl: true,
+            styles: [
+                { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
+                { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+                { elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+                { elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
+                { featureType: "administrative.land_parcel", elementType: "labels.text.fill", stylers: [{ color: "#bdbdbd" }] },
+                { featureType: "poi", elementType: "geometry", stylers: [{ color: "#eeeeee" }] },
+                { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+                { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#e5e5e5" }] },
+                { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+                { featureType: "road.arterial", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+                { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#dadada" }] },
+                { featureType: "water", elementType: "geometry", stylers: [{ color: "#c9c9c9" }] },
+                { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] }
+            ]
+        };
+        const mapElement = document.getElementById("adminMap");
+        if(mapElement) {
+            map = new google.maps.Map(mapElement, mapOptions);
+            heatmap = new google.maps.visualization.HeatmapLayer({
+                map: map, radius: 40, opacity: 0.8,
+                gradient: ['rgba(0, 255, 255, 0)', 'rgba(0, 255, 255, 1)', 'rgba(0, 191, 255, 1)', 'rgba(0, 127, 255, 1)', 'rgba(0, 63, 255, 1)', 'rgba(0, 0, 255, 1)', 'rgba(0, 0, 223, 1)', 'rgba(0, 0, 191, 1)', 'rgba(0, 0, 159, 1)', 'rgba(0, 0, 127, 1)', 'rgba(63, 0, 91, 1)', 'rgba(127, 0, 63, 1)', 'rgba(191, 0, 31, 1)', 'rgba(255, 0, 0, 1)']
+            });
+        }
+    }
+</script>
+</body>
+</html>
