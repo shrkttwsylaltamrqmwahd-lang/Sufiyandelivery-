@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مكتب سفيان | الإدارة العليا</title>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -34,7 +35,6 @@
 
         .stat-widget { background: var(--card-bg); border-radius: 24px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; height: 100%; transition: 0.3s; }
         
-        /* الخريطة المجانية */
         #adminMap { height: 400px; width: 100%; border-radius: 24px; border: 6px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.06); background: #e2e8f0; z-index: 1; }
         .leaflet-popup-content-wrapper { font-family: 'Cairo', sans-serif; text-align: center; border-radius: 12px; }
 
@@ -43,10 +43,20 @@
         
         .smart-order-card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-right: 6px solid #94a3b8; box-shadow: 0 4px 15px rgba(0,0,0,0.02); position: relative; transition: 0.3s; }
         .status-danger { border-right-color: #ef4444; } .status-warning { border-right-color: #f59e0b; } .status-success { border-right-color: #10b981; } .status-primary { border-right-color: #3b82f6; }
+        
+        /* ستايل الطلبات المزدوجة باللون البنفسجي */
+        .status-purple { border-right-color: #8b5cf6 !important; }
+        .bg-purple { background-color: #8b5cf6 !important; }
+        .text-purple { color: #8b5cf6 !important; }
+        .border-purple { border-color: #e9d5ff !important; }
+        .batch-card { background-color: #faf5ff !important; }
+        
         .delay-badge { position: absolute; top: -10px; right: 20px; background: #ef4444; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 900; animation: pulse 2s infinite; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
         .info-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 12px; border-radius: 12px; margin-bottom: 6px; border: 1px solid #f1f5f9; font-weight: 600; font-size: 0.9rem; }
+        .info-card-inner { background: #f1f5f9; padding: 12px; border-radius: 12px; margin-top: 8px; border: 1px dashed #cbd5e1; }
+        
         .btn-call-mini { background: white; border: 1px solid #e2e8f0; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); flex-shrink: 0;}
         .btn-call-mini:active { transform: scale(0.9); }
         .btn-call-mini.call-primary { color: var(--primary-blue); border-color: #bfdbfe; background: #eff6ff;}
@@ -55,9 +65,8 @@
         
         .btn-track { background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; border-radius: 10px; padding: 6px 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 4px; }
         .btn-delete-order { background: #fef2f2; border: 1px solid #fca5a5; color: #ef4444; border-radius: 10px; padding: 6px 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 4px; }
-        .manual-assign-select { border: 1px solid #e2e8f0; border-radius: 8px; padding: 4px; font-size: 0.8rem; font-weight: 700; max-width: 110px;}
+        .manual-assign-select { border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px; font-size: 0.8rem; font-weight: 700; max-width: 130px; background: white; outline: none; }
 
-        /* الأرشيف والفاتورة */
         .archive-toolbar { background: white; border-radius: 16px; padding: 15px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
         .analytics-bar { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; border-radius: 15px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .table-responsive { font-size: 0.9rem; }
@@ -65,7 +74,6 @@
         .invoice-card { background: white; border-radius: 24px; padding: 25px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); position: relative; }
         .invoice-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 700; font-size: 0.9rem; }
 
-        /* كروت الإدارة */
         .sov-btn { border: none; border-radius: 12px; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; }
         .sov-accept { background: #eff6ff; color: var(--accent-blue); } .sov-pause { background: #fffbeb; color: #d97706; } .sov-delete { background: #fef2f2; color: #ef4444; } .sov-reset { background: #ecfdf5; color: #10b981; } .sov-call { background: var(--primary-blue); color: white; }
 
@@ -295,7 +303,6 @@
         renderControlCards('resListContainer', data.restaurants, 'store', 'RESTAURANT', 2, resDebts, 1, resUnpaidCounts); 
         renderControlCards('driverListContainer', data.drivers, 'user', 'DRIVER', 2, driverDebts, 2, null); 
         
-        // تحديث الخريطة المجانية (Leaflet)
         if (map && heatLayer) {
             const heatMapPoints = [];
             data.restaurants.slice(1).forEach(r => {
@@ -340,7 +347,7 @@
         if(!globalData) return;
         let smartHtml = '';
         
-        let activeDriversOptions = '<option value="">تعيين يدوي</option>';
+        let activeDriversOptions = '<option value="">تعيين يدوياً</option>';
         globalData.drivers.slice(1).forEach(d => {
             if(d[4] === 'active') activeDriversOptions += `<option value="${String(d[2])}">${d[1]}</option>`;
         });
@@ -350,65 +357,171 @@
         if(currentRadarFilter === 'pending') activeOrdersList = activeOrdersList.filter(o => !o[6] || o[6] === "pending_driver");
         if(currentRadarFilter === 'active') activeOrdersList = activeOrdersList.filter(o => o[6] && o[6] !== "pending_driver");
 
+        // 1. تجميع الطلبات حسب الكابتن لمعرفة (الطلبات المزدوجة)
+        let groupedOrders = {};
+        let pendingOrders = [];
+
         activeOrdersList.forEach(o => {
-            const orderId = o[0], restName = o[1], details = o[3], status = o[5], driverPhone = o[6], orderTimeStr = o[7];
-            const hasDriver = (driverPhone && driverPhone.toString().trim() !== "" && driverPhone !== "pending_driver");
+            const driverPhone = o[6];
+            if (driverPhone && driverPhone.toString().trim() !== "" && driverPhone !== "pending_driver") {
+                if (!groupedOrders[driverPhone]) groupedOrders[driverPhone] = [];
+                groupedOrders[driverPhone].push(o);
+            } else {
+                pendingOrders.push(o); // الطلبات التي تبحث عن كابتن
+            }
+        });
+
+        // دالة مساعدة لتوليد حالة الطلب
+        const getStatusInfo = (status, hasDriver) => {
             const isPickedUp = (status === 'picked_up' || status === 'في الطريق');
             const isArrived = (status === 'arrived_at_res');
-            
-            let driverName = 'جاري البحث...'; let restPhone = '';
-            
-            if(hasDriver) {
-                const driverInfo = globalData.drivers.find(d => String(d[2]) === String(driverPhone));
-                if(driverInfo) driverName = driverInfo[1];
-            }
-            const restInfo = globalData.restaurants.find(r => r[1] === restName);
-            if(restInfo) restPhone = restInfo[2];
+            if(!hasDriver) return { class: "status-danger", desc: "🔴 بانتظار كابتن", badge: "bg-danger" };
+            if(isPickedUp) return { class: "status-success", desc: "🟢 في الطريق للزبون", badge: "bg-success" };
+            if(isArrived) return { class: "status-warning", desc: "🟠 في المطعم", badge: "bg-warning" };
+            return { class: "status-primary", desc: "🔵 متوجه للمطعم", badge: "bg-primary" };
+        };
 
-            let custPhoneMatch = details ? details.match(/(07[0-9]{8,9})/) : null;
-            let custPhone = custPhoneMatch ? custPhoneMatch[0] : '';
-            let shortDetails = details ? (details.length > 25 ? details.substring(0, 25) + '...' : details) : '-';
+        // 2. طباعة الطلبات التي تم استلامها من قبل الكباتن (مفردة أو مزدوجة)
+        Object.keys(groupedOrders).forEach(driverPhone => {
+            const orders = groupedOrders[driverPhone];
+            const driverInfo = globalData.drivers.find(d => String(d[2]) === String(driverPhone));
+            const driverName = driverInfo ? driverInfo[1] : 'غير معروف';
 
-            const diffMins = Math.floor((new Date() - new Date(orderTimeStr)) / 60000);
-            const isDelayed = diffMins > 30; 
+            if (orders.length > 1) {
+                // --- الكرت البنفسجي المجمع (الطلبات المزدوجة) ---
+                smartHtml += `<div class="col-xl-6 col-lg-6"><div class="smart-order-card status-purple batch-card">`;
+                smartHtml += `
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-purple">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="bg-purple text-white p-1 rounded-2"><i data-lucide="layers" size="18"></i></div>
+                            <h6 class="fw-black m-0 text-purple">طلب مزدوج | الكابتن: ${driverName}</h6>
+                        </div>
+                        <button class="btn-track shadow-sm" style="background: #ede9fe; color: #7c3aed; border-color: #c4b5fd;" onclick="trackDriver('${driverPhone}')"><i data-lucide="map-pin" size="14"></i> تتبع</button>
+                    </div>`;
 
-            let cardClass = "status-danger", statusDesc = "🔴 بانتظار كابتن";
-            if(hasDriver && !isPickedUp && !isArrived) { cardClass = "status-primary"; statusDesc = "🔵 متوجه للمطعم"; }
-            if(hasDriver && isArrived) { cardClass = "status-warning"; statusDesc = "🟠 في المطعم"; }
-            if(hasDriver && isPickedUp) { cardClass = "status-success"; statusDesc = "🟢 في الطريق"; }
-
-            smartHtml += `
-            <div class="col-xl-6 col-lg-6">
-                <div class="smart-order-card ${cardClass}">
-                    ${isDelayed ? `<div class="delay-badge">تأخير: ${diffMins} دقيقة</div>` : ''}
+                orders.forEach((o, index) => {
+                    const orderId = o[0], restName = o[1], orderArea = o[2], details = o[3], orderPrice = o[4], status = o[5], orderTimeStr = o[7];
+                    const sInfo = getStatusInfo(status, true);
                     
-                    <div class="d-flex justify-content-between align-items-start mb-3 pb-2 border-bottom">
-                        <div>
-                            <h6 class="fw-black m-0 mb-1" style="color: var(--primary-blue);">#${orderId}</h6>
-                            <small class="fw-bold ${!hasDriver ? 'text-danger' : 'text-dark'}">${statusDesc}</small>
-                        </div>
-                        <div class="d-flex gap-1 align-items-center">
-                            ${hasDriver ? `<button class="btn-track" onclick="trackDriver('${driverPhone}')"><i data-lucide="map-pin" size="14"></i> تتبع</button>` : ''}
-                            <button class="btn btn-sm btn-outline-danger border-0 p-1" onclick="adminAction('DELETE', 'ORDER', '${orderId}')" title="حذف الطلب"><i data-lucide="trash-2" size="16"></i></button>
-                        </div>
-                    </div>
+                    let orderTimeStrFormat = '---';
+                    if(orderTimeStr) {
+                        const orderDateObj = new Date(orderTimeStr);
+                        if(!isNaN(orderDateObj.getTime())) orderTimeStrFormat = orderDateObj.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+                    }
 
-                    <div class="d-flex flex-column gap-2">
-                        <div class="info-row"><div class="d-flex align-items-center gap-2"><i data-lucide="user" class="text-primary" size="16"></i></div> <div class="d-flex align-items-center gap-2"><span class="text-dark small text-truncate" style="max-width:100px;" title="${details}">${shortDetails}</span>${custPhone ? `<button class="btn-call-mini call-primary" onclick="window.open('tel:${custPhone}')"><i data-lucide="phone" size="14"></i></button>` : ''}</div></div>
-                        <div class="info-row"><div class="d-flex align-items-center gap-2"><i data-lucide="store" class="text-warning" size="16"></i></div> <div class="d-flex align-items-center gap-2"><span class="text-dark small">${restName || '-'}</span>${restPhone ? `<button class="btn-call-mini call-warning text-warning" onclick="window.open('tel:${restPhone}')"><i data-lucide="phone" size="14"></i></button>` : ''}</div></div>
-                        <div class="info-row">
-                            <div class="d-flex align-items-center gap-2"><i data-lucide="bike" class="text-success" size="16"></i></div> 
-                            <div class="d-flex align-items-center gap-2">
-                                ${hasDriver ? `<span class="text-dark small fw-bold">${driverName}</span> <button class="btn-call-mini call-success text-success" onclick="window.open('tel:${driverPhone}')"><i data-lucide="phone" size="14"></i></button>` : 
-                                `<select class="manual-assign-select" onchange="assignDriver('${orderId}', this.value)">${activeDriversOptions}</select>`}
+                    smartHtml += `
+                    <div class="info-card-inner mb-2 shadow-sm" style="border-color: #c4b5fd; background: white;">
+                        <div class="d-flex justify-content-between align-items-start mb-2 pb-1 border-bottom border-light">
+                            <div>
+                                <span class="fw-black" style="color: #6d28d9;">#${orderId}</span>
+                                <span class="small text-muted ms-2 fw-bold">${orderTimeStrFormat}</span>
                             </div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="badge ${sInfo.badge}" style="font-size:0.7rem;">${sInfo.desc}</span>
+                                <button class="btn btn-sm btn-outline-danger border-0 p-0" onclick="adminAction('DELETE', 'ORDER', '${orderId}')" title="حذف"><i data-lucide="trash-2" size="16"></i></button>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between small fw-bold mb-2">
+                            <span class="text-dark"><i data-lucide="store" size="14" class="text-warning me-1"></i> ${restName}</span>
+                            <span class="text-dark"><i data-lucide="map-pin" size="14" class="text-success me-1"></i> ${orderArea || 'غير محددة'}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center small text-muted">
+                            <span class="text-truncate" style="max-width:140px;">${details ? details : '-'}</span>
+                            <span class="fw-black text-success" style="font-size:0.9rem;">${orderPrice || 0} د.ع</span>
+                        </div>
+                    </div>`;
+                    
+                    // رمز الربط بين الطلبين
+                    if(index < orders.length - 1) {
+                        smartHtml += `<div class="text-center my-1"><i data-lucide="link" size="16" style="color: #a78bfa; transform: rotate(45deg);"></i></div>`;
+                    }
+                });
+
+                smartHtml += `</div></div>`;
+            } else {
+                // --- الكرت العادي (طلب مفرد مع كابتن) ---
+                smartHtml += generateSingleCardHTML(orders[0], true, driverName, driverPhone, activeDriversOptions);
+            }
+        });
+
+        // 3. طباعة الطلبات المعلقة (قيد الانتظار)
+        pendingOrders.forEach(o => {
+            smartHtml += generateSingleCardHTML(o, false, 'جاري البحث...', null, activeDriversOptions);
+        });
+
+        document.getElementById('smartOrdersContainer').innerHTML = smartHtml || '<div class="col-12 text-center p-4 fw-bold text-success small">الرادار نظيف، لا توجد طلبات.</div>';
+        lucide.createIcons();
+    }
+
+    // دالة مساعدة لطباعة الكرت العادي لتجنب تكرار الكود
+    function generateSingleCardHTML(o, hasDriver, driverName, driverPhone, activeDriversOptions) {
+        const orderId = o[0], restName = o[1], orderArea = o[2], details = o[3], orderPrice = o[4], status = o[5], orderTimeStr = o[7];
+        const isPickedUp = (status === 'picked_up' || status === 'في الطريق');
+        const isArrived = (status === 'arrived_at_res');
+        
+        let orderTimeStrFormat = '---';
+        if(orderTimeStr) {
+            const orderDateObj = new Date(orderTimeStr);
+            if(!isNaN(orderDateObj.getTime())) orderTimeStrFormat = orderDateObj.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+        }
+        
+        const restInfo = globalData.restaurants.find(r => r[1] === restName);
+        const restPhone = restInfo ? restInfo[2] : '';
+        let custPhoneMatch = details ? details.match(/(07[0-9]{8,9})/) : null;
+        let custPhone = custPhoneMatch ? custPhoneMatch[0] : '';
+        let shortDetails = details ? (details.length > 25 ? details.substring(0, 25) + '...' : details) : '-';
+
+        const diffMins = Math.floor((new Date() - new Date(orderTimeStr)) / 60000);
+        const isDelayed = diffMins > 30; 
+
+        let cardClass = "status-danger", statusDesc = "🔴 بانتظار كابتن";
+        if(hasDriver && !isPickedUp && !isArrived) { cardClass = "status-primary"; statusDesc = "🔵 متوجه للمطعم"; }
+        if(hasDriver && isArrived) { cardClass = "status-warning"; statusDesc = "🟠 في المطعم"; }
+        if(hasDriver && isPickedUp) { cardClass = "status-success"; statusDesc = "🟢 في الطريق للزبون"; }
+
+        return `
+        <div class="col-xl-6 col-lg-6">
+            <div class="smart-order-card ${cardClass}">
+                ${isDelayed ? `<div class="delay-badge">تأخير: ${diffMins} دقيقة</div>` : ''}
+                
+                <div class="d-flex justify-content-between align-items-start mb-3 pb-2 border-bottom">
+                    <div>
+                        <h6 class="fw-black m-0 mb-1" style="color: var(--primary-blue);">#${orderId}</h6>
+                        <div class="mt-1 small fw-bold text-muted"><i data-lucide="clock" size="12"></i> أُرسل: ${orderTimeStrFormat}</div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end gap-2">
+                        <span class="badge ${!hasDriver ? 'bg-danger' : 'bg-success'}">${statusDesc}</span>
+                        <div class="d-flex gap-1 align-items-center mt-1">
+                            ${hasDriver ? `<button class="btn-track" onclick="trackDriver('${driverPhone}')"><i data-lucide="map-pin" size="14"></i> تتبع</button>` : ''}
+                            <button class="btn btn-sm btn-outline-danger border-0 p-1" onclick="adminAction('DELETE', 'ORDER', '${orderId}')" title="حذف وإلغاء الطلب"><i data-lucide="trash-2" size="16"></i></button>
                         </div>
                     </div>
                 </div>
-            </div>`;
-        });
-        document.getElementById('smartOrdersContainer').innerHTML = smartHtml || '<div class="col-12 text-center p-4 fw-bold text-success small">الرادار نظيف، لا توجد طلبات.</div>';
-        lucide.createIcons();
+
+                <div class="d-flex flex-column gap-2">
+                    <div class="info-row">
+                        <div class="d-flex align-items-center gap-2"><i data-lucide="user" class="text-primary" size="16"></i> <span class="text-muted small">الزبون:</span></div> 
+                        <div class="d-flex align-items-center gap-2"><span class="text-dark small text-truncate" style="max-width:100px;" title="${details}">${shortDetails}</span>${custPhone ? `<button class="btn-call-mini call-primary" onclick="window.open('tel:${custPhone}')"><i data-lucide="phone" size="14"></i></button>` : ''}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="d-flex align-items-center gap-2"><i data-lucide="store" class="text-warning" size="16"></i> <span class="text-muted small">المطعم:</span></div> 
+                        <div class="d-flex align-items-center gap-2"><span class="text-dark small fw-bold">${restName || '-'}</span>${restPhone ? `<button class="btn-call-mini call-warning text-warning" onclick="window.open('tel:${restPhone}')"><i data-lucide="phone" size="14"></i></button>` : ''}</div>
+                    </div>
+                    
+                    <div class="info-card-inner">
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-light">
+                            <span class="small fw-bold text-dark"><i data-lucide="map-pin" size="14" class="text-accent me-1"></i> المنطقة: ${orderArea || 'غير محددة'}</span>
+                            <span class="small fw-bold text-success"><i data-lucide="banknote" size="14" class="me-1"></i> ${orderPrice || 0} د.ع</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small fw-bold text-primary"><i data-lucide="bike" size="14" class="me-1"></i> الكابتن: ${driverName}</span>
+                            ${hasDriver ? `<button class="btn-call-mini call-success text-success" style="width:28px;height:28px;" onclick="window.open('tel:${driverPhone}')"><i data-lucide="phone" size="12"></i></button>` : 
+                            `<select class="manual-assign-select" onchange="assignDriver('${orderId}', this.value)">${activeDriversOptions}</select>`}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
     }
 
     function trackDriver(driverPhone) {
@@ -417,7 +530,7 @@
         if(driver && driver[5] && driver[6]) {
             const lat = parseFloat(driver[5]); const lng = parseFloat(driver[6]);
             if(!isNaN(lat) && !isNaN(lng)) {
-                map.flyTo([lat, lng], 16, { duration: 1.5 }); // حركة سلسة في مكتبة Leaflet
+                map.flyTo([lat, lng], 16, { duration: 1.5 });
                 window.scrollTo({ top: document.getElementById('adminMap').offsetTop - 20, behavior: 'smooth' });
             } else { alert("لا توجد إحداثيات حالية لهذا الكابتن."); }
         }
@@ -425,7 +538,7 @@
 
     function assignDriver(orderId, driverPhone) {
         if(!driverPhone) return;
-        if(confirm("تعيين إجباري للكابتن؟")) {
+        if(confirm("تعيين إجباري للكابتن المختار؟")) {
             const url = `${API_URL}?action=ASSIGN_DRIVER&orderId=${orderId}&driverPhone=${driverPhone}&token=${API_TOKEN}`;
             const script = document.createElement('script'); script.src = `${url}&callback=afterAdminAction`; document.body.appendChild(script);
         }
@@ -579,7 +692,7 @@
     }
 
     window.afterAdminAction = function(response) {
-        if(response.success) { alert("تم بنجاح."); refreshData(); } else { alert("خطأ: " + (response.msg || "")); }
+        if(response.success) { refreshData(); } else { alert("خطأ: " + (response.msg || "")); }
     };
 
     function showTab(e, name) {
