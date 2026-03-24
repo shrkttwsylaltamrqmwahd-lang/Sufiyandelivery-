@@ -17,27 +17,29 @@
         .nav-item { display: flex; align-items: center; gap: 15px; padding: 16px 20px; color: #cbd5e1; text-decoration: none; border-radius: 16px; margin-bottom: 8px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; }
         .nav-item:hover { background: rgba(255,255,255,0.05); color: white; transform: translateX(-5px); }
         .nav-item.active { background: white; color: var(--primary-blue); box-shadow: 0 10px 20px rgba(0,0,0,0.1); font-weight: 900; }
-        .stat-widget { background: var(--card-bg); border-radius: 24px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; height: 100%; transition: 0.3s; }
+        .stat-widget { background: var(--card-bg); border-radius: 24px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; height: 100%; transition: 0.3s; }
         .stat-widget:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.06); }
         #adminMap { height: 450px; width: 100%; border-radius: 24px; border: 8px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.06); background: #e2e8f0; }
         .sov-btn { border: none; border-radius: 14px; width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; }
         .sov-accept { background: #eff6ff; color: var(--accent-blue); }
         .sov-pause { background: #fffbeb; color: #d97706; }
         .sov-delete { background: #fef2f2; color: #ef4444; }
-        .sov-reset { background: #ecfdf5; color: #10b981; } /* زر التصفير المالي */
+        .sov-reset { background: #ecfdf5; color: #10b981; }
         .sov-call { background: var(--primary-blue); color: white; }
         .sov-btn:hover { filter: brightness(0.95); transform: scale(1.05); }
-        .smart-order-card { background: var(--card-bg); border-radius: 20px; padding: 25px; margin-bottom: 20px; border: 1px solid #e2e8f0; border-right: 6px solid #94a3b8; box-shadow: 0 4px 15px rgba(0,0,0,0.02); position: relative; transition: 0.3s; }
+        .smart-order-card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #e2e8f0; border-right: 6px solid #94a3b8; box-shadow: 0 4px 15px rgba(0,0,0,0.02); position: relative; transition: 0.3s; }
         .smart-order-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        .status-danger { border-right-color: #ef4444; } .status-warning { border-right-color: #f59e0b; } .status-success { border-right-color: #10b981; }
-        .delay-badge { position: absolute; top: -12px; left: 20px; background: #ef4444; color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 900; animation: pulse 2s infinite; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); }
+        .status-danger { border-right-color: #ef4444; } .status-warning { border-right-color: #f59e0b; } .status-success { border-right-color: #10b981; } .status-primary { border-right-color: #3b82f6; }
+        .delay-badge { position: absolute; top: -12px; right: 20px; background: #ef4444; color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 900; animation: pulse 2s infinite; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .info-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px 18px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #f1f5f9; transition: 0.2s; font-weight: 600; }
-        .btn-call-mini { background: white; border: 1px solid #e2e8f0; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .info-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 15px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #f1f5f9; transition: 0.2s; font-weight: 600; font-size: 0.95rem; }
+        .btn-call-mini { background: white; border: 1px solid #e2e8f0; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .btn-call-mini:hover { transform: scale(1.1); }
         .btn-call-mini.call-primary:hover { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
         .btn-call-mini.call-warning:hover { background: #f59e0b; color: white; border-color: #f59e0b; }
         .btn-call-mini.call-success:hover { background: #10b981; color: white; border-color: #10b981; }
+        .btn-delete-order { background: #fef2f2; border: 1px solid #fca5a5; color: #ef4444; border-radius: 10px; padding: 6px 12px; font-size: 0.8rem; font-weight: 800; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+        .btn-delete-order:hover { background: #ef4444; color: white; border-color: #ef4444; }
         .menu-toggle-btn { display: none; background: white; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: var(--primary-blue); }
         .sidebar-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1002; display: none; backdrop-filter: blur(4px); }
         @media (max-width: 1100px) { .sidebar { transform: translateX(100%); } .main-content { margin-right: 0; padding: 20px; } .sidebar.show { transform: translateX(0); box-shadow: -10px 0 50px rgba(0,0,0,0.5); } .menu-toggle-btn { display: flex; align-items: center; justify-content: center; } .sidebar-overlay.show { display: block; } #adminMap { height: 350px; } }
@@ -149,39 +151,28 @@
         document.getElementById('count-drivers').innerText = data.drivers.filter(d => d[4] === 'active').length;
         document.getElementById('count-res').innerText = data.restaurants.filter(r => r[4] === 'active').length;
 
-        // 1. حساب الديون (الشفافية المالية)
-        let resDebts = {};
-        let driverDebts = {};
+        let resDebts = {}; let driverDebts = {};
+        data.restaurants.slice(1).forEach(r => resDebts[r[1]] = 0); 
+        data.drivers.slice(1).forEach(d => driverDebts[String(d[2])] = 0); 
         
-        // تهيئة الحسابات بأصفار
-        data.restaurants.slice(1).forEach(r => resDebts[r[1]] = 0); // r[1] هو اسم المطعم
-        data.drivers.slice(1).forEach(d => driverDebts[String(d[2])] = 0); // d[2] هو هاتف السائق
-        
-        // التجميع للطلبات المنجزة (التي لم يتم تصفيرها/تسويتها بعد)
         data.orders.slice(1).forEach(o => {
             const status = o[5];
-            // إذا كان الطلب 'completed' فهذا يعني أنه تم توصيله ولم تُدفع عمولته للمكتب بعد
             if (status === 'completed' || status === 'مكتمل') {
-                const rName = o[1];
-                const dPhone = String(o[6]);
-                
+                const rName = o[1]; const dPhone = String(o[6]);
                 const rData = data.restaurants.find(r => r[1] === rName);
                 if (rData) {
-                    const comm = parseFloat(rData[5]) || 0; // مقدار العمولة
-                    const payType = String(rData[8]); // نظام الدفع
-                    
+                    const comm = parseFloat(rData[5]) || 0; const payType = String(rData[8]); 
                     if (payType.includes('مناصفة')) {
                         if (resDebts[rName] !== undefined) resDebts[rName] += (comm / 2);
                         if (driverDebts[dPhone] !== undefined) driverDebts[dPhone] += (comm / 2);
                     } else {
-                        // المطعم يدفع كامل العمولة
                         if (resDebts[rName] !== undefined) resDebts[rName] += comm;
                     }
                 }
             }
         });
 
-        // 2. بناء الرادار الميداني
+        // 2. بناء الرادار الميداني (المطور مع زر الحذف)
         let smartHtml = '';
         const activeOrders = data.orders.slice(1).filter(o => o[5] !== 'completed' && o[5] !== 'مكتمل' && o[5] !== 'settled' && o[5] !== 'deleted');
         
@@ -191,8 +182,7 @@
             const isPickedUp = (status === 'picked_up' || status === 'في الطريق');
             const isArrived = (status === 'arrived_at_res');
             
-            let driverName = 'جاري البحث...';
-            let restPhone = '';
+            let driverName = 'جاري البحث...'; let restPhone = '';
             
             if(hasDriver) {
                 const driverInfo = data.drivers.find(d => String(d[2]) === String(driverPhone));
@@ -216,34 +206,39 @@
             if(hasDriver && isPickedUp) { cardClass = "status-success"; statusDesc = "🟢 في الطريق للزبون"; }
 
             smartHtml += `
-            <div class="col-xl-6">
+            <div class="col-xl-6 col-lg-6">
                 <div class="smart-order-card ${cardClass}">
                     ${isDelayed ? `<div class="delay-badge">تأخير: ${diffMins} دقيقة</div>` : ''}
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    
+                    <div class="d-flex justify-content-between align-items-start mb-3 pb-2 border-bottom">
                         <div>
                             <h5 class="fw-black m-0 mb-1" style="color: var(--primary-blue);">طلب #${orderId}</h5>
                             <small class="fw-bold ${!hasDriver ? 'text-danger' : 'text-dark'}">${statusDesc}</small>
                         </div>
+                        <button class="btn-delete-order" onclick="adminAction('DELETE', 'ORDER', '${orderId}')" title="إلغاء وحذف الطلبية">
+                            <i data-lucide="trash-2" size="14"></i> حذف
+                        </button>
                     </div>
-                    <div class="d-flex flex-column gap-2">
+
+                    <div class="d-flex flex-column gap-1">
                         <div class="info-row">
-                            <div class="d-flex align-items-center gap-2"><i data-lucide="user" class="text-primary" size="18"></i> <span class="text-muted">الزبون:</span></div> 
-                            <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center gap-2"><i data-lucide="user" class="text-primary" size="16"></i> <span class="text-muted">الزبون:</span></div> 
+                            <div class="d-flex align-items-center gap-2">
                                 <span class="text-dark small text-truncate" style="max-width: 120px;" title="${details}">${shortDetails}</span>
                                 ${custPhone ? `<button class="btn-call-mini call-primary" onclick="window.open('tel:${custPhone}')"><i data-lucide="phone" size="14"></i></button>` : ''}
                             </div>
                         </div>
                         <div class="info-row">
-                            <div class="d-flex align-items-center gap-2"><i data-lucide="store" class="text-warning" size="18"></i> <span class="text-muted">المطعم:</span></div> 
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="text-dark">${restName || 'غير متوفر'}</span>
+                            <div class="d-flex align-items-center gap-2"><i data-lucide="store" class="text-warning" size="16"></i> <span class="text-muted">المطعم:</span></div> 
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-dark small">${restName || 'غير متوفر'}</span>
                                 ${restPhone ? `<button class="btn-call-mini call-warning text-warning" onclick="window.open('tel:${restPhone}')"><i data-lucide="phone" size="14"></i></button>` : ''}
                             </div>
                         </div>
                         <div class="info-row">
-                            <div class="d-flex align-items-center gap-2"><i data-lucide="bike" class="text-success" size="18"></i> <span class="text-muted">الكابتن:</span></div> 
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="text-dark fw-bold ${!hasDriver ? 'text-danger' : ''}">${hasDriver ? driverName + ' | ' + driverPhone : 'لا يوجد'}</span>
+                            <div class="d-flex align-items-center gap-2"><i data-lucide="bike" class="text-success" size="16"></i> <span class="text-muted">الكابتن:</span></div> 
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-dark small fw-bold ${!hasDriver ? 'text-danger' : ''}">${hasDriver ? driverName : 'لا يوجد'}</span>
                                 ${hasDriver ? `<button class="btn-call-mini call-success text-success" onclick="window.open('tel:${driverPhone}')"><i data-lucide="phone" size="14"></i></button>` : ''}
                             </div>
                         </div>
@@ -293,18 +288,16 @@
         });
         document.getElementById('ordersTableBody').innerHTML = archiveHtml || `<tr><td colspan="4" class="text-center text-muted py-4 fw-bold">لا توجد طلبات منجزة في الأرشيف حالياً</td></tr>`;
 
-        // 3. بناء كروت الإدارة مع عرض الديون وزر التصفير
-        renderControlCards('resListContainer', data.restaurants, 'store', 'RESTAURANT', 2, resDebts, 1); // Index 1 is name
-        renderControlCards('driverListContainer', data.drivers, 'user', 'DRIVER', 2, driverDebts, 2); // Index 2 is phone
+        renderControlCards('resListContainer', data.restaurants, 'store', 'RESTAURANT', 2, resDebts, 1); 
+        renderControlCards('driverListContainer', data.drivers, 'user', 'DRIVER', 2, driverDebts, 2); 
         lucide.createIcons();
     };
 
-    // الدالة المحدثة لاستقبال وطباعة الديون
     function renderControlCards(containerId, list, icon, type, phoneIndex, debtsMap, mapKeyIndex) {
         let html = '';
         list.slice(1).filter(item => item[4] !== 'deleted').forEach(item => {
             const name = item[1], phone = item[phoneIndex], isActive = item[4] === 'active';
-            const debtAmount = debtsMap[item[mapKeyIndex]] || 0; // جلب الدين المحسوب
+            const debtAmount = debtsMap[item[mapKeyIndex]] || 0; 
             
             html += `
             <div class="col-md-6 col-xl-4">
@@ -338,10 +331,8 @@
         document.getElementById(containerId).innerHTML = html;
     }
 
-    // دالة تصفير الديون
     function resetDebt(type, id) {
         if(confirm(`سيادة المدير، هل استلمت/دفعت الحساب وأنت متأكد من تصفير ديون (${id}) بالكامل؟\nسيتم تحويل حالة طلباته إلى "تمت المحاسبة".`)) {
-            // نستخدم دالة جديدة في السكريبت اسمها RESET_DEBT
             const url = `${API_URL}?action=RESET_DEBT&type=${type}&id=${id}&token=${API_TOKEN}`;
             const script = document.createElement('script');
             script.src = `${url}&callback=afterAdminAction`;
@@ -351,7 +342,11 @@
 
     function adminAction(cmd, type, id) {
         const statusMap = { 'ACCEPT': 'active', 'PAUSE': 'inactive', 'DELETE': 'deleted' };
-        if(confirm(`هل أنت متأكد من الإجراء؟`)) {
+        
+        let msg = `هل أنت متأكد من الإجراء؟`;
+        if (cmd === 'DELETE' && type === 'ORDER') msg = `هل أنت متأكد من حذف وإلغاء الطلبية رقم #${id} نهائياً؟`;
+
+        if(confirm(msg)) {
             const script = document.createElement('script');
             script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=${type}&id=${id}&status=${statusMap[cmd]}&token=${API_TOKEN}&callback=afterAdminAction`;
             document.body.appendChild(script);
