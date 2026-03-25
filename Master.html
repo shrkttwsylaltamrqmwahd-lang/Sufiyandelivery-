@@ -44,7 +44,6 @@
         .smart-order-card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-right: 6px solid #94a3b8; box-shadow: 0 4px 15px rgba(0,0,0,0.02); position: relative; transition: 0.3s; }
         .status-danger { border-right-color: #ef4444; } .status-warning { border-right-color: #f59e0b; } .status-success { border-right-color: #10b981; } .status-primary { border-right-color: #3b82f6; }
         
-        /* ستايل الطلبات المزدوجة باللون البنفسجي */
         .status-purple { border-right-color: #8b5cf6 !important; }
         .bg-purple { background-color: #8b5cf6 !important; }
         .text-purple { color: #8b5cf6 !important; }
@@ -67,7 +66,6 @@
         .btn-delete-order { background: #fef2f2; border: 1px solid #fca5a5; color: #ef4444; border-radius: 10px; padding: 6px 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 4px; }
         .manual-assign-select { border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px; font-size: 0.8rem; font-weight: 700; max-width: 130px; background: white; outline: none; }
 
-        /* الأرشيف والفاتورة */
         .archive-toolbar { background: white; border-radius: 16px; padding: 15px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
         .analytics-bar { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; border-radius: 15px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .table-responsive { font-size: 0.9rem; }
@@ -75,7 +73,6 @@
         .invoice-card { background: white; border-radius: 24px; padding: 25px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); position: relative; }
         .invoice-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 700; font-size: 0.9rem; }
 
-        /* كروت الإدارة */
         .sov-btn { border: none; border-radius: 12px; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; }
         .sov-accept { background: #eff6ff; color: var(--accent-blue); } .sov-pause { background: #fffbeb; color: #d97706; } .sov-delete { background: #fef2f2; color: #ef4444; } .sov-reset { background: #ecfdf5; color: #10b981; } .sov-call { background: var(--primary-blue); color: white; }
 
@@ -233,7 +230,6 @@
 
 <script>
     lucide.createIcons();
-    // الرابط الجديد
     const API_URL = "https://script.google.com/macros/s/AKfycbxzR1cciyLOA4arw_jzWlkJbjUi6HTbyone_GBoc3Qx6jbffTw-Q4H8J-ASNL5cK7lmTA/exec";
     const API_TOKEN = "HUT_SECURE_99";
     let map, heatLayer, driverMarkers = [];
@@ -360,7 +356,6 @@
         if(currentRadarFilter === 'pending') activeOrdersList = activeOrdersList.filter(o => !o[6] || o[6] === "pending_driver");
         if(currentRadarFilter === 'active') activeOrdersList = activeOrdersList.filter(o => o[6] && o[6] !== "pending_driver");
 
-        // 1. تجميع الطلبات حسب الكابتن لمعرفة (الطلبات المزدوجة)
         let groupedOrders = {};
         let pendingOrders = [];
 
@@ -370,11 +365,10 @@
                 if (!groupedOrders[driverPhone]) groupedOrders[driverPhone] = [];
                 groupedOrders[driverPhone].push(o);
             } else {
-                pendingOrders.push(o); // الطلبات التي تبحث عن كابتن
+                pendingOrders.push(o); 
             }
         });
 
-        // دالة مساعدة لتوليد حالة الطلب
         const getStatusInfo = (status, hasDriver) => {
             const isPickedUp = (status === 'picked_up' || status === 'في الطريق');
             const isArrived = (status === 'arrived_at_res');
@@ -384,14 +378,12 @@
             return { class: "status-primary", desc: "🔵 متوجه للمطعم", badge: "bg-primary" };
         };
 
-        // 2. طباعة الطلبات التي تم استلامها من قبل الكباتن (مفردة أو مزدوجة)
         Object.keys(groupedOrders).forEach(driverPhone => {
             const orders = groupedOrders[driverPhone];
             const driverInfo = globalData.drivers.find(d => String(d[2]) === String(driverPhone));
             const driverName = driverInfo ? driverInfo[1] : 'غير معروف';
 
             if (orders.length > 1) {
-                // --- الكرت البنفسجي المجمع (الطلبات المزدوجة) ---
                 smartHtml += `<div class="col-xl-6 col-lg-6"><div class="smart-order-card status-purple batch-card">`;
                 smartHtml += `
                     <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-purple">
@@ -434,7 +426,6 @@
                         </div>
                     </div>`;
                     
-                    // رمز الربط بين الطلبين
                     if(index < orders.length - 1) {
                         smartHtml += `<div class="text-center my-1"><i data-lucide="link" size="16" style="color: #a78bfa; transform: rotate(45deg);"></i></div>`;
                     }
@@ -442,12 +433,10 @@
 
                 smartHtml += `</div></div>`;
             } else {
-                // --- الكرت العادي (طلب مفرد مع كابتن) ---
                 smartHtml += generateSingleCardHTML(orders[0], true, driverName, driverPhone, activeDriversOptions);
             }
         });
 
-        // 3. طباعة الطلبات المعلقة (قيد الانتظار)
         pendingOrders.forEach(o => {
             smartHtml += generateSingleCardHTML(o, false, 'جاري البحث...', null, activeDriversOptions);
         });
@@ -456,7 +445,6 @@
         lucide.createIcons();
     }
 
-    // دالة مساعدة لطباعة الكرت العادي لتجنب تكرار الكود
     function generateSingleCardHTML(o, hasDriver, driverName, driverPhone, activeDriversOptions) {
         const orderId = o[0], restName = o[1], orderArea = o[2], details = o[3], orderPrice = o[4], status = o[5], orderTimeStr = o[7];
         const isPickedUp = (status === 'picked_up' || status === 'في الطريق');
@@ -561,15 +549,24 @@
 
         completedOrders.forEach(o => {
             const orderId = o[0], restName = o[1], price = o[4], details = o[3], status = o[5], driverPhone = o[6];
-            const orderDateObj = new Date(o[7]);
-            const orderDateISO = orderDateObj.toISOString().split('T')[0]; 
             
+            // حماية التاريخ من الأعطال (الصفوف القديمة)
+            let orderDateISO = ""; 
+            let orderDateFormatted = "---";
+            if (o[7]) {
+                const orderDateObj = new Date(o[7]);
+                if (!isNaN(orderDateObj.getTime())) {
+                    orderDateISO = orderDateObj.toISOString().split('T')[0]; 
+                    orderDateFormatted = orderDateObj.toLocaleString('ar-EG');
+                }
+            }
+
             let match = true;
             if(search && !String(orderId).toLowerCase().includes(search) && !String(details).toLowerCase().includes(search)) match = false;
             if(resFilter && restName !== resFilter) match = false;
             if(driverFilter && String(driverPhone) !== driverFilter) match = false;
-            if(dateFrom && orderDateISO < dateFrom) match = false;
-            if(dateTo && orderDateISO > dateTo) match = false;
+            if(dateFrom && orderDateISO && orderDateISO < dateFrom) match = false;
+            if(dateTo && orderDateISO && orderDateISO > dateTo) match = false;
 
             if(match) {
                 totalOrders++;
@@ -584,12 +581,12 @@
                 const dData = globalData.drivers.find(d => String(d[2]) === String(driverPhone));
                 if(dData) driverName = dData[1];
 
-                const orderDataObj = { id: orderId, date: orderDateObj.toLocaleString('ar-EG'), res: restName, driver: driverName, details: details, price: price, comm: comm, payType: payType, isSettled: isSettled };
+                const orderDataObj = { id: orderId, date: orderDateFormatted, res: restName, driver: driverName, details: details, price: price, comm: comm, payType: payType, isSettled: isSettled };
                 const orderDataStr = encodeURIComponent(JSON.stringify(orderDataObj));
 
                 archiveHtml += `<tr onclick="openInvoice('${orderDataStr}')">
                     <td class="fw-bold text-nowrap" style="color: var(--primary-blue); font-size:0.85rem;">${orderId || '-'}</td>
-                    <td class="small fw-bold text-muted text-nowrap">${orderDateISO}</td>
+                    <td class="small fw-bold text-muted text-nowrap">${orderDateISO || '-'}</td>
                     <td class="fw-bold text-dark text-truncate" style="max-width: 100px;">${restName || '-'}</td>
                     <td class="text-muted fw-bold text-truncate" style="max-width: 100px;">${driverName}</td>
                     <td><span class="badge ${isSettled ? 'bg-secondary' : 'bg-success'} px-2 py-1 rounded-pill" style="font-size:0.7rem;">${isSettled ? 'مسدد' : 'مكتمل'}</span></td>
@@ -707,7 +704,6 @@
         if(window.innerWidth <= 1100) toggleSidebar();
     }
 
-    // إعداد خريطة Leaflet المجانية بالكامل
     function initMap() {
         const kirkukLocation = [35.468, 44.392];
         
