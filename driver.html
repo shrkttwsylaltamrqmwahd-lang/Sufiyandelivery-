@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>كابتن | مكتب سفيان</title>
     
+    <title>كابتن | مكتب سفيان</title>
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3112/3112192.png"> <link rel="manifest" href='data:application/manifest+json;utf-8,{"name":"الحوت - تطبيق الكباتن","short_name":"الحوت كابتن","display":"standalone","background_color":"#f8fafc","theme_color":"#1e3a8a","start_url":".","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3112/3112192.png","sizes":"512x512","type":"image/png"}]}'>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -246,14 +252,22 @@
 <script>
     lucide.createIcons();
 
-    const API_URL = "https://script.google.com/macros/s/AKfycbxzR1cciyLOA4arw_jzWlkJbjUi6HTbyone_GBoc3Qx6jbffTw-Q4H8J-ASNL5cK7lmTA/exec";
+    // --- الرابط الجديد ---
+    const API_URL = "https://script.google.com/macros/s/AKfycbyBP0z0KJyYJfo1qUUpncQuRMvUyAoyuoiu0z4qFP2EoLv6uOLepb1KB19kx6uCfjlC7A/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     let driverData = null;
     let countdownInterval, currentOrderData = null;
-    let activeOrders = []; // تحويل الطلب المفرد إلى مصفوفة لدعم الزخم والطلبات المزدوجة
+    let activeOrders = []; 
     let isRegistering = false;
     let isOnline = true;
+
+    // تسجيل Service Worker ليعمل التطبيق (PWA) ويسمح بـ "الإضافة إلى الشاشة الرئيسية"
+    if ('serviceWorker' in navigator) {
+        const swCode = `self.addEventListener('fetch', function(event) {});`;
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
+    }
 
     window.onload = function() {
         const savedDriver = localStorage.getItem('hut_driver');
@@ -261,7 +275,6 @@
             driverData = JSON.parse(savedDriver);
             showDashboard();
             
-            // تهيئة الطلبات المحفوظة (سواء طلب قديم مفرد أو مصفوفة مزدوجة)
             const savedOrders = localStorage.getItem('hut_active_orders');
             if (savedOrders) {
                 activeOrders = JSON.parse(savedOrders);
@@ -385,6 +398,13 @@
         const script = document.createElement('script'); script.src = `${url}&callback=dummy`; document.body.appendChild(script);
     }
 
+    function updateStats() {
+        if (!driverData) return;
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=getGlobalData&callback=renderDriverData&ts=${Date.now()}`;
+        document.body.appendChild(script);
+    }
+
     function startSystem() {
         setInterval(checkForOrders, 10000);
         updateStats(); 
@@ -393,6 +413,11 @@
         if(navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
                 if(!isOnline && activeOrders.length === 0) return; 
+                
+                // حفظ الموقع الحي للكابتن لاستخدامه في منع الاحتيال والإنهاء الوهمي
+                driverData.currentLat = pos.coords.latitude;
+                driverData.currentLng = pos.coords.longitude;
+
                 const url = `${API_URL}?action=DRIVER_UPDATE&phone=${driverData.phone}&lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&token=${API_TOKEN}`;
                 fetch(url, { mode: 'no-cors' }).catch(()=>{});
             }, null, { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 });
@@ -409,7 +434,7 @@
     window.renderDriverData = function(data) {
         if(!data || !data.orders) return;
         
-        // 1. مزامنة حالة الطلبات النشطة للإنقاذ من الأخطاء (Auto-Sync)
+        // 1. مزامنة حالة الطلبات النشطة
         for (let i = activeOrders.length - 1; i >= 0; i--) {
             const order = activeOrders[i];
             const serverOrder = data.orders.find(o => String(o[0]) === String(order.id));
@@ -426,7 +451,6 @@
             }
         }
 
-        // إرفاق معلومات المطعم المؤقتة للطلبات النشطة لاستخدامها في واجهة الاتصال والخرائط
         activeOrders.forEach(order => {
             const resInfo = data.restaurants.find(r => r[1] === order.resName);
             if(resInfo) {
@@ -435,7 +459,7 @@
                 order.resLng = parseFloat(resInfo[7]);
             }
         });
-        displayActiveOrders(); // تحديث الواجهة بالبيانات الجديدة
+        displayActiveOrders(); 
 
         // 2. حساب الإحصائيات وبناء الأرشيف
         let myCompletedCount = 0, myDebt = 0, todayTotalCash = 0;
@@ -457,7 +481,7 @@
 
                 const orderDateObj = new Date(o[7]);
                 if(orderDateObj.toISOString().split('T')[0] === todayISO) {
-                    const priceVal = parseFloat(o[4]) || 0;
+                    const priceVal = parseFloat(o[4]) || 0; 
                     todayTotalCash += priceVal;
                     ledgerHtml += `
                     <div class="ledger-item">
@@ -481,7 +505,6 @@
     function closeLedger() { document.getElementById('ledgerModal').classList.add('hidden'); }
 
     function checkForOrders() {
-        // يقبل جلب إشعار جديد إذا لم يكن هناك تنبيه معروض، والحد الأقصى للطلبات لم يتجاوز 2
         if(!isOnline || activeOrders.length >= 2 || !document.getElementById('orderAlertOverlay').classList.contains('hidden')) return;
         
         const script = document.createElement('script');
@@ -491,12 +514,10 @@
 
     window.onNewOrder = function(data) {
         if(data && data.id) {
-            // تجاهل التنبيه إذا كان الطلب مسجل أصلاً (في حال تكرار القراءة الخاطئة)
             if(activeOrders.find(o => String(o.id) === String(data.id))) return;
 
             currentOrderData = data; 
             
-            // تغيير النص في حال كان هذا طلباً إضافياً (مزدوج)
             document.getElementById('alertTitleText').innerText = activeOrders.length > 0 ? "طلب مزدوج إضافي!" : "طلب جديد!";
             document.getElementById('alertResName').innerText = data.resName || 'غير متوفر';
             document.getElementById('alertArea').innerText = data.area || 'منطقة غير محددة';
@@ -533,7 +554,7 @@
             area: currentOrderData.area || '---',
             state: 'heading' 
         };
-        activeOrders.push(newOrder); // دفع الطلب للذاكرة المزدوجة
+        activeOrders.push(newOrder); 
         localStorage.setItem('hut_active_orders', JSON.stringify(activeOrders));
         
         displayActiveOrders();
@@ -556,9 +577,21 @@
     function pickUpOrder(id) { updateOrderStateLocally(id, 'picked_up', 'picked_up'); }
 
     function finishOrder(id) {
+        const order = activeOrders.find(o => String(o.id) === String(id));
+
+        // 🛡️ درع الحماية: منع إنهاء الطلب إذا كان الكابتن بجوار المطعم
+        if (order && order.resLat && order.resLng && driverData.currentLat && driverData.currentLng) {
+            const dist = calculateDistance(driverData.currentLat, driverData.currentLng, order.resLat, order.resLng);
+            
+            if (dist < 0.2) { // 0.2 كم تعني 200 متر
+                alert("⚠️ عذراً كابتن! الرادار يوضح أنك لا تزال بجوار المطعم (أقل من 200 متر). يرجى التوجه نحو الزبون أولاً لكي تتمكن من إنهاء الطلب.");
+                return; // إيقاف العملية ومنع الإنهاء
+            }
+        }
+
         if(confirm("تأكيد إتمام التوصيل للزبون واستلام المبلغ؟")) {
             updateStatusOnServer('completed', "ORDER", id);
-            activeOrders = activeOrders.filter(o => String(o.id) !== String(id)); // إزالة الطلب المسلم فقط
+            activeOrders = activeOrders.filter(o => String(o.id) !== String(id)); 
             localStorage.setItem('hut_active_orders', JSON.stringify(activeOrders));
             displayActiveOrders();
             updateStats(); 
@@ -571,7 +604,6 @@
         clearInterval(countdownInterval);
     }
 
-    // دالة عرض الكروت الديناميكية للطلبات (تدعم طلب أو طلبين معاً)
     function displayActiveOrders() {
         if (activeOrders.length === 0) {
             document.getElementById('searchingStatus').classList.remove('hidden');
@@ -598,10 +630,10 @@
             if(order.resPhone) resBtns += `<button class="btn-call-mini" style="background: #fffbeb; color: #f59e0b; border-color: #f59e0b;" onclick="window.open('tel:${order.resPhone}')"><i data-lucide="phone" size="16"></i></button>`;
             if(order.resLat && order.resLng && order.resLat !== 0) resBtns += `<button class="btn-call-mini" style="background: #eff6ff; color: #3b82f6; border-color: #3b82f6;" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=$$${order.resLat},${order.resLng}', '_blank')"><i data-lucide="navigation" size="16"></i></button>`;
 
-            // إضافة لمسة جمالية (لون بنفسجي) في حال كان هناك أكثر من طلب (زخم)
             const cardBorder = activeOrders.length > 1 ? 'border-color: #c4b5fd; border-top-color: #8b5cf6;' : '';
             const badgeColor = activeOrders.length > 1 ? 'bg-purple' : 'bg-primary';
 
+            // زر الدعم الفني المحدث ليفتح الواتساب مباشرة على 07828942660
             html += `
             <div class="active-order-card mb-4" style="${cardBorder}">
                 <div class="d-flex justify-content-between align-items-start mb-4 pb-3 border-bottom">
@@ -659,6 +691,14 @@
     function updateStatusOnServer(status, type="ORDER", explicitId=null) {
         const url = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=${type}&id=${explicitId}&status=${status}&token=${API_TOKEN}`;
         const script = document.createElement('script'); script.src = `${url}&callback=dummy`; document.body.appendChild(script);
+    }
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; 
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
     window.dummy = () => {};
