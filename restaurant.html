@@ -104,6 +104,8 @@
         .archive-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 8px; }
         .success-toast { background: var(--success); color: white; border-radius: 20px; padding: 20px; margin-top: 20px; display: flex; align-items: center; gap: 15px; animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
+        .golden-notice { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 4px solid #f59e0b; padding: 12px 15px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; font-weight: 700; color: #92400e; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.1); }
+        
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -164,7 +166,7 @@
                 </div>
                 <h3 class="fw-black mb-3 text-dark">الطلب قيد المراجعة</h3>
                 <p class="text-muted fw-bold mb-0">تم إرسال بيانات المطعم للإدارة المركزية.<br>يرجى الانتظار حتى يتم تفعيل الشراكة.</p>
-                <button class="btn btn-outline-secondary rounded-pill mt-4 fw-bold px-4" onclick="location.reload()">تحديث الحالة</button>
+                <button class="btn btn-outline-secondary rounded-pill mt-4 fw-bold px-4" onclick="logout()">العودة للتسجيل</button>
             </div>
         </div>
     </div>
@@ -177,7 +179,7 @@
                 <h3 class="fw-black m-0" id="resTitle">جاري التحميل...</h3>
                 <small class="opacity-75 fw-bold" id="resPhoneDisplay"></small>
             </div>
-            <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="location.reload()"><i data-lucide="power" size="14" class="me-1"></i> خروج</button>
+            <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="logout()"><i data-lucide="power" size="14" class="me-1"></i> خروج</button>
         </div>
     </div>
 
@@ -210,6 +212,11 @@
 
                 <div class="glass-card">
                     <h4 class="fw-black mb-4"><i data-lucide="send" class="me-2 text-accent"></i> إرسال طلب توصيل</h4>
+                    
+                    <div class="golden-notice">
+                        <i data-lucide="info" size="16" class="me-1" style="vertical-align: text-bottom;"></i>
+                        <strong>شريكنا العزيز:</strong> استخدامك لـ "الإدخال اليدوي" يساعد الكابتن على قراءة العنوان والاتصال بالزبون بنقرة واحدة، مما يضمن وصول الطلب أسرع وبخدمة أفضل!
+                    </div>
                     
                     <div class="order-type-toggle">
                         <div class="toggle-btn active" id="tabManual" onclick="switchTab('manual')">
@@ -314,8 +321,8 @@
 <script>
     lucide.createIcons();
 
-    // --- تحديث الرابط الجديد ---
-    const API_URL = "https://script.google.com/macros/s/AKfycby4fyF_319zOOMtufCrj7WLkDkrWxYp6wHr7Yj6xeG7ih3CoIg92yInUqpe7IDt-p9ytg/exec";
+    // --- الرابط الجديد والتوكن السري لحماية السيرفر ---
+    const API_URL = "https://script.google.com/macros/s/AKfycbx6X9FtlbV-gAzdCX3g0cCtc6RIRldsbcNjO29m5Z4JhLr6FU5ulAdIBbFl_7SQCi3pnA/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     let currentResName = "";
@@ -324,11 +331,24 @@
     let base64Receipt = null;
     let dataRefreshInterval;
 
-    // تسجيل Service Worker ليعمل التطبيق (PWA)
     if ('serviceWorker' in navigator) {
         const swCode = `self.addEventListener('fetch', function(event) {});`;
         const blob = new Blob([swCode], { type: 'application/javascript' });
         navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
+    }
+
+    // --- نظام "تذكرني" (Auto-Login) ---
+    window.onload = function() {
+        const savedPhone = localStorage.getItem('hut_res_phone');
+        if(savedPhone) {
+            document.getElementById('checkPhone').value = savedPhone;
+            authAction(savedPhone);
+        }
+    };
+
+    function logout() {
+        localStorage.removeItem('hut_res_phone');
+        location.reload();
     }
 
     function showLoading(s, text = "جاري المعالجة...") { 
@@ -413,11 +433,11 @@
         document.getElementById('photoPreviewContainer').classList.add('hidden-section');
     }
 
-    function authAction() {
-        const phone = document.getElementById('checkPhone').value.trim();
+    function authAction(autoPhone = null) {
+        const phone = autoPhone || document.getElementById('checkPhone').value.trim();
         if(!phone) return alert("يرجى إدخال رقم الهاتف");
 
-        if (isRegistering) {
+        if (isRegistering && !autoPhone) {
             const name = document.getElementById('regName').value.trim();
             const area = document.getElementById('regArea').value.trim();
             const mapLink = document.getElementById('regMap').value.trim();
@@ -440,7 +460,8 @@
 
         showLoading(true, "جاري فحص حالة المطعم...");
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=checkRes&phone=${phone}&callback=handleLogin&ts=${Date.now()}`;
+        // إضافة التوكن للطلب لكي يعبر الجدار الناري
+        script.src = `${API_URL}?action=checkRes&phone=${phone}&token=${API_TOKEN}&callback=handleLogin&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
 
@@ -449,6 +470,7 @@
         fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => {
             showLoading(false);
+            localStorage.setItem('hut_res_phone', phone); // حفظ الرقم بعد التسجيل
             document.getElementById('authBox').classList.add('hidden-section');
             document.getElementById('waitingBox').classList.remove('hidden-section');
         }).catch(() => { showLoading(false); alert("حدث خطأ أثناء الإرسال."); });
@@ -458,6 +480,9 @@
         showLoading(false);
         if(data.status === "active") {
             currentResName = data.name;
+            const currentPhone = document.getElementById('checkPhone').value.trim();
+            if(currentPhone) localStorage.setItem('hut_res_phone', currentPhone); // حفظ الرقم في المتصفح للعودة
+            
             document.getElementById('loginSection').classList.add('hidden-section');
             document.getElementById('orderSection').classList.remove('hidden-section');
             document.getElementById('resTitle').innerText = data.name;
@@ -468,6 +493,9 @@
             dataRefreshInterval = setInterval(fetchResDashboardData, 15000);
 
         } else if(data.status === "pending" || data.status === "waiting") {
+            const currentPhone = document.getElementById('checkPhone').value.trim();
+            if(currentPhone) localStorage.setItem('hut_res_phone', currentPhone);
+            
             document.getElementById('authBox').classList.add('hidden-section');
             document.getElementById('waitingBox').classList.remove('hidden-section');
         } else {
@@ -485,6 +513,7 @@
         if(confirm("هل أنت متأكد من إلغاء وحذف هذا الطلب؟")) {
             showLoading(true, "جاري إلغاء الطلب...");
             const script = document.createElement('script');
+            // إضافة التوكن للطلب لكي يعبر الجدار الناري
             script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=ORDER&id=${orderId}&status=deleted&token=${API_TOKEN}&callback=onCancelSuccess`;
             document.body.appendChild(script);
         }
@@ -501,7 +530,8 @@
 
     function fetchResDashboardData() {
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=getGlobalData&callback=renderResDashboard&ts=${Date.now()}`;
+        // إضافة التوكن لجلب البيانات
+        script.src = `${API_URL}?action=getGlobalData&token=${API_TOKEN}&callback=renderResDashboard&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
 
@@ -531,7 +561,7 @@
             if(o[1] === currentResName) {
                 const status = o[5];
                 const orderId = o[0];
-                const orderArea = o[2]; // المنطقة في العمود J مسبقاً وتُرجمت إلى [2] في السيرفر
+                const orderArea = o[2]; 
                 const driverPhone = o[6];
                 
                 const orderDateStr = o[7];
@@ -550,7 +580,7 @@
                     
                     // 2. أرشيف اليوم
                     if(orderISO === todayISO) {
-                        const priceVal = parseFloat(o[4]) || 0; // السعر في العمود H وتُرجم إلى [4]
+                        const priceVal = parseFloat(o[4]) || 0; 
                         todaySalesTotal += priceVal;
                         
                         let driverName = "مكتمل";
@@ -570,7 +600,7 @@
                         </div>`;
                     }
                 } 
-                // 3. بناء الطلبات الحية (مع عرض المنطقة والوقت)
+                // 3. بناء الطلبات الحية
                 else if (status !== 'deleted') {
                     let driverName = 'جاري البحث...';
                     
@@ -646,7 +676,6 @@
         lucide.createIcons();
     };
 
-    // الإرسال السريع والصفري
     document.getElementById('orderForm').onsubmit = function(e) {
         e.preventDefault();
 
