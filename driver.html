@@ -255,8 +255,8 @@
 <script>
     lucide.createIcons();
 
-    // --- الرابط الجديد ---
-    const API_URL = "https://script.google.com/macros/s/AKfycby4fyF_319zOOMtufCrj7WLkDkrWxYp6wHr7Yj6xeG7ih3CoIg92yInUqpe7IDt-p9ytg/exec";
+    // --- الرابط الجديد والتوكن السري لحماية السيرفر ---
+    const API_URL = "https://script.google.com/macros/s/AKfycbx6X9FtlbV-gAzdCX3g0cCtc6RIRldsbcNjO29m5Z4JhLr6FU5ulAdIBbFl_7SQCi3pnA/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     let driverData = null;
@@ -264,17 +264,15 @@
     let activeOrders = []; 
     let isRegistering = false;
     let isOnline = true;
-    let checkOrdersTimer = null; // تعريف متغير للتحكم بنبض الرادار
-    let currentPollingRate = 20000; // السرعة الافتراضية للرادار (20 ثانية)
+    let checkOrdersTimer = null; 
+    let currentPollingRate = 20000; 
 
-    // تسجيل Service Worker ليعمل التطبيق (PWA)
     if ('serviceWorker' in navigator) {
         const swCode = `self.addEventListener('fetch', function(event) {});`;
         const blob = new Blob([swCode], { type: 'application/javascript' });
         navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
     }
 
-    // دالة تهيئة الصوت والأذونات
     function initAudioAndAuth() {
         let audio = document.getElementById('alertSound');
         audio.play().then(() => {
@@ -285,11 +283,16 @@
         authAction();
     }
 
+    // --- نظام الدخول التلقائي (Auto-Login) ---
     window.onload = function() {
         const savedDriver = localStorage.getItem('hut_driver');
         if (savedDriver) {
             driverData = JSON.parse(savedDriver);
-            showDashboard();
+            // ضع الرقم في الحقل لكي لا يكون فارغاً
+            document.getElementById('driverPhone').value = driverData.phone;
+            
+            // تحقق صامت لضمان أن الكابتن غير محظور أو محذوف
+            authAction(); 
             
             const savedOrders = localStorage.getItem('hut_active_orders');
             if (savedOrders) {
@@ -302,7 +305,6 @@
                     localStorage.setItem('hut_active_orders', JSON.stringify(activeOrders));
                 }
             }
-            displayActiveOrders();
         }
     };
 
@@ -343,7 +345,8 @@
 
         setLoadingBtn(true);
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=checkDriver&phone=${phone}&callback=handleLoginCheck&ts=${Date.now()}`;
+        // 🛡️ تم إضافة التوكن هنا لاجتياز الجدار الناري!
+        script.src = `${API_URL}?action=checkDriver&phone=${phone}&token=${API_TOKEN}&callback=handleLoginCheck&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
 
@@ -352,12 +355,14 @@
             driverData = { phone: document.getElementById('driverPhone').value.trim(), name: data.name };
             localStorage.setItem('hut_driver', JSON.stringify(driverData));
             showDashboard();
+            displayActiveOrders();
         } else if (data.status === "pending" || data.status === "waiting") {
             document.getElementById('authBox').classList.add('hidden');
             document.getElementById('waitingBox').classList.remove('hidden');
         } else if (data.status === "banned") {
             alert("⚠️ عذراً، حسابك محظور من قبل الإدارة.");
-            setLoadingBtn(false, "فحص الإشارة", "radar");
+            localStorage.removeItem('hut_driver');
+            location.reload();
         } else {
             isRegistering = true;
             document.getElementById('registerFields').classList.remove('hidden');
@@ -397,7 +402,7 @@
             radarDesc.innerText = "جاري البحث عن طلبات قريبة منك...";
             radarIcon.setAttribute('color', '#3b82f6');
             updateDriverStatusApi('active'); 
-            adjustPollingRate(); // تعديل السرعة بناءً على الحالة
+            adjustPollingRate(); 
         } else {
             badge.className = "status-badge offline";
             badge.innerHTML = `<i data-lucide="coffee" size="14"></i> <span id="onlineStatusText">في استراحة</span>`;
@@ -406,7 +411,7 @@
             radarDesc.innerText = "أنت الآن في فترة استراحة، استمتع بوقتك.";
             radarIcon.setAttribute('color', '#64748b');
             updateDriverStatusApi('inactive'); 
-            adjustPollingRate(); // إيقاف البحث
+            adjustPollingRate(); 
         }
         lucide.createIcons();
     }
@@ -419,23 +424,20 @@
     function updateStats() {
         if (!driverData) return;
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=getGlobalData&callback=renderDriverData&ts=${Date.now()}`;
+        // 🛡️ تم إضافة التوكن هنا أيضاً لكي يسمح السيرفر بجلب الإحصائيات!
+        script.src = `${API_URL}?action=getGlobalData&token=${API_TOKEN}&callback=renderDriverData&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
 
-    // --- دالة النبض المتكيف (Adaptive Polling) ---
     function adjustPollingRate() {
         if (checkOrdersTimer) clearInterval(checkOrdersTimer);
-        
-        if (!isOnline) return; // لا يبحث أبداً وهو في استراحة
-        
-        // 20 ثانية (أثناء الانتظار) - 10 ثوانٍ (أثناء التوصيل)
+        if (!isOnline) return; 
         currentPollingRate = (activeOrders.length === 0) ? 20000 : 10000;
         checkOrdersTimer = setInterval(checkForOrders, currentPollingRate);
     }
 
     function startSystem() {
-        adjustPollingRate(); // تشغيل الرادار المتكيف
+        adjustPollingRate(); 
         updateStats(); 
         setInterval(updateStats, 20000); 
         
@@ -559,7 +561,6 @@
             let audio = document.getElementById('alertSound');
             audio.currentTime = 0; audio.play().catch(e=>{});
             
-            // إرسال إشعار للنظام الأندرويد إذا كان التطبيق مغلفاً (WebView)
             if (window.AndroidInterface && typeof window.AndroidInterface.showNotification === 'function') {
                 window.AndroidInterface.showNotification("طلب جديد من " + data.resName, "اضغط لفتح التطبيق!");
             }
@@ -666,13 +667,13 @@
         if (activeOrders.length === 0) {
             document.getElementById('searchingStatus').classList.remove('hidden');
             document.getElementById('activeOrderBox').classList.add('hidden');
-            adjustPollingRate(); // تأكد من تقليل سرعة الرادار عند إفراغ الطلبات
+            adjustPollingRate(); 
             return;
         }
 
         document.getElementById('searchingStatus').classList.add('hidden');
         document.getElementById('activeOrderBox').classList.remove('hidden');
-        adjustPollingRate(); // تأكد من زيادة سرعة الرادار لوجود طلب نشط
+        adjustPollingRate(); 
         
         let html = '';
         activeOrders.forEach((order, index) => {
