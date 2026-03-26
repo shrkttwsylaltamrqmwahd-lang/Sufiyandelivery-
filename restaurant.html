@@ -261,10 +261,10 @@
                         <div id="photoSection" class="hidden-section">
                             <div class="mb-4">
                                 <label class="form-label">صورة الوصل (تحتوي العنوان والهاتف)</label>
-                                <input type="file" id="receiptPhoto" accept="image/*" capture="environment" class="d-none" onchange="processImage(this)">
+                                <input type="file" id="receiptPhoto" accept="image/png, image/jpeg" class="d-none" onchange="processImage(this)">
                                 <label for="receiptPhoto" class="camera-btn" id="cameraBtn">
                                     <i data-lucide="scan-line" size="40"></i>
-                                    <span>اضغط هنا لفتح الكاميرا والتقاط الوصل</span>
+                                    <span>اضغط هنا لاختيار أو التقاط صورة الوصل</span>
                                 </label>
                                 <div id="photoPreviewContainer" class="hidden-section text-center">
                                     <img id="photoPreview" class="preview-img" src="" alt="معاينة الوصل">
@@ -321,7 +321,6 @@
 <script>
     lucide.createIcons();
 
-    // --- الرابط الجديد والتوكن السري لحماية السيرفر ---
     const API_URL = "https://script.google.com/macros/s/AKfycbx6X9FtlbV-gAzdCX3g0cCtc6RIRldsbcNjO29m5Z4JhLr6FU5ulAdIBbFl_7SQCi3pnA/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
@@ -337,12 +336,18 @@
         navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
     }
 
-    // --- نظام "تذكرني" (Auto-Login) ---
+    // --- نظام "تذكرني" والتحكم السريع بالكاميرا ---
     window.onload = function() {
         const savedPhone = localStorage.getItem('hut_res_phone');
         if(savedPhone) {
             document.getElementById('checkPhone').value = savedPhone;
             authAction(savedPhone);
+        }
+
+        // التعديل الذكي: إذا كان قد نجح في التقاط صورة مسبقاً، اجعل الزر يفتح الكاميرا مباشرة
+        const photoInput = document.getElementById('receiptPhoto');
+        if(localStorage.getItem('hut_camera_optimized') === 'true') {
+            photoInput.setAttribute('capture', 'environment');
         }
     };
 
@@ -386,24 +391,16 @@
         }
     }
 
-    function switchListTab(tab) {
-        document.getElementById('tabLiveOrders').classList.remove('active');
-        document.getElementById('tabTodayArchive').classList.remove('active');
-        
-        if (tab === 'live') {
-            document.getElementById('tabLiveOrders').classList.add('active');
-            document.getElementById('activeOrdersList').classList.remove('hidden-section');
-            document.getElementById('todayArchiveList').classList.add('hidden-section');
-        } else {
-            document.getElementById('tabTodayArchive').classList.add('active');
-            document.getElementById('todayArchiveList').classList.remove('hidden-section');
-            document.getElementById('activeOrdersList').classList.add('hidden-section');
-        }
-    }
-
     function processImage(input) {
         if (input.files && input.files[0]) {
             showLoading(true, "جاري تحسين الوصل...");
+            
+            // بمجرد التقاط أول صورة بنجاح، نفعّل خيار الكاميرا المباشرة للمرات القادمة
+            if(!localStorage.getItem('hut_camera_optimized')) {
+                localStorage.setItem('hut_camera_optimized', 'true');
+                input.setAttribute('capture', 'environment');
+            }
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
@@ -460,7 +457,6 @@
 
         showLoading(true, "جاري فحص حالة المطعم...");
         const script = document.createElement('script');
-        // إضافة التوكن للطلب لكي يعبر الجدار الناري
         script.src = `${API_URL}?action=checkRes&phone=${phone}&token=${API_TOKEN}&callback=handleLogin&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
@@ -470,7 +466,7 @@
         fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => {
             showLoading(false);
-            localStorage.setItem('hut_res_phone', phone); // حفظ الرقم بعد التسجيل
+            localStorage.setItem('hut_res_phone', phone); 
             document.getElementById('authBox').classList.add('hidden-section');
             document.getElementById('waitingBox').classList.remove('hidden-section');
         }).catch(() => { showLoading(false); alert("حدث خطأ أثناء الإرسال."); });
@@ -481,7 +477,7 @@
         if(data.status === "active") {
             currentResName = data.name;
             const currentPhone = document.getElementById('checkPhone').value.trim();
-            if(currentPhone) localStorage.setItem('hut_res_phone', currentPhone); // حفظ الرقم في المتصفح للعودة
+            if(currentPhone) localStorage.setItem('hut_res_phone', currentPhone);
             
             document.getElementById('loginSection').classList.add('hidden-section');
             document.getElementById('orderSection').classList.remove('hidden-section');
@@ -513,7 +509,6 @@
         if(confirm("هل أنت متأكد من إلغاء وحذف هذا الطلب؟")) {
             showLoading(true, "جاري إلغاء الطلب...");
             const script = document.createElement('script');
-            // إضافة التوكن للطلب لكي يعبر الجدار الناري
             script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=ORDER&id=${orderId}&status=deleted&token=${API_TOKEN}&callback=onCancelSuccess`;
             document.body.appendChild(script);
         }
@@ -530,7 +525,6 @@
 
     function fetchResDashboardData() {
         const script = document.createElement('script');
-        // إضافة التوكن لجلب البيانات
         script.src = `${API_URL}?action=getGlobalData&token=${API_TOKEN}&callback=renderResDashboard&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
@@ -570,7 +564,6 @@
                 const orderTimeStrFormat = orderDateObj.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
                 const isThisMonth = orderDateObj.getMonth() === currentMonth && orderDateObj.getFullYear() === currentYear;
 
-                // 1. حساب الإحصائيات 
                 if (status === 'completed' || status === 'مكتمل' || status === 'settled') {
                     if(isThisMonth) monthlyCount++;
                     if(status !== 'settled') {
@@ -578,7 +571,6 @@
                         else totalUnpaid += commRate;
                     }
                     
-                    // 2. أرشيف اليوم
                     if(orderISO === todayISO) {
                         const priceVal = parseFloat(o[4]) || 0; 
                         todaySalesTotal += priceVal;
@@ -600,7 +592,6 @@
                         </div>`;
                     }
                 } 
-                // 3. بناء الطلبات الحية
                 else if (status !== 'deleted') {
                     let driverName = 'جاري البحث...';
                     
