@@ -76,8 +76,13 @@
         }
         .toggle-btn.active { background: white; color: var(--primary-blue); box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
 
-        .camera-btn { background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; border-radius: 20px; padding: 30px; text-align: center; color: #3b82f6; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .camera-btn:hover, .camera-btn:active { background: rgba(59, 130, 246, 0.2); transform: scale(0.98); }
+        .camera-btn-ui { background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; border-radius: 20px; padding: 30px; text-align: center; color: #3b82f6; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.3s; }
+        
+        /* التعديل الجوهري: حاوية الزر الشفاف */
+        .camera-wrapper { position: relative; overflow: hidden; border-radius: 20px; cursor: pointer; }
+        .camera-wrapper:active .camera-btn-ui { background: rgba(59, 130, 246, 0.2); transform: scale(0.98); }
+        .real-file-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
+
         .preview-img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 15px; border: 2px solid #e2e8f0; margin-top: 15px; }
 
         /* كروت الطلبات الحية */
@@ -261,11 +266,15 @@
                         <div id="photoSection" class="hidden-section">
                             <div class="mb-4">
                                 <label class="form-label">صورة الوصل (تحتوي العنوان والهاتف)</label>
-                                <input type="file" id="receiptPhoto" accept="image/*" capture="environment" class="d-none" onchange="processImage(this)">
-                                <label for="receiptPhoto" class="camera-btn" id="cameraBtn">
-                                    <i data-lucide="scan-line" size="40"></i>
-                                    <span>اضغط هنا لفتح الكاميرا والتقاط الوصل</span>
-                                </label>
+                                
+                                <div class="camera-wrapper" id="cameraBtnContainer">
+                                    <div class="camera-btn-ui">
+                                        <i data-lucide="scan-line" size="40"></i>
+                                        <span>اضغط هنا لفتح الكاميرا والتقاط الوصل</span>
+                                    </div>
+                                    <input type="file" id="receiptPhoto" accept="image/*" capture="environment" class="real-file-input" onchange="processImage(this)">
+                                </div>
+
                                 <div id="photoPreviewContainer" class="hidden-section text-center">
                                     <img id="photoPreview" class="preview-img" src="" alt="معاينة الوصل">
                                     <button type="button" class="btn btn-sm btn-outline-danger mt-2 fw-bold" onclick="removePhoto()">إلغاء وإعادة التصوير</button>
@@ -321,7 +330,6 @@
 <script>
     lucide.createIcons();
 
-    // --- الرابط الجديد والتوكن السري لحماية السيرفر ---
     const API_URL = "https://script.google.com/macros/s/AKfycbx6X9FtlbV-gAzdCX3g0cCtc6RIRldsbcNjO29m5Z4JhLr6FU5ulAdIBbFl_7SQCi3pnA/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
@@ -337,7 +345,6 @@
         navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
     }
 
-    // --- نظام "تذكرني" (Auto-Login) ---
     window.onload = function() {
         const savedPhone = localStorage.getItem('hut_res_phone');
         if(savedPhone) {
@@ -417,7 +424,8 @@
                     base64Receipt = canvas.toDataURL('image/jpeg', 0.7);
                     
                     document.getElementById('photoPreview').src = base64Receipt;
-                    document.getElementById('cameraBtn').classList.add('hidden-section');
+                    // إخفاء حاوية الزر الشفاف بالكامل
+                    document.getElementById('cameraBtnContainer').classList.add('hidden-section');
                     document.getElementById('photoPreviewContainer').classList.remove('hidden-section');
                     showLoading(false);
                 }
@@ -429,7 +437,8 @@
 
     function removePhoto() {
         base64Receipt = null; document.getElementById('receiptPhoto').value = "";
-        document.getElementById('cameraBtn').classList.remove('hidden-section');
+        // إعادة إظهار الزر
+        document.getElementById('cameraBtnContainer').classList.remove('hidden-section');
         document.getElementById('photoPreviewContainer').classList.add('hidden-section');
     }
 
@@ -460,7 +469,6 @@
 
         showLoading(true, "جاري فحص حالة المطعم...");
         const script = document.createElement('script');
-        // إضافة التوكن للطلب لكي يعبر الجدار الناري
         script.src = `${API_URL}?action=checkRes&phone=${phone}&token=${API_TOKEN}&callback=handleLogin&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
@@ -470,7 +478,7 @@
         fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => {
             showLoading(false);
-            localStorage.setItem('hut_res_phone', phone); // حفظ الرقم بعد التسجيل
+            localStorage.setItem('hut_res_phone', phone);
             document.getElementById('authBox').classList.add('hidden-section');
             document.getElementById('waitingBox').classList.remove('hidden-section');
         }).catch(() => { showLoading(false); alert("حدث خطأ أثناء الإرسال."); });
@@ -481,7 +489,7 @@
         if(data.status === "active") {
             currentResName = data.name;
             const currentPhone = document.getElementById('checkPhone').value.trim();
-            if(currentPhone) localStorage.setItem('hut_res_phone', currentPhone); // حفظ الرقم في المتصفح للعودة
+            if(currentPhone) localStorage.setItem('hut_res_phone', currentPhone);
             
             document.getElementById('loginSection').classList.add('hidden-section');
             document.getElementById('orderSection').classList.remove('hidden-section');
@@ -513,7 +521,6 @@
         if(confirm("هل أنت متأكد من إلغاء وحذف هذا الطلب؟")) {
             showLoading(true, "جاري إلغاء الطلب...");
             const script = document.createElement('script');
-            // إضافة التوكن للطلب لكي يعبر الجدار الناري
             script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=ORDER&id=${orderId}&status=deleted&token=${API_TOKEN}&callback=onCancelSuccess`;
             document.body.appendChild(script);
         }
@@ -530,7 +537,6 @@
 
     function fetchResDashboardData() {
         const script = document.createElement('script');
-        // إضافة التوكن لجلب البيانات
         script.src = `${API_URL}?action=getGlobalData&token=${API_TOKEN}&callback=renderResDashboard&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
@@ -570,7 +576,6 @@
                 const orderTimeStrFormat = orderDateObj.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
                 const isThisMonth = orderDateObj.getMonth() === currentMonth && orderDateObj.getFullYear() === currentYear;
 
-                // 1. حساب الإحصائيات 
                 if (status === 'completed' || status === 'مكتمل' || status === 'settled') {
                     if(isThisMonth) monthlyCount++;
                     if(status !== 'settled') {
@@ -578,7 +583,6 @@
                         else totalUnpaid += commRate;
                     }
                     
-                    // 2. أرشيف اليوم
                     if(orderISO === todayISO) {
                         const priceVal = parseFloat(o[4]) || 0; 
                         todaySalesTotal += priceVal;
@@ -600,7 +604,6 @@
                         </div>`;
                     }
                 } 
-                // 3. بناء الطلبات الحية
                 else if (status !== 'deleted') {
                     let driverName = 'جاري البحث...';
                     
@@ -732,4 +735,3 @@
 </script>
 </body>
 </html>
-​
