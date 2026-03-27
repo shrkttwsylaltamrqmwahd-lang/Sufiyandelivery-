@@ -270,7 +270,6 @@
 <script>
     lucide.createIcons();
 
-    // تم التحديث إلى الرابط المدرع الجديد V3
     const API_URL = "https://script.google.com/macros/s/AKfycbxYwOaivMtYWv7WzWmqKrmv5TbFGkMyN1FW2U0KZp9cYdRemSv-QvkeZLdt6rYzORnyLQ/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
@@ -315,7 +314,8 @@
         const savedDriver = localStorage.getItem('hut_driver');
         if (savedDriver) {
             driverData = JSON.parse(savedDriver);
-            document.getElementById('driverPhone').value = driverData.phone;
+            // إضافة الصفر للشكل الجمالي أمام الكابتن
+            document.getElementById('driverPhone').value = driverData.phone.startsWith('0') ? driverData.phone : '0' + driverData.phone;
             authAction(); 
             const savedOrders = localStorage.getItem('hut_active_orders');
             if (savedOrders) { activeOrders = JSON.parse(savedOrders); }
@@ -335,8 +335,11 @@
     }
 
     function authAction() {
-        const phone = document.getElementById('driverPhone').value.trim();
-        if(!phone) return alert("يرجى إدخال رقم الهاتف");
+        let rawPhone = document.getElementById('driverPhone').value.trim();
+        if(!rawPhone) return alert("يرجى إدخال رقم الهاتف");
+
+        // 🛡️ الدرع الذكي: إزالة الصفر من بداية الرقم برمجياً لتطابق الاكسل
+        let phone = rawPhone.startsWith('0') ? rawPhone.substring(1) : rawPhone;
 
         if (isRegistering) {
             const name = document.getElementById('driverName').value.trim();
@@ -362,8 +365,11 @@
     }
 
     window.handleLoginCheck = function(data) {
+        let rawPhone = document.getElementById('driverPhone').value.trim();
+        let phone = rawPhone.startsWith('0') ? rawPhone.substring(1) : rawPhone;
+
         if(data.status === "active") {
-            driverData = { phone: document.getElementById('driverPhone').value.trim(), name: data.name };
+            driverData = { phone: phone, name: data.name }; // حفظ الرقم بدون صفر
             localStorage.setItem('hut_driver', JSON.stringify(driverData));
             showDashboard();
             displayActiveOrders();
