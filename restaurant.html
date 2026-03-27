@@ -14,13 +14,13 @@
 
     <link rel="manifest" href="manifest_restaurant.json">
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3081/3081308.png">
+    <link rel="apple-touch-icon" href="rest-logo.png">
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="مطاعم سفيان - منصة الحوت">
     <meta property="og:description" content="إدارة طلبات التوصيل الذكية في كركوك - مكتب سفيان">
-    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3081/3081308.png">
-    <meta property="og:url" content="https://taha-user.github.io/alhut/">
+    <meta property="og:image" content="rest-logo.png">
+    <meta property="og:url" content="https://sufianwithalhut.github.io/sufianwithalhut/">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -145,7 +145,7 @@
             <div class="login-card" id="authBox">
                 <div class="mb-4 text-center">
                     <label class="form-label text-center">رقم هاتف الإدارة المسجل</label>
-                    <input type="tel" id="checkPhone" class="custom-input phone-format" placeholder="07XXXXXXXXX" dir="ltr">
+                    <input type="tel" id="checkPhone" class="custom-input phone-format" placeholder="07XXXXXXXXX" dir="ltr" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');">
                 </div>
 
                 <div id="registerFields" class="hidden-section text-start" style="animation: fadeIn 0.5s;">
@@ -155,11 +155,11 @@
                         <h5 class="fw-black m-0">تسجيل مطعم جديد</h5>
                     </div>
                     
-                    <div class="mb-3"><input type="text" id="regName" class="custom-input" placeholder="الاسم التجاري للمطعم"></div>
-                    <div class="mb-3"><input type="text" id="regArea" class="custom-input" placeholder="منطقة المطعم (مثال: طريق بغداد)"></div>
-                    <div class="mb-3"><input type="url" id="regMap" class="custom-input" placeholder="رابط موقع المطعم (Google Maps)" dir="ltr"></div>
+                    <div class="mb-3"><input type="text" id="regName" class="custom-input" placeholder="الاسم التجاري للمطعم" autocomplete="off"></div>
+                    <div class="mb-3"><input type="text" id="regArea" class="custom-input" placeholder="منطقة المطعم (مثال: طريق بغداد)" autocomplete="off"></div>
+                    <div class="mb-3"><input type="url" id="regMap" class="custom-input" placeholder="رابط موقع المطعم (Google Maps)" dir="ltr" autocomplete="off"></div>
                     <div class="row g-2 mb-4">
-                        <div class="col-6"><input type="number" id="regComm" class="custom-input" placeholder="العمولة (د.ع)"></div>
+                        <div class="col-6"><input type="number" id="regComm" class="custom-input" placeholder="العمولة (د.ع)" autocomplete="off"></div>
                         <div class="col-6">
                             <select id="regPay" class="custom-input px-2">
                                 <option value="المطعم يدفع" selected>المطعم يدفع</option>
@@ -249,11 +249,11 @@
                         <div id="manualSection">
                             <div class="mb-4">
                                 <label class="form-label">رقم هاتف الزبون</label>
-                                <input type="tel" id="customerPhone" class="custom-input phone-format" placeholder="07XXXXXXXXX" dir="ltr">
+                                <input type="tel" id="customerPhone" class="custom-input phone-format" placeholder="07XXXXXXXXX" dir="ltr" autocomplete="off">
                             </div>
                             <div class="mb-4">
                                 <label class="form-label">تفاصيل إضافية (اختياري)</label>
-                                <input type="text" id="customerDetails" class="custom-input" placeholder="مثال: قرب صيدلية السلام">
+                                <input type="text" id="customerDetails" class="custom-input" placeholder="مثال: قرب صيدلية السلام" autocomplete="off">
                             </div>
                         </div>
 
@@ -320,8 +320,8 @@
 <script>
     lucide.createIcons();
 
-    // الرابط النهائي المحدث والمدرع
-    const API_URL = "https://script.google.com/macros/s/AKfycbylcuOIIstd4kJADmYjNq4EvMvn6CsO-4N5JcpohyyQ3hkD4AhpWBZL7Jqsxhr_jJC6eA/exec";
+    // تم التحديث إلى الرابط المدرع الجديد V3
+    const API_URL = "https://script.google.com/macros/s/AKfycbxYwOaivMtYWv7WzWmqKrmv5TbFGkMyN1FW2U0KZp9cYdRemSv-QvkeZLdt6rYzORnyLQ/exec";
     const API_TOKEN = "HUT_SECURE_99";
     let currentResName = "";
     let isRegistering = false;
@@ -461,8 +461,11 @@
     };
 
     function logout() {
-        localStorage.removeItem('hut_res_phone');
-        location.reload();
+        if(confirm("هل تريد تسجيل الخروج؟ سيتم مسح الذاكرة المؤقتة.")) {
+            localStorage.clear();
+            sessionStorage.clear();
+            location.reload();
+        }
     }
 
     function showLoading(s, text = "جاري المعالجة...") { 
@@ -563,6 +566,7 @@
 
         showLoading(true, "جاري فحص حالة المطعم...");
         const script = document.createElement('script');
+        // كسر الكاش بإضافة ts
         script.src = `${API_URL}?action=checkRes&phone=${phone}&token=${API_TOKEN}&callback=handleLogin&ts=${Date.now()}`;
         document.body.appendChild(script);
     }
@@ -615,7 +619,7 @@
         if(confirm("هل أنت متأكد من إلغاء وحذف هذا الطلب؟")) {
             showLoading(true, "جاري إلغاء الطلب...");
             const script = document.createElement('script');
-            script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=ORDER&id=${orderId}&status=deleted&token=${API_TOKEN}&callback=onCancelSuccess`;
+            script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=ORDER&id=${orderId}&status=deleted&token=${API_TOKEN}&callback=onCancelSuccess&ts=${Date.now()}`;
             document.body.appendChild(script);
         }
     }
@@ -809,13 +813,12 @@
             areaWithHint = `${finalArea} (توصيل ثابت: ${extractedPrice})`;
         }
 
-        // المحرك العصبي: منع تكرار الإرسال عند ضعف النت
         const uniqueFrontendId = "HUT-" + Math.floor(Date.now() / 1000) + "-" + Math.floor(Math.random() * 1000);
 
         const payload = {
             action: 'NEW_ORDER',
             token: API_TOKEN,
-            frontendId: uniqueFrontendId, // المعرف الفريد لمنع التكرار
+            frontendId: uniqueFrontendId,
             restaurantName: currentResName,
             area: areaWithHint,
             price: finalPrice,
