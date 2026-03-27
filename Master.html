@@ -12,15 +12,15 @@
     <meta name="apple-mobile-web-app-title" content="إدارة الحوت">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2830/2830305.png">
+    <link rel="apple-touch-icon" href="master-logo.png">
     
     <link rel="manifest" href="manifest_master.json">
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="الإدارة المركزية - مكتب سفيان">
     <meta property="og:description" content="لوحة التحكم والرصد الميداني لنظام الحوت">
-    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/2830/2830305.png">
-    <meta property="og:url" content="https://taha-user.github.io/alhut/">
+    <meta property="og:image" content="master-logo.png">
+    <meta property="og:url" content="https://sufianwithalhut.github.io/sufianwithalhut/">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -137,7 +137,7 @@
         </div>
         <h3 class="fw-black text-dark mb-1">مكتب سفيان</h3>
         <p class="text-muted small fw-bold mb-4">بالتعاون مع نظام الحوت</p>
-        <input type="password" id="masterPass" class="form-control form-control-lg text-center mb-4 shadow-none bg-light border-0 py-3 rounded-4" placeholder="رمز المرور الآمن" onkeypress="if(event.key === 'Enter') checkAuth()">
+        <input type="password" id="masterPass" class="form-control form-control-lg text-center mb-4 shadow-none bg-light border-0 py-3 rounded-4" placeholder="رمز المرور الآمن" autocomplete="off" onkeypress="if(event.key === 'Enter') checkAuth()">
         <button class="btn w-100 py-3 fw-bold rounded-4 text-white" style="background: var(--primary-blue);" onclick="checkAuth()">تسجيل الدخول</button>
     </div>
 </div>
@@ -250,47 +250,38 @@
 <script>
     lucide.createIcons();
     
-    // الرابط النهائي المدرع
-    const API_URL = "https://script.google.com/macros/s/AKfycbylcuOIIstd4kJADmYjNq4EvMvn6CsO-4N5JcpohyyQ3hkD4AhpWBZL7Jqsxhr_jJC6eA/exec";
+    // تم التحديث إلى الرابط المدرع الجديد V3
+    const API_URL = "https://script.google.com/macros/s/AKfycbxYwOaivMtYWv7WzWmqKrmv5TbFGkMyN1FW2U0KZp9cYdRemSv-QvkeZLdt6rYzORnyLQ/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     let map, heatLayer, driverMarkers = [];
     let globalData = null; 
     let currentRadarFilter = 'all';
     
-    let masterPassword = ""; // الدرع: حفظ كلمة السر المؤقتة
-    let lastPendingCount = 0; // للمنبه الصوتي
-
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('✅ لوحة الإدارة تعمل بنظام PWA بنجاح!'))
-                .catch(err => console.error('❌ فشل في تشغيل المحرك:', err));
-        });
-    }
+    let masterPassword = ""; 
+    let lastPendingCount = 0; 
 
     function checkAuth() {
-        const pass = document.getElementById('masterPass').value;
+        const pass = document.getElementById('masterPass').value.trim();
         if(!pass) return alert("الرجاء إدخال رمز المرور");
         
-        masterPassword = encodeURIComponent(pass); // حفظ كلمة المرور مشفرة ومؤمنة في المتصفح
+        masterPassword = encodeURIComponent(pass); 
         
         const btn = document.querySelector('.auth-card button');
-        const originalText = btn.innerHTML;
         btn.innerHTML = 'جاري التحقق من السيرفر...';
         btn.disabled = true;
 
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=VERIFY_MASTER_PASS&pass=${masterPassword}&token=${API_TOKEN}&callback=authResult`;
+        script.src = `${API_URL}?action=VERIFY_MASTER_PASS&pass=${masterPassword}&token=${API_TOKEN}&callback=authResult&ts=${Date.now()}`;
         document.body.appendChild(script);
         
         setTimeout(() => {
             if(btn.disabled) {
-                btn.innerHTML = originalText;
+                btn.innerHTML = 'تسجيل الدخول';
                 btn.disabled = false;
                 alert("⏳ تأخر السيرفر في الرد، يرجى التأكد من اتصال الإنترنت.");
             }
-        }, 10000);
+        }, 12000);
     }
 
     window.authResult = function(response) {
@@ -302,14 +293,13 @@
             document.getElementById('authOverlay').style.display = 'none';
             document.getElementById('mainDashboard').classList.remove('d-none');
             
-            // تفعيل ملف الصوت صامتاً لتخطي حظر المتصفح
             const audio = document.getElementById('adminAlertSound');
             audio.volume = 0; audio.play().then(() => { audio.pause(); audio.currentTime = 0; audio.volume = 1; }).catch(e=>{});
 
             startClock(); refreshData(); setInterval(refreshData, 15000);
             initMap();
         } else {
-            masterPassword = ""; // تفريغ الذاكرة في حال الخطأ
+            masterPassword = ""; 
             alert("❌ رمز المرور غير صحيح أو لا يطابق ورقة الإعدادات");
         }
     };
@@ -340,7 +330,6 @@
 
         const activeOrdersList = data.orders.slice(1).filter(o => o[5] !== 'completed' && o[5] !== 'مكتمل' && o[5] !== 'settled' && o[5] !== 'deleted');
         
-        // 🔔 نظام المراقبة الصوتية: الرنين عند وجود طلب جديد معلق
         const currentPendingCount = activeOrdersList.filter(o => !o[6] || o[6] === "pending_driver").length;
         if(currentPendingCount > lastPendingCount) {
             const audio = document.getElementById('adminAlertSound');
@@ -604,29 +593,25 @@
         }
     }
 
-    // ----------------------------------------------------
-    // الدرع: إرسال كلمة السر (pass) مع كافة الأوامر الحساسة
-    // ----------------------------------------------------
-
     function assignDriver(orderId, driverPhone) {
         if(!driverPhone) return;
         if(confirm("تعيين إجباري للكابتن المختار؟")) {
             const url = `${API_URL}?action=ASSIGN_DRIVER&orderId=${orderId}&driverPhone=${driverPhone}&token=${API_TOKEN}&pass=${masterPassword}`;
-            const script = document.createElement('script'); script.src = `${url}&callback=afterAdminAction`; document.body.appendChild(script);
+            const script = document.createElement('script'); script.src = `${url}&callback=afterAdminAction&ts=${Date.now()}`; document.body.appendChild(script);
         }
     }
 
     function resetDebt(type, id) {
         if(confirm(`تصفير الديون لـ (${id})؟\nسيتم تحويل الحسابات إلى "تمت المحاسبة".`)) {
             const url = `${API_URL}?action=RESET_DEBT&type=${type}&id=${id}&token=${API_TOKEN}&pass=${masterPassword}`;
-            const script = document.createElement('script'); script.src = `${url}&callback=afterAdminAction`; document.body.appendChild(script);
+            const script = document.createElement('script'); script.src = `${url}&callback=afterAdminAction&ts=${Date.now()}`; document.body.appendChild(script);
         }
     }
 
     function adminAction(cmd, type, id) {
         const statusMap = { 'ACCEPT': 'active', 'PAUSE': 'inactive', 'DELETE': 'deleted' };
         if(confirm("تأكيد الإجراء؟")) {
-            const script = document.createElement('script'); script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=${type}&id=${id}&status=${statusMap[cmd]}&token=${API_TOKEN}&pass=${masterPassword}&callback=afterAdminAction`; document.body.appendChild(script);
+            const script = document.createElement('script'); script.src = `${API_URL}?action=ADMIN_UPDATE_STATUS&type=${type}&id=${id}&status=${statusMap[cmd]}&token=${API_TOKEN}&pass=${masterPassword}&callback=afterAdminAction&ts=${Date.now()}`; document.body.appendChild(script);
         }
     }
 
