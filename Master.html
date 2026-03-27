@@ -200,7 +200,7 @@
         <div id="tab-orders" class="admin-tab d-none">
             <div class="archive-toolbar">
                 <div class="row g-2">
-                    <div class="col-12 col-md-3"><input type="text" id="arcSearch" class="form-control form-control-sm" placeholder="بحث ברقم الطلب..." oninput="renderArchive()"></div>
+                    <div class="col-12 col-md-3"><input type="text" id="arcSearch" class="form-control form-control-sm" placeholder="بحث برقم الطلب..." oninput="renderArchive()"></div>
                     <div class="col-6 col-md-2"><select id="arcRes" class="form-select form-select-sm" onchange="renderArchive()"><option value="">كل المطاعم</option></select></div>
                     <div class="col-6 col-md-2"><select id="arcDriver" class="form-select form-select-sm" onchange="renderArchive()"><option value="">كل الكباتن</option></select></div>
                     <div class="col-6 col-md-2"><input type="date" id="arcDateFrom" class="form-control form-control-sm" onchange="renderArchive()"></div>
@@ -250,8 +250,8 @@
 <script>
     lucide.createIcons();
     
-    // الرابط السحابي الجديد
-    const API_URL = "https://script.google.com/macros/s/AKfycbyqVEGyBYvIEwboHInBEF-bCQU4pfTSGrOca6m8m02UsHB9uTcFaM-4zpI4RssTwEeMRA/exec";
+    // الرابط النهائي المدرع
+    const API_URL = "https://script.google.com/macros/s/AKfycbypSUB2Uv36xlQ9dsLK7WDwwTEnDzWOPDkRLc-VvRSJooRRrob8qjJaRWh1_cudT-QA/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     let map, heatLayer, driverMarkers = [];
@@ -340,7 +340,7 @@
 
         const activeOrdersList = data.orders.slice(1).filter(o => o[5] !== 'completed' && o[5] !== 'مكتمل' && o[5] !== 'settled' && o[5] !== 'deleted');
         
-        // 🔔 نظام المراقبة الصوتية
+        // 🔔 نظام المراقبة الصوتية: الرنين عند وجود طلب جديد معلق
         const currentPendingCount = activeOrdersList.filter(o => !o[6] || o[6] === "pending_driver").length;
         if(currentPendingCount > lastPendingCount) {
             const audio = document.getElementById('adminAlertSound');
@@ -605,9 +605,9 @@
     }
 
     // ----------------------------------------------------
-    // إضافة كلمة السر (masterPassword) لجميع أوامر التحكم الإداري
+    // الدرع: إرسال كلمة السر (pass) مع كافة الأوامر الحساسة
     // ----------------------------------------------------
-    
+
     function assignDriver(orderId, driverPhone) {
         if(!driverPhone) return;
         if(confirm("تعيين إجباري للكابتن المختار؟")) {
@@ -631,7 +631,7 @@
     }
 
     window.afterAdminAction = function(response) {
-        if(response.success) { refreshData(); } else { alert("خطأ: " + (response.msg || response.error || "")); }
+        if(response.success) { refreshData(); } else { alert("خطأ: " + (response.msg || response.error || "تأكد من صلاحيات المدير")); }
     };
 
     function renderArchive() {
