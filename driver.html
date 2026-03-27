@@ -269,7 +269,7 @@
     lucide.createIcons();
 
     // تم تحديث الرابط ليتصل بالسيرفر المدرّع (v2 المعتمد)
-    const API_URL = "https://script.google.com/macros/s/AKfycbypSUB2Uv36xlQ9dsLK7WDwwTEnDzWOPDkRLc-VvRSJooRRrob8qjJaRWh1_cudT-QA/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbylcuOIIstd4kJADmYjNq4EvMvn6CsO-4N5JcpohyyQ3hkD4AhpWBZL7Jqsxhr_jJC6eA/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     let driverData = null;
@@ -483,7 +483,7 @@
         
         for (let i = activeOrders.length - 1; i >= 0; i--) {
             const order = activeOrders[i];
-            const serverOrder = data.orders.find(o => String(o[0]) === String(order.id));
+            const serverOrder = data.orders.find(o => String(o[0]) === String(order.id) || String(o[1]) === String(order.id));
             if (!serverOrder) {
                 forceRemoveActiveOrder("تم حذف هذا الطلب من الإدارة.", order.id);
             } else {
@@ -522,7 +522,7 @@
         data.orders.slice(1).forEach(o => {
             if(String(o[6]) === myPhone && (o[5] === 'completed' || o[5] === 'مكتمل' || o[5] === 'settled')) {
                 myCompletedCount++;
-                const rest = data.restaurants.find(r => r[1] === o[1]);
+                const rest = data.restaurants.find(r => r[1] === o[1] || r[1] === o[2]); // مرونة مع الترتيب الجديد
                 if(rest) {
                     const comm = parseFloat(rest[5]) || 0; 
                     const paySystem = String(rest[8]); 
@@ -531,14 +531,14 @@
                     }
                 }
 
-                const orderDateObj = new Date(o[7]);
+                const orderDateObj = new Date(o[7] || o[0]); // مرونة مع الترتيب الجديد
                 if(orderDateObj.toISOString().split('T')[0] === todayISO) {
-                    const priceVal = parseFloat(o[4]) || 0; 
+                    const priceVal = parseFloat(o[4] || o[8]) || 0; // مرونة مع الترتيب الجديد
                     todayTotalCash += priceVal;
                     ledgerHtml += `
                     <div class="ledger-item">
                         <div class="text-end">
-                            <span class="d-block fw-black" style="color: var(--primary-blue);">#${o[0]} | ${o[1]}</span>
+                            <span class="d-block fw-black" style="color: var(--primary-blue);">#${o[0] || o[1]} | ${o[1] || o[2]}</span>
                             <small class="text-muted fw-bold">${orderDateObj.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'})}</small>
                         </div>
                         <span class="fw-black text-success fs-5">${priceVal} <small class="fs-6">د.ع</small></span>
