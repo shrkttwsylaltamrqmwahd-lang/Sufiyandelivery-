@@ -2,14 +2,25 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <title>بوابة المطاعم | مكتب سفيان</title>
+    <title>مطاعم سفيان | نظام الحوت</title>
+
     <meta name="theme-color" content="#1e3a8a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="مطاعم سفيان">
     <meta name="mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3081/3081308.png"> <link rel="manifest" href='data:application/manifest+json;utf-8,{"name":"الحوت - بوابة المطاعم","short_name":"المطاعم","display":"standalone","background_color":"#f8fafc","theme_color":"#1e3a8a","start_url":".","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3081/3081308.png","sizes":"512x512","type":"image/png"}]}'>
+
+    <link rel="manifest" href="manifest_restaurant.json">
+    
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3081/3081308.png">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="مطاعم سفيان - منصة الحوت">
+    <meta property="og:description" content="إدارة طلبات التوصيل الذكية في كركوك - مكتب سفيان">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3081/3081308.png">
+    <meta property="og:url" content="https://taha-user.github.io/alhut/">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -25,7 +36,17 @@
             --primary-blue: #1e3a8a;
         }
 
-        body { background: var(--bg); font-family: 'Cairo', sans-serif; color: var(--primary); -webkit-tap-highlight-color: transparent; }
+        body { 
+            background: var(--bg); 
+            font-family: 'Cairo', sans-serif; 
+            color: var(--primary); 
+            -webkit-tap-highlight-color: transparent;
+            /* تحسينات PWA: منع تحديد النصوص ومنع السحب للتحديث */
+            user-select: none;
+            -webkit-user-select: none;
+            overscroll-behavior-y: contain;
+        }
+
         .hidden-section { display: none !important; }
 
         #loadingOverlay {
@@ -94,7 +115,6 @@
         .progress-step.active .progress-dot { background: var(--success); box-shadow: 0 0 0 2px var(--success); }
         .progress-step.current .progress-dot { background: var(--accent); box-shadow: 0 0 0 2px var(--accent); animation: pulseDot 1.5s infinite; }
         .progress-label { font-size: 0.65rem; font-weight: 800; color: #64748b; text-align: center; }
-        .progress-step.active .progress-label, .progress-step.current .progress-label { color: var(--primary-dark); }
         
         @keyframes pulseDot { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
 
@@ -309,7 +329,6 @@
     let base64Receipt = null;
     let dataRefreshInterval;
 
-    // 🟢 1. بنك إحداثيات مناطق كركوك (GPS Dictionary)
     let currentResLat = 0;
     let currentResLng = 0;
 
@@ -337,7 +356,6 @@
         "كوباني": {lat: 35.520, lng: 44.380}
     };
 
-    // المناطق الخارجية والسيطرات (تسعيرة قاطعة بدون حساب مسافة)
     const externalZones = {
         "ليلان": 8000,
         "درمان": 8000,
@@ -349,7 +367,6 @@
         "مرور جيمن": 5000
     };
 
-    // 🟢 2. تهيئة القائمة المنسدلة بالمناطق
     function initAreasDropdown() {
         const select = document.getElementById('customerArea');
         select.innerHTML = '<option value="" disabled selected>-- اختر منطقة الزبون --</option>';
@@ -371,7 +388,6 @@
         select.innerHTML += `<option value="أخرى">أخرى (غير مدرجة في القائمة)</option>`;
     }
 
-    // 🟢 3. معادلة هافيرسين العالمية لحساب المسافة الجغرافية بالكيلومتر
     function getDistanceInKm(lat1, lon1, lat2, lon2) {
         if(lat1 === 0 || lat2 === 0) return 0;
         const R = 6371; 
@@ -382,7 +398,6 @@
         return R * c;
     }
 
-    // 🟢 4. محرك التسعير عند تغيير المنطقة (The Pricing Engine)
     function calculateGPSPrice() {
         const areaName = document.getElementById('customerArea').value;
         const priceHint = document.getElementById('priceHint');
@@ -394,7 +409,6 @@
 
         priceHint.classList.remove('hidden-section');
 
-        // أ- التحقق من المناطق الخارجية أولاً (السعر القاطع)
         if (externalZones[areaName]) {
             const fixedPrice = externalZones[areaName];
             priceHint.innerHTML = `<i data-lucide="map-pin" size="14" class="me-1"></i> <b>تسعيرة ثابتة (منطقة خارجية):</b> ${fixedPrice} د.ع`;
@@ -403,7 +417,6 @@
             return;
         }
 
-        // ب- حساب المسافة للمناطق الداخلية
         if (kirkukAreas[areaName]) {
             if (currentResLat === 0 || currentResLng === 0) {
                 priceHint.innerHTML = `⚠️ لم يتم تحديد موقع مطعمك بدقة لحساب المسافة.`;
@@ -415,7 +428,6 @@
             const targetLng = kirkukAreas[areaName].lng;
             const distance = getDistanceInKm(currentResLat, currentResLng, targetLat, targetLng);
 
-            // تطبيق التسعيرة حسب الكيلومترات
             let deliveryFee = 1500;
             if (distance > 8.0) deliveryFee = 4000;
             else if (distance > 6.0) deliveryFee = 3000;
@@ -429,14 +441,20 @@
         }
     }
 
+    // المرحلة 1: تسجيل محرك التطبيق (Service Worker) للعمل دون اتصال
     if ('serviceWorker' in navigator) {
-        const swCode = `self.addEventListener('fetch', function(event) {});`;
-        const blob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('✅ نظام سفيان العصبي يعمل بنجاح!'))
+                .catch(err => console.error('❌ فشل في تشغيل المحرك:', err));
+        });
     }
 
+    // منع قائمة النقر الأيمن للحفاظ على مظهر التطبيق
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
     window.onload = function() {
-        initAreasDropdown(); // تهيئة القائمة بالذكاء المكاني عند التحميل
+        initAreasDropdown(); 
         const savedPhone = localStorage.getItem('hut_res_phone');
         if(savedPhone) {
             document.getElementById('checkPhone').value = savedPhone;
@@ -459,19 +477,16 @@
         document.getElementById('tabManual').classList.remove('active');
         document.getElementById('tabPhoto').classList.remove('active');
         
-        const areaContainer = document.getElementById('areaContainer');
-
         if (mode === 'manual') {
             document.getElementById('tabManual').classList.add('active');
             document.getElementById('manualSection').classList.remove('hidden-section');
             document.getElementById('photoSection').classList.add('hidden-section');
-            
             document.getElementById('customerPhone').required = true;
         } else {
+            document.getElementById('tabManual').classList.remove('active');
             document.getElementById('tabPhoto').classList.add('active');
             document.getElementById('photoSection').classList.remove('hidden-section');
             document.getElementById('manualSection').classList.add('hidden-section');
-            
             document.getElementById('customerPhone').required = false;
         }
     }
@@ -628,7 +643,6 @@
         const resInfo = data.restaurants.find(r => r[1] === currentResName);
         if(!resInfo) return;
 
-        // 🟢 5. سحب وحفظ إحداثيات المطعم لتعمل عليها خوارزمية المسافة
         currentResLat = parseFloat(resInfo[6]) || 0;
         currentResLng = parseFloat(resInfo[7]) || 0;
 
@@ -774,7 +788,7 @@
 
         let finalDetails = "";
         let imagePayload = "";
-        let finalPrice = 0; // تم إزالة حقل السعر
+        let finalPrice = 0; 
 
         if (currentOrderMode === 'manual') {
             const custPhone = document.getElementById('customerPhone').value.trim();
@@ -787,7 +801,6 @@
             imagePayload = base64Receipt;
         }
 
-        // إرفاق نص التوصيل المقترح مع اسم المنطقة ليكون الكابتن على علم بالتسعيرة
         const priceHintText = document.getElementById('priceHint').innerText;
         let areaWithHint = finalArea;
         if(priceHintText && priceHintText.includes("توصيل الكابتن")) {
