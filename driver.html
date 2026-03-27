@@ -43,7 +43,6 @@
             background: var(--bg-light); font-family: 'Cairo', sans-serif; 
             overflow-x: hidden; color: var(--text-main);
             -webkit-tap-highlight-color: transparent;
-            /* تحسينات PWA */
             user-select: none;
             -webkit-user-select: none;
             overscroll-behavior-y: contain;
@@ -269,7 +268,8 @@
 <script>
     lucide.createIcons();
 
-    const API_URL = "https://script.google.com/macros/s/AKfycbx6X9FtlbV-gAzdCX3g0cCtc6RIRldsbcNjO29m5Z4JhLr6FU5ulAdIBbFl_7SQCi3pnA/exec";
+    // تم تحديث الرابط ليتصل بالسيرفر المدرّع
+    const API_URL = "https://script.google.com/macros/s/AKfycbyqVEGyBYvIEwboHInBEF-bCQU4pfTSGrOca6m8m02UsHB9uTcFaM-4zpI4RssTwEeMRA/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     let driverData = null;
@@ -280,7 +280,6 @@
     let checkOrdersTimer = null; 
     let currentPollingRate = 20000; 
 
-    // تسجيل محرك التطبيق (Service Worker) لعمل التطبيق PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
@@ -289,16 +288,22 @@
         });
     }
 
-    // منع قائمة النقر الأيمن للحفاظ على مظهر التطبيق
     document.addEventListener('contextmenu', event => event.preventDefault());
 
     function initAudioAndAuth() {
+        // حيلة ذكية لتفعيل الصوت صامتاً لتخطي حظر متصفحات الجوال (Safari/Chrome)
         let audio = document.getElementById('alertSound');
-        audio.play().then(() => {
-            audio.pause();
-            audio.currentTime = 0;
-        }).catch(e => console.log("Audio prep bypassed by policy"));
-        
+        audio.volume = 0;
+        let playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                audio.pause();
+                audio.currentTime = 0;
+                audio.volume = 1; 
+            }).catch(error => {
+                console.log("Audio prep bypassed by policy");
+            });
+        }
         authAction();
     }
 
@@ -571,11 +576,15 @@
             document.getElementById('alertArea').innerText = data.area || 'منطقة غير محددة';
 
             document.getElementById('orderAlertOverlay').classList.remove('hidden');
-            let audio = document.getElementById('alertSound');
-            audio.currentTime = 0; audio.play().catch(e=>{});
             
-            if (window.AndroidInterface && typeof window.AndroidInterface.showNotification === 'function') {
-                window.AndroidInterface.showNotification("طلب جديد من " + data.resName, "اضغط لفتح التطبيق!");
+            // 🔔 إطلاق جرس الإنذار المدوي للكابتن!
+            let audio = document.getElementById('alertSound');
+            audio.currentTime = 0; 
+            audio.play().catch(e => console.log("تحذير: المتصفح يمنع تشغيل الصوت، يجب التفاعل مع الشاشة أولاً."));
+            
+            // إشعار نظام أندرويد
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("طلب جديد!", { body: "لديك طلب جديد من " + data.resName, icon: "https://cdn-icons-png.flaticon.com/512/3112/3112192.png" });
             }
 
             startCountdown(60);
@@ -648,7 +657,6 @@
             }
         }
         
-        // ⏰ زرع الختم الزمني عند استلام الطلب لمنع الإنهاء السريع
         order.pickupTime = Date.now();
         updateOrderStateLocally(id, 'picked_up', 'picked_up'); 
     }
@@ -656,7 +664,6 @@
     function finishOrder(id) {
         const order = activeOrders.find(o => String(o.id) === String(id));
 
-        // 🛡️ الجدار الأول: فحص المسافة
         if (order && order.resLat && order.resLng && driverData.currentLat && driverData.currentLng) {
             const dist = calculateDistance(driverData.currentLat, driverData.currentLng, order.resLat, order.resLng);
             if (dist < 0.25) { 
@@ -665,7 +672,6 @@
             }
         }
 
-        // 🛡️ الجدار الثاني: فحص الوقت (يجب أن تمر 3 دقائق على الأقل)
         if (order && order.pickupTime) {
             const minutesPassed = (Date.now() - order.pickupTime) / 60000;
             if (minutesPassed < 3) { 
@@ -795,6 +801,13 @@
         const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
+
+    // السماح للكابتن بتفعيل الإشعارات في متصفح النظام
+    document.addEventListener('DOMContentLoaded', function() {
+        if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+    });
 
     window.dummy = () => {};
 </script>
