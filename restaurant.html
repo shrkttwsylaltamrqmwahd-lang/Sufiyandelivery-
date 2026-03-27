@@ -101,8 +101,6 @@
         .archive-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 8px; }
         .success-toast { background: var(--success); color: white; border-radius: 20px; padding: 20px; margin-top: 20px; display: flex; align-items: center; gap: 15px; animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
-        .golden-notice { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 4px solid #f59e0b; padding: 12px 15px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; font-weight: 700; color: #92400e; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.1); }
-        
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -176,7 +174,7 @@
                 <h3 class="fw-black m-0" id="resTitle">جاري التحميل...</h3>
                 <small class="opacity-75 fw-bold" id="resPhoneDisplay"></small>
             </div>
-            <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="location.reload()"><i data-lucide="power" size="14" class="me-1"></i> خروج</button>
+            <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="logout()"><i data-lucide="power" size="14" class="me-1"></i> خروج</button>
         </div>
     </div>
 
@@ -210,11 +208,6 @@
                 <div class="glass-card">
                     <h4 class="fw-black mb-4"><i data-lucide="send" class="me-2 text-accent"></i> إرسال طلب توصيل</h4>
                     
-                    <div class="golden-notice">
-                        <i data-lucide="info" size="16" class="me-1" style="vertical-align: text-bottom;"></i>
-                        <strong>ميزة التسعير الذكي (GPS):</strong> سيقوم النظام تلقائياً بقياس المسافة بين مطعمك ومنطقة الزبون لاقتراح أفضل تسعيرة توصيل عادلة!
-                    </div>
-                    
                     <div class="order-type-toggle">
                         <div class="toggle-btn active" id="tabManual" onclick="switchTab('manual')">
                             <i data-lucide="keyboard"></i> إدخال يدوي
@@ -226,15 +219,11 @@
                     
                     <form id="orderForm">
                         <div class="row g-3 mb-4">
-                            <div class="col-md-6" id="areaContainer">
+                            <div class="col-md-12" id="areaContainer">
                                 <label class="form-label">منطقة الزبون (للتسعير التلقائي)</label>
                                 <select id="customerArea" class="custom-input form-select" style="font-size: 0.95rem;" onchange="calculateGPSPrice()">
                                     </select>
                                 <div id="priceHint" class="text-success small fw-bold mt-2 hidden-section px-1"></div>
-                            </div>
-                            <div class="col-md-6" id="priceContainer">
-                                <label class="form-label">مبلغ الوصل الكلي (للحساب)</label>
-                                <input type="number" id="orderPrice" class="custom-input" placeholder="اكتب مبلغ الوصل الكلي" required>
                             </div>
                         </div>
 
@@ -397,19 +386,19 @@
     function calculateGPSPrice() {
         const areaName = document.getElementById('customerArea').value;
         const priceHint = document.getElementById('priceHint');
-        const priceInput = document.getElementById('orderPrice');
 
         if (!areaName || areaName === "أخرى") {
             priceHint.classList.add('hidden-section');
             return;
         }
 
+        priceHint.classList.remove('hidden-section');
+
         // أ- التحقق من المناطق الخارجية أولاً (السعر القاطع)
         if (externalZones[areaName]) {
             const fixedPrice = externalZones[areaName];
             priceHint.innerHTML = `<i data-lucide="map-pin" size="14" class="me-1"></i> <b>تسعيرة ثابتة (منطقة خارجية):</b> ${fixedPrice} د.ع`;
             priceHint.className = "text-danger small fw-bold mt-2 px-1";
-            priceInput.value = ""; // المطعم يكتب الإجمالي الكلي للوصل
             lucide.createIcons();
             return;
         }
@@ -426,7 +415,7 @@
             const targetLng = kirkukAreas[areaName].lng;
             const distance = getDistanceInKm(currentResLat, currentResLng, targetLat, targetLng);
 
-            // تطبيق التسعيرة حسب الكيلومترات (القوانين الذهبية)
+            // تطبيق التسعيرة حسب الكيلومترات
             let deliveryFee = 1500;
             if (distance > 8.0) deliveryFee = 4000;
             else if (distance > 6.0) deliveryFee = 3000;
@@ -438,6 +427,12 @@
             priceHint.className = "text-success small fw-bold mt-2 px-1";
             lucide.createIcons();
         }
+    }
+
+    if ('serviceWorker' in navigator) {
+        const swCode = `self.addEventListener('fetch', function(event) {});`;
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
     }
 
     window.onload = function() {
@@ -464,8 +459,6 @@
         document.getElementById('tabManual').classList.remove('active');
         document.getElementById('tabPhoto').classList.remove('active');
         
-        const priceContainer = document.getElementById('priceContainer');
-        const priceInput = document.getElementById('orderPrice');
         const areaContainer = document.getElementById('areaContainer');
 
         if (mode === 'manual') {
@@ -473,18 +466,12 @@
             document.getElementById('manualSection').classList.remove('hidden-section');
             document.getElementById('photoSection').classList.add('hidden-section');
             
-            priceContainer.classList.remove('hidden-section');
-            areaContainer.classList.replace('col-md-12', 'col-md-6');
-            priceInput.required = true;
             document.getElementById('customerPhone').required = true;
         } else {
             document.getElementById('tabPhoto').classList.add('active');
             document.getElementById('photoSection').classList.remove('hidden-section');
             document.getElementById('manualSection').classList.add('hidden-section');
             
-            priceContainer.classList.add('hidden-section');
-            areaContainer.classList.replace('col-md-6', 'col-md-12');
-            priceInput.required = false;
             document.getElementById('customerPhone').required = false;
         }
     }
@@ -787,19 +774,17 @@
 
         let finalDetails = "";
         let imagePayload = "";
-        let finalPrice = 0;
+        let finalPrice = 0; // تم إزالة حقل السعر
 
         if (currentOrderMode === 'manual') {
             const custPhone = document.getElementById('customerPhone').value.trim();
             const extra = document.getElementById('customerDetails').value.trim();
-            finalPrice = document.getElementById('orderPrice').value;
             if (!custPhone) return alert("يرجى كتابة رقم الزبون.");
             finalDetails = `الهاتف: ${custPhone} | ${extra}`;
         } else {
             if (!base64Receipt) return alert("يرجى التقاط صورة للوصل أولاً.");
             finalDetails = "طلب مصور سريع (انظر الوصل)";
             imagePayload = base64Receipt;
-            finalPrice = "حسب الوصل";
         }
 
         // إرفاق نص التوصيل المقترح مع اسم المنطقة ليكون الكابتن على علم بالتسعيرة
@@ -829,7 +814,6 @@
         document.getElementById('customerPhone').value = "";
         document.getElementById('customerDetails').value = "";
         document.getElementById('priceHint').classList.add('hidden-section');
-        if(document.getElementById('orderPrice')) document.getElementById('orderPrice').value = "";
         document.getElementById('customerArea').selectedIndex = 0; 
         removePhoto();
 
