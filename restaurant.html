@@ -41,7 +41,6 @@
             font-family: 'Cairo', sans-serif; 
             color: var(--primary); 
             -webkit-tap-highlight-color: transparent;
-            /* تحسينات PWA: منع تحديد النصوص ومنع السحب للتحديث */
             user-select: none;
             -webkit-user-select: none;
             overscroll-behavior-y: contain;
@@ -321,7 +320,8 @@
 <script>
     lucide.createIcons();
 
-    const API_URL = "https://script.google.com/macros/s/AKfycbx6X9FtlbV-gAzdCX3g0cCtc6RIRldsbcNjO29m5Z4JhLr6FU5ulAdIBbFl_7SQCi3pnA/exec";
+    // تم تحديث رابط السيرفر النهائي
+    const API_URL = "https://script.google.com/macros/s/AKfycbyqVEGyBYvIEwboHInBEF-bCQU4pfTSGrOca6m8m02UsHB9uTcFaM-4zpI4RssTwEeMRA/exec";
     const API_TOKEN = "HUT_SECURE_99";
     let currentResName = "";
     let isRegistering = false;
@@ -441,7 +441,6 @@
         }
     }
 
-    // المرحلة 1: تسجيل محرك التطبيق (Service Worker) للعمل دون اتصال
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
@@ -450,7 +449,6 @@
         });
     }
 
-    // منع قائمة النقر الأيمن للحفاظ على مظهر التطبيق
     document.addEventListener('contextmenu', event => event.preventDefault());
 
     window.onload = function() {
@@ -811,9 +809,13 @@
             areaWithHint = `${finalArea} (توصيل ثابت: ${extractedPrice})`;
         }
 
+        // الدرع: توليد كود فريد لمنع تكرار الطلب في حالة ضعف الإنترنت
+        const uniqueFrontendId = "HUT-" + Math.floor(Date.now() / 1000) + "-" + Math.floor(Math.random() * 1000);
+
         const payload = {
             action: 'NEW_ORDER',
             token: API_TOKEN,
+            frontendId: uniqueFrontendId, // المعرف الفريد للتسليم
             restaurantName: currentResName,
             area: areaWithHint,
             price: finalPrice,
