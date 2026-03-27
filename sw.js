@@ -1,5 +1,5 @@
-// تم تغيير الإصدار إلى v3 لتحديث هواتف كل المستخدمين والمطاعم
-const CACHE_NAME = 'sufian-system-v3';
+// ترقية الإصدار إلى v4 لتطبيق استراتيجية "الإنترنت أولاً"
+const CACHE_NAME = 'sufian-system-v4';
 
 // الثلاثي المكتمل: المطاعم، الكباتن، والإدارة
 const ASSETS_TO_CACHE = [
@@ -15,20 +15,19 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[Service Worker] جاري تخزين النظام الثلاثي (مطاعم، كباتن، إدارة)...');
+      console.log('[Service Worker] جاري تخزين النظام الثلاثي للإصدار الرابع...');
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
-  self.skipWaiting(); // تفعيل فوري للتحديثات
+  self.skipWaiting(); // تفعيل فوري
 });
 
-// 2. مرحلة التنشيط (هنا السحر: تنظيف الذاكرة القديمة فوراً)
+// 2. مرحلة التنشيط (تنظيف صارم لأي ذاكرة قديمة)
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
-          // إذا وجد الهاتف ذاكرة قديمة لا تطابق الاسم الجديد، يقوم بحذفها
           if (cache !== CACHE_NAME) {
             console.log('[Service Worker] مسح الذاكرة القديمة:', cache);
             return caches.delete(cache);
@@ -40,14 +39,28 @@ self.addEventListener('activate', event => {
   event.waitUntil(self.clients.claim());
 });
 
-// 3. مرحلة جلب البيانات (استراتيجية: جلب من الذاكرة أولاً ثم الإنترنت)
+// 3. مرحلة جلب البيانات (هنا السحر الجديد: Network First)
 self.addEventListener('fetch', event => {
+  const requestUrl = new URL(event.request.url);
+
+  // 🚫 استثناء تام لطلبات السيرفر (Google Apps Script) لمنع تجميد البيانات
+  if (requestUrl.hostname === 'script.google.com') {
+    return; // دع المتصفح يعالجه كطلب شبكة عادي بدون تدخل المحرك
+  }
+
+  // 🚀 استراتيجية: الإنترنت أولاً، ثم الكاش
   event.respondWith(
-    caches.match(event.request).then(response => {
-      // إذا وجدنا الملف في الذاكرة، نعطيه فوراً (سرعة خيالية)، وإلا نجلبه من الإنترنت
-      return response || fetch(event.request);
-    }).catch(() => {
-      console.log('لا يوجد اتصال بالإنترنت!');
-    })
+    fetch(event.request)
+      .then(networkResponse => {
+        // إذا كان الإنترنت يعمل، خذ التحديث الجديد واحفظ نسخة منه في الكاش صامتاً
+        return caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
+        });
+      })
+      .catch(() => {
+        // إذا انقطع الإنترنت في كركوك، افتح التطبيق من الكاش فوراً!
+        return caches.match(event.request);
+      })
   );
 });
