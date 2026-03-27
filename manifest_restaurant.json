@@ -1,4 +1,6 @@
 {
+  "id": "sufian_restaurant_pwa",
+  "scope": "./restaurant.html",
   "name": "مطاعم سفيان | نظام الحوت",
   "short_name": "مطاعم سفيان",
   "description": "منصة إدارة طلبات التوصيل لمكتب سفيان في كركوك",
@@ -22,4 +24,3 @@
     }
   ]
 }
-
