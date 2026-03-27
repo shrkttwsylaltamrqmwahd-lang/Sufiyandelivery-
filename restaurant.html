@@ -240,8 +240,8 @@
                         <div class="row g-3 mb-4">
                             <div class="col-md-12" id="areaContainer">
                                 <label class="form-label">منطقة الزبون (للتسعير التلقائي)</label>
-                                <select id="customerArea" class="custom-input form-select" style="font-size: 0.95rem;" onchange="calculateGPSPrice()">
-                                    </select>
+                                <select id="customerArea" class="custom-input form-select" style="font-size: 0.95rem;" onchange="saveDraft(); calculateGPSPrice();">
+                                </select>
                                 <div id="priceHint" class="text-success small fw-bold mt-2 hidden-section px-1"></div>
                             </div>
                         </div>
@@ -249,11 +249,11 @@
                         <div id="manualSection">
                             <div class="mb-4">
                                 <label class="form-label">رقم هاتف الزبون</label>
-                                <input type="tel" id="customerPhone" class="custom-input phone-format" placeholder="07XXXXXXXXX" dir="ltr" autocomplete="off">
+                                <input type="tel" id="customerPhone" class="custom-input phone-format" placeholder="07XXXXXXXXX" dir="ltr" autocomplete="off" oninput="saveDraft()">
                             </div>
                             <div class="mb-4">
                                 <label class="form-label">تفاصيل إضافية (اختياري)</label>
-                                <input type="text" id="customerDetails" class="custom-input" placeholder="مثال: قرب صيدلية السلام" autocomplete="off">
+                                <input type="text" id="customerDetails" class="custom-input" placeholder="مثال: قرب صيدلية السلام" autocomplete="off" oninput="saveDraft()">
                             </div>
                         </div>
 
@@ -366,6 +366,44 @@
         "مرور جيمن": 5000
     };
 
+    // ==========================================
+    // التعديل 1: نظام الحفظ التلقائي (Drafting)
+    // ==========================================
+    function saveDraft() {
+        const draft = {
+            mode: currentOrderMode,
+            area: document.getElementById('customerArea').value,
+            phone: document.getElementById('customerPhone').value,
+            details: document.getElementById('customerDetails').value,
+            image: base64Receipt
+        };
+        sessionStorage.setItem('hut_order_draft', JSON.stringify(draft));
+    }
+
+    function restoreDraft() {
+        const draftStr = sessionStorage.getItem('hut_order_draft');
+        if(draftStr) {
+            try {
+                const draft = JSON.parse(draftStr);
+                if(draft.mode) switchTab(draft.mode, false); // false لمنع الحفظ العكسي أثناء الاسترجاع
+                if(draft.area) { document.getElementById('customerArea').value = draft.area; }
+                if(draft.phone) document.getElementById('customerPhone').value = draft.phone;
+                if(draft.details) document.getElementById('customerDetails').value = draft.details;
+                if(draft.image) {
+                    base64Receipt = draft.image;
+                    document.getElementById('photoPreview').src = base64Receipt;
+                    document.getElementById('cameraBtn').classList.add('hidden-section');
+                    document.getElementById('photoPreviewContainer').classList.remove('hidden-section');
+                }
+            } catch(e) {}
+        }
+    }
+
+    function clearDraft() {
+        sessionStorage.removeItem('hut_order_draft');
+    }
+    // ==========================================
+
     function initAreasDropdown() {
         const select = document.getElementById('customerArea');
         select.innerHTML = '<option value="" disabled selected>-- اختر منطقة الزبون --</option>';
@@ -418,7 +456,7 @@
 
         if (kirkukAreas[areaName]) {
             if (currentResLat === 0 || currentResLng === 0) {
-                priceHint.innerHTML = `⚠️ لم يتم تحديد موقع مطعمك بدقة لحساب المسافة.`;
+                priceHint.innerHTML = `⚠️ جاري تحديد موقع مطعمك...`;
                 priceHint.className = "text-warning small fw-bold mt-2 px-1";
                 return;
             }
@@ -450,13 +488,35 @@
 
     document.addEventListener('contextmenu', event => event.preventDefault());
 
+    // ==========================================
+    // التعديل 2: نظام الدخول الذكي (24 ساعة)
+    // ==========================================
+    function checkSavedSession() {
+        const sessionStr = localStorage.getItem('hut_res_session');
+        if (sessionStr) {
+            try {
+                const session = JSON.parse(sessionStr);
+                const diffHours = (Date.now() - session.timestamp) / (1000 * 60 * 60);
+                if (diffHours < 24) {
+                    document.getElementById('checkPhone').value = session.phone.startsWith('0') ? session.phone : '0' + session.phone;
+                    currentResName = session.name;
+                    enterDashboard();
+                    return true;
+                }
+            } catch(e) {}
+        }
+        return false;
+    }
+
     window.onload = function() {
         initAreasDropdown(); 
-        const savedPhone = localStorage.getItem('hut_res_phone');
-        if(savedPhone) {
-            // إضافة الصفر للشكل الجمالي أمام المستخدم فقط
-            document.getElementById('checkPhone').value = savedPhone.startsWith('0') ? savedPhone : '0' + savedPhone;
-            authAction();
+        
+        if (!checkSavedSession()) {
+            const savedPhone = localStorage.getItem('hut_res_phone');
+            if(savedPhone) {
+                document.getElementById('checkPhone').value = savedPhone.startsWith('0') ? savedPhone : '0' + savedPhone;
+                authAction();
+            }
         }
     };
 
@@ -473,7 +533,7 @@
         document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none';
     }
 
-    function switchTab(mode) {
+    function switchTab(mode, triggerSave = true) {
         currentOrderMode = mode;
         document.getElementById('tabManual').classList.remove('active');
         document.getElementById('tabPhoto').classList.remove('active');
@@ -490,6 +550,8 @@
             document.getElementById('manualSection').classList.add('hidden-section');
             document.getElementById('customerPhone').required = false;
         }
+        
+        if (triggerSave) saveDraft();
     }
 
     function switchListTab(tab) {
@@ -525,6 +587,8 @@
                     document.getElementById('photoPreview').src = base64Receipt;
                     document.getElementById('cameraBtn').classList.add('hidden-section');
                     document.getElementById('photoPreviewContainer').classList.remove('hidden-section');
+                    
+                    saveDraft(); // حفظ المسودة بعد التقطيع
                     showLoading(false);
                 }
                 img.src = e.target.result;
@@ -537,13 +601,13 @@
         base64Receipt = null; document.getElementById('receiptPhoto').value = "";
         document.getElementById('cameraBtn').classList.remove('hidden-section');
         document.getElementById('photoPreviewContainer').classList.add('hidden-section');
+        saveDraft(); // تحديث المسودة بحذف الصورة
     }
 
     function authAction() {
         let rawPhone = document.getElementById('checkPhone').value.trim();
         if(!rawPhone) return alert("يرجى إدخال رقم الهاتف");
 
-        // 🛡️ الدرع الذكي: إزالة الصفر من بداية الرقم برمجياً لتطابق الاكسل
         let phone = rawPhone.startsWith('0') ? rawPhone.substring(1) : rawPhone;
 
         if (isRegistering) {
@@ -586,26 +650,20 @@
 
     window.handleLogin = function(data) {
         showLoading(false);
-        
         let rawPhone = document.getElementById('checkPhone').value.trim();
         let phone = rawPhone.startsWith('0') ? rawPhone.substring(1) : rawPhone;
 
         if(data.status === "active") {
             currentResName = data.name;
-            if(phone) localStorage.setItem('hut_res_phone', phone); // حفظ الرقم بدون صفر
+            localStorage.setItem('hut_res_phone', phone);
             
-            document.getElementById('loginSection').classList.add('hidden-section');
-            document.getElementById('orderSection').classList.remove('hidden-section');
-            document.getElementById('resTitle').innerText = data.name;
-            document.getElementById('resPhoneDisplay').innerText = "شريك معتمد - الحوت";
-            lucide.createIcons();
+            // تسجيل الدخول الذكي وتجديد الختم الزمني
+            const sessionData = { phone: phone, name: data.name, timestamp: Date.now() };
+            localStorage.setItem('hut_res_session', JSON.stringify(sessionData));
             
-            fetchResDashboardData();
-            dataRefreshInterval = setInterval(fetchResDashboardData, 15000);
-
+            enterDashboard();
         } else if(data.status === "pending" || data.status === "waiting") {
-            if(phone) localStorage.setItem('hut_res_phone', phone);
-            
+            localStorage.setItem('hut_res_phone', phone);
             document.getElementById('authBox').classList.add('hidden-section');
             document.getElementById('waitingBox').classList.remove('hidden-section');
         } else {
@@ -618,6 +676,19 @@
             lucide.createIcons();
         }
     };
+
+    function enterDashboard() {
+        document.getElementById('loginSection').classList.add('hidden-section');
+        document.getElementById('orderSection').classList.remove('hidden-section');
+        document.getElementById('resTitle').innerText = currentResName;
+        document.getElementById('resPhoneDisplay').innerText = "شريك معتمد - الحوت";
+        lucide.createIcons();
+        
+        restoreDraft(); // استرجاع البيانات المحفوظة (إن وجدت)
+        
+        fetchResDashboardData();
+        dataRefreshInterval = setInterval(fetchResDashboardData, 15000);
+    }
 
     function cancelOrderGrace(orderId) {
         if(confirm("هل أنت متأكد من إلغاء وحذف هذا الطلب؟")) {
@@ -651,6 +722,9 @@
 
         currentResLat = parseFloat(resInfo[6]) || 0;
         currentResLng = parseFloat(resInfo[7]) || 0;
+
+        // تحديث سعر التوصيل تلقائياً بعد تحديد الإحداثيات إذا كان المطعم قد اختار منطقة مسبقاً
+        calculateGPSPrice(); 
 
         const commRate = parseFloat(resInfo[5]) || 0;
         const paySystem = resInfo[8] || 'المطعم يدفع';
@@ -833,11 +907,13 @@
         document.getElementById('orderStatusBox').classList.remove('hidden-section');
         document.getElementById('statusMsg').innerHTML = `<span class="fw-bold">تم الإطلاق بنجاح!</span><br><span class="text-warning small fw-bold">الطلب الآن يسبح في الرادار بانتظار كابتن 📡</span>`;
         
+        // تفريغ الحقول وحذف المسودة بعد نجاح الإرسال
         document.getElementById('customerPhone').value = "";
         document.getElementById('customerDetails').value = "";
         document.getElementById('priceHint').classList.add('hidden-section');
         document.getElementById('customerArea').selectedIndex = 0; 
         removePhoto();
+        clearDraft();
 
         setTimeout(() => { document.getElementById('orderStatusBox').classList.add('hidden-section'); }, 6000);
 
