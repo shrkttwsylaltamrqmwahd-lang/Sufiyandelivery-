@@ -44,6 +44,8 @@
             user-select: none;
             -webkit-user-select: none;
             overscroll-behavior-y: contain;
+            /* حماية الأزرار السفلية في الهواتف الحديثة */
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .hidden-section { display: none !important; }
@@ -81,6 +83,8 @@
             padding: 20px; font-weight: 900; width: 100%; font-size: 1.1rem;
             display: flex; align-items: center; justify-content: center; gap: 12px;
             transition: 0.3s; box-shadow: 0 10px 20px rgba(30, 58, 138, 0.2);
+            /* ضمان مساحة كافية للضغط في الأسفل */
+            margin-bottom: 20px;
         }
         .btn-action:active { transform: scale(0.96); }
 
@@ -156,9 +160,9 @@
                     </div>
                     
                     <div class="mb-3"><input type="text" id="regName" class="custom-input" placeholder="الاسم التجاري للمطعم" autocomplete="off"></div>
-                    <div class="mb-3"><input type="text" id="regArea" class="custom-input" placeholder="منطقة المطعم (مثال: طريق بغداد)" autocomplete="off"></div>
+                    <div class="mb-3"><input type="text" id="regArea" class="custom-input" placeholder="منطقة المطعم الأساسية" autocomplete="off"></div>
                     <div class="mb-3"><input type="url" id="regMap" class="custom-input" placeholder="رابط موقع المطعم (Google Maps)" dir="ltr" autocomplete="off"></div>
-                    <div class="row g-2 mb-4">
+                    <div class="row g-2 mb-3">
                         <div class="col-6"><input type="number" id="regComm" class="custom-input" placeholder="العمولة (د.ع)" autocomplete="off"></div>
                         <div class="col-6">
                             <select id="regPay" class="custom-input px-2">
@@ -167,6 +171,15 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label" style="text-align: right; color: var(--primary-blue);">
+                            <i data-lucide="clipboard-list" size="16"></i> الصق لستة مناطق وأسعار التوصيل هنا:
+                        </label>
+                        <textarea id="regPriceList" class="custom-input" rows="5" placeholder="انسخ الرسالة من الواتساب والصقها هنا..." style="font-size: 0.9rem; text-align: right; resize: none;"></textarea>
+                        <small class="text-muted fw-bold" style="font-size: 0.75rem;">ملاحظة: سيقوم النظام بتنظيف النصوص واستخراج المناطق والأسعار تلقائياً.</small>
+                    </div>
+
                 </div>
 
                 <button class="btn-action" id="mainAuthBtn" onclick="authAction()">
@@ -239,8 +252,9 @@
                     <form id="orderForm">
                         <div class="row g-3 mb-4">
                             <div class="col-md-12" id="areaContainer">
-                                <label class="form-label">منطقة الزبون (للتسعير التلقائي)</label>
-                                <select id="customerArea" class="custom-input form-select" style="font-size: 0.95rem;" onchange="saveDraft(); calculateGPSPrice();">
+                                <label class="form-label">اختر منطقة الزبون</label>
+                                <select id="customerArea" class="custom-input form-select" style="font-size: 0.95rem;" onchange="saveDraft(); showSelectedPrice();">
+                                    <option value="" disabled selected>-- جاري جلب مناطق المطعم --</option>
                                 </select>
                                 <div id="priceHint" class="text-success small fw-bold mt-2 hidden-section px-1"></div>
                             </div>
@@ -287,7 +301,7 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-4" style="padding-bottom: 20px;">
                     <div class="order-type-toggle mb-3" style="background: #e2e8f0;">
                         <div class="toggle-btn active py-2" id="tabLiveOrders" onclick="switchListTab('live')">
                             <i data-lucide="activity" size="18"></i> قيد التوصيل
@@ -320,52 +334,18 @@
 <script>
     lucide.createIcons();
 
-    // تم التحديث إلى الرابط السحابي الجديد V7
-    const API_URL = "https://script.google.com/macros/s/AKfycbxUVwEwNd64uGYl8YuKWbH5lDzRjAmHqKQqcebUJCKYt2HBeuNj7q7qxo1tzVOgHt9yYA/exec";
+    // تم التحديث إلى الرابط السحابي الجديد V9
+    const API_URL = "https://script.google.com/macros/s/AKfycbx10FQJTjT-MbJ9QhtQH86izt_OGpr8umJQvdew7alUP8Z_iOYq8rbg5NnZPKGbk_XU-g/exec";
     const API_TOKEN = "HUT_SECURE_99";
+    
     let currentResName = "";
     let isRegistering = false;
     let currentOrderMode = 'manual';
     let base64Receipt = null;
     let dataRefreshInterval;
-
-    let currentResLat = 0;
-    let currentResLng = 0;
-
-    const kirkukAreas = {
-        "طريق بغداد": {lat: 35.455, lng: 44.380},
-        "حي الواسطي": {lat: 35.445, lng: 44.372},
-        "تسعين": {lat: 35.450, lng: 44.385},
-        "شارع القدس": {lat: 35.458, lng: 44.388},
-        "المحافظة": {lat: 35.465, lng: 44.390},
-        "حي عدن": {lat: 35.435, lng: 44.380},
-        "غرناطة": {lat: 35.460, lng: 44.380},
-        "القورية": {lat: 35.470, lng: 44.395},
-        "خضراء": {lat: 35.440, lng: 44.365},
-        "حي المعلمين": {lat: 35.468, lng: 44.400},
-        "رحيم آوا": {lat: 35.490, lng: 44.390},
-        "الماس": {lat: 35.475, lng: 44.385},
-        "حي بدر": {lat: 35.430, lng: 44.390},
-        "دوميز": {lat: 35.430, lng: 44.410},
-        "الشورجة": {lat: 35.485, lng: 44.405},
-        "حي البعث": {lat: 35.440, lng: 44.415},
-        "بنجة علي": {lat: 35.495, lng: 44.425},
-        "شوراو": {lat: 35.500, lng: 44.410},
-        "الصيادة": {lat: 35.420, lng: 44.430},
-        "عمل شعبي": {lat: 35.510, lng: 44.390},
-        "كوباني": {lat: 35.520, lng: 44.380}
-    };
-
-    const externalZones = {
-        "ليلان": 8000,
-        "درمان": 8000,
-        "تركلان": 6000,
-        "طوبزاوه": 6000,
-        "سكانيان": 5000,
-        "مجمع حولي / الصناعة": 5000,
-        "فلكة تكريت": 5000,
-        "مرور جيمن": 5000
-    };
+    
+    // متغير لتخزين لستة أسعار المطعم بعد جلبها من السيرفر
+    let myCustomPriceList = {};
 
     function saveDraft() {
         const draft = {
@@ -401,38 +381,40 @@
         sessionStorage.removeItem('hut_order_draft');
     }
 
-    function initAreasDropdown() {
+    // بناء القائمة المنسدلة من لستة المطعم فقط
+    function buildCustomAreaDropdown() {
         const select = document.getElementById('customerArea');
         select.innerHTML = '<option value="" disabled selected>-- اختر منطقة الزبون --</option>';
+        
+        if (Object.keys(myCustomPriceList).length === 0) {
+            select.innerHTML += '<option value="أخرى">أخرى (غير مدرجة في لستة المطعم)</option>';
+            return;
+        }
 
-        let optGroupInternal = document.createElement('optgroup');
-        optGroupInternal.label = "مناطق كركوك الداخلية (حساب تلقائي بالمسافة)";
-        Object.keys(kirkukAreas).forEach(area => {
-            optGroupInternal.innerHTML += `<option value="${area}">${area}</option>`;
+        // ترتيب المناطق أبجدياً لسهولة البحث
+        const sortedAreas = Object.keys(myCustomPriceList).sort();
+        
+        sortedAreas.forEach(area => {
+            select.innerHTML += `<option value="${area}">${area}</option>`;
         });
-        select.appendChild(optGroupInternal);
-
-        let optGroupExternal = document.createElement('optgroup');
-        optGroupExternal.label = "مناطق الأطراف والسيطرات (سعر ثابت)";
-        Object.keys(externalZones).forEach(area => {
-            optGroupExternal.innerHTML += `<option value="${area}">${area}</option>`;
-        });
-        select.appendChild(optGroupExternal);
-
-        select.innerHTML += `<option value="أخرى">أخرى (غير مدرجة في القائمة)</option>`;
+        
+        select.innerHTML += '<option value="أخرى">أخرى (غير مدرجة في اللستة)</option>';
+        
+        // إذا كان هناك مسودة، نعيد اختيار المنطقة بعد بناء القائمة
+        const draftStr = sessionStorage.getItem('hut_order_draft');
+        if(draftStr) {
+            try {
+                const draft = JSON.parse(draftStr);
+                if(draft.area && document.querySelector(`#customerArea option[value="${draft.area}"]`)) {
+                    select.value = draft.area;
+                    showSelectedPrice();
+                }
+            } catch(e) {}
+        }
     }
 
-    function getDistanceInKm(lat1, lon1, lat2, lon2) {
-        if(lat1 === 0 || lat2 === 0) return 0;
-        const R = 6371; 
-        const dLat = (lat2 - lat1) * (Math.PI/180);
-        const dLon = (lon2 - lon1) * (Math.PI/180);
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*(Math.PI/180)) * Math.cos(lat2*(Math.PI/180)) * Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
-    }
-
-    function calculateGPSPrice() {
+    // عرض السعر مباشرة بدون حسابات GPS
+    function showSelectedPrice() {
         const areaName = document.getElementById('customerArea').value;
         const priceHint = document.getElementById('priceHint');
 
@@ -442,37 +424,53 @@
         }
 
         priceHint.classList.remove('hidden-section');
-
-        if (externalZones[areaName]) {
-            const fixedPrice = externalZones[areaName];
-            priceHint.innerHTML = `<i data-lucide="map-pin" size="14" class="me-1"></i> <b>تسعيرة ثابتة (منطقة خارجية):</b> ${fixedPrice} د.ع`;
-            priceHint.className = "text-danger small fw-bold mt-2 px-1";
-            lucide.createIcons();
-            return;
-        }
-
-        if (kirkukAreas[areaName]) {
-            if (currentResLat === 0 || currentResLng === 0) {
-                priceHint.innerHTML = `⚠️ جاري تحديد موقع مطعمك...`;
-                priceHint.className = "text-warning small fw-bold mt-2 px-1";
-                return;
-            }
-
-            const targetLat = kirkukAreas[areaName].lat;
-            const targetLng = kirkukAreas[areaName].lng;
-            const distance = getDistanceInKm(currentResLat, currentResLng, targetLat, targetLng);
-
-            let deliveryFee = 1500;
-            if (distance > 8.0) deliveryFee = 4000;
-            else if (distance > 6.0) deliveryFee = 3000;
-            else if (distance > 4.5) deliveryFee = 2500;
-            else if (distance > 2.5) deliveryFee = 2000;
-            else deliveryFee = 1500;
-
-            priceHint.innerHTML = `<i data-lucide="ruler" size="14" class="me-1"></i> <b>المسافة التقريبية:</b> ${distance.toFixed(1)} كم | <b>توصيل الكابتن:</b> ${deliveryFee} د.ع`;
+        const price = myCustomPriceList[areaName];
+        
+        if (price) {
+            priceHint.innerHTML = `<i data-lucide="banknote" size="14" class="me-1"></i> <b>سعر توصيل الكابتن:</b> ${price} د.ع`;
             priceHint.className = "text-success small fw-bold mt-2 px-1";
             lucide.createIcons();
         }
+    }
+
+    // الدالة السحرية لتنظيف نص الواتساب وتحويله لـ JSON
+    function parseCustomPriceList(rawText) {
+        if (!rawText || rawText.trim() === "") return "{}";
+        
+        let resultObj = {};
+        
+        // 1. إزالة الإيموجيات والرموز الغريبة
+        let cleanText = rawText.replace(/[\u1000-\uFFFF]/g, ''); 
+        
+        // 2. تقسيم النص إلى أسطر
+        let lines = cleanText.split('\n');
+        
+        lines.forEach(line => {
+            // 3. تجاهل الأسطر الفارغة أو التي تحتوي على كلمة "تسعيرة" (مثل العنوان)
+            if(line.trim() === "" || line.includes("تسعيرة")) return;
+            
+            // 4. تقسيم السطر إذا كان يحتوي على (+) مثل: قادسيه 2000+قادسيه اولى2000
+            let subLines = line.split('+');
+            
+            subLines.forEach(sub => {
+                // 5. استخراج الكلمات (اسم المنطقة) والأرقام (السعر)
+                // يبحث عن أي رقم متصل ببعضه في نهاية أو وسط الجملة
+                let match = sub.match(/([^\d]+)(\d+)/);
+                if (match && match.length >= 3) {
+                    let area = match[1].trim();
+                    let price = match[2].trim();
+                    
+                    // تنظيف إضافي لاسم المنطقة (إزالة أي شرطات أو نقاط زائدة)
+                    area = area.replace(/^[-.]+|[-.]+$/g, '').trim();
+                    
+                    if(area !== "" && price !== "") {
+                        resultObj[area] = parseInt(price);
+                    }
+                }
+            });
+        });
+        
+        return JSON.stringify(resultObj);
     }
 
     if ('serviceWorker' in navigator) {
@@ -503,8 +501,6 @@
     }
 
     window.onload = function() {
-        initAreasDropdown(); 
-        
         if (!checkSavedSession()) {
             const savedPhone = localStorage.getItem('hut_res_phone');
             if(savedPhone) {
@@ -610,18 +606,23 @@
             const mapLink = document.getElementById('regMap').value.trim();
             const comm = document.getElementById('regComm').value.trim();
             const pay = document.getElementById('regPay').value;
+            const rawPriceListText = document.getElementById('regPriceList').value;
 
             if(!name || !area || !mapLink || !comm) return alert("يرجى ملئ جميع التفاصيل.");
-            showLoading(true, "جاري إرسال طلب الشراكة...");
+            
+            // تحويل اللستة من نص إلى JSON مضغوط
+            const packedPriceList = parseCustomPriceList(rawPriceListText);
+            
+            showLoading(true, "جاري إرسال طلب الشراكة وحفظ اللستة...");
             const fullArea = `${area} | ${mapLink}`;
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    pos => sendRegistration(name, phone, fullArea, comm, pay, pos.coords.latitude, pos.coords.longitude),
-                    err => sendRegistration(name, phone, fullArea, comm, pay, 0, 0),
+                    pos => sendRegistration(name, phone, fullArea, comm, pay, pos.coords.latitude, pos.coords.longitude, packedPriceList),
+                    err => sendRegistration(name, phone, fullArea, comm, pay, 0, 0, packedPriceList),
                     { timeout: 5000 }
                 );
-            } else { sendRegistration(name, phone, fullArea, comm, pay, 0, 0); }
+            } else { sendRegistration(name, phone, fullArea, comm, pay, 0, 0, packedPriceList); }
             return;
         }
 
@@ -631,8 +632,20 @@
         document.body.appendChild(script);
     }
 
-    function sendRegistration(name, phone, area, comm, pay, lat, lng) {
-        const payload = { action: 'RESTAURANT_REG', token: API_TOKEN, name: name, phone: phone, area: area, comm: comm, pay: pay, lat: lat, lng: lng };
+    function sendRegistration(name, phone, area, comm, pay, lat, lng, priceListStr) {
+        const payload = { 
+            action: 'RESTAURANT_REG', 
+            token: API_TOKEN, 
+            name: name, 
+            phone: phone, 
+            area: area, 
+            comm: comm, 
+            pay: pay, 
+            lat: lat, 
+            lng: lng,
+            priceList: priceListStr // إرسال اللستة المضغوطة
+        };
+        
         fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => {
             showLoading(false);
@@ -650,6 +663,13 @@
         if(data.status === "active") {
             currentResName = data.name;
             localStorage.setItem('hut_res_phone', phone);
+            
+            // قراءة اللستة التي أرسلها السيرفر
+            try {
+                if (data.priceList && data.priceList.trim() !== "") {
+                    myCustomPriceList = JSON.parse(data.priceList);
+                }
+            } catch(e) { console.error("Error parsing price list", e); }
             
             const sessionData = { phone: phone, name: data.name, timestamp: Date.now() };
             localStorage.setItem('hut_res_session', JSON.stringify(sessionData));
@@ -677,6 +697,7 @@
         document.getElementById('resPhoneDisplay').innerText = "شريك معتمد - الحوت";
         lucide.createIcons();
         
+        buildCustomAreaDropdown(); // بناء القائمة المنسدلة
         restoreDraft();
         
         fetchResDashboardData();
@@ -713,10 +734,13 @@
         const resInfo = data.restaurants.find(r => r[1] === currentResName);
         if(!resInfo) return;
 
-        currentResLat = parseFloat(resInfo[6]) || 0;
-        currentResLng = parseFloat(resInfo[7]) || 0;
-
-        calculateGPSPrice(); 
+        // إذا تم الدخول عن طريق الـ Session (Refresh) ولم يتم جلب اللستة في الـ Login
+        if (Object.keys(myCustomPriceList).length === 0 && resInfo[12] && resInfo[12].trim() !== "") {
+            try {
+                myCustomPriceList = JSON.parse(resInfo[12]);
+                buildCustomAreaDropdown();
+            } catch(e) {}
+        }
 
         const commRate = parseFloat(resInfo[5]) || 0;
         const paySystem = resInfo[8] || 'المطعم يدفع';
@@ -873,14 +897,14 @@
             imagePayload = base64Receipt;
         }
 
+        // تحديد السعر من اللستة لإرساله للكابتن
         const priceHintText = document.getElementById('priceHint').innerText;
         let areaWithHint = finalArea;
-        if(priceHintText && priceHintText.includes("توصيل الكابتن")) {
-            const extractedPrice = priceHintText.split("توصيل الكابتن:")[1].trim().split(" ")[0];
-            areaWithHint = `${finalArea} (توصيل: ${extractedPrice})`;
-        } else if (priceHintText && priceHintText.includes("تسعيرة ثابتة")) {
-            const extractedPrice = priceHintText.split("تسعيرة ثابتة (منطقة خارجية):")[1].trim().split(" ")[0];
-            areaWithHint = `${finalArea} (توصيل ثابت: ${extractedPrice})`;
+        if (myCustomPriceList[finalArea]) {
+            areaWithHint = `${finalArea} (توصيل: ${myCustomPriceList[finalArea]})`;
+        } else if (finalArea !== "أخرى") {
+            // كاحتياط في حال فشل القراءة
+            areaWithHint = finalArea;
         }
 
         const uniqueFrontendId = "HUT-" + Math.floor(Date.now() / 1000) + "-" + Math.floor(Math.random() * 1000);
@@ -891,7 +915,7 @@
             frontendId: uniqueFrontendId,
             restaurantName: currentResName,
             area: areaWithHint,
-            price: finalPrice,
+            price: finalPrice, // سعر التوصيل يتم تضمينه في اسم المنطقة لسهولة قراءته للكابتن
             details: finalDetails,
             image: imagePayload
         };
