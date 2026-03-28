@@ -272,7 +272,8 @@
 <script>
     lucide.createIcons();
 
-    const API_URL = "https://script.google.com/macros/s/AKfycbxYwOaivMtYWv7WzWmqKrmv5TbFGkMyN1FW2U0KZp9cYdRemSv-QvkeZLdt6rYzORnyLQ/exec";
+    // تم التحديث إلى الرابط السحابي الجديد V7
+    const API_URL = "https://script.google.com/macros/s/AKfycbxUVwEwNd64uGYl8YuKWbH5lDzRjAmHqKQqcebUJCKYt2HBeuNj7q7qxo1tzVOgHt9yYA/exec";
     const API_TOKEN = "HUT_SECURE_99";
     
     let driverData = null;
@@ -282,7 +283,7 @@
     let isOnline = true;
     let checkOrdersTimer = null; 
     let currentPollingRate = 20000; 
-    let wakeLock = null; // التعديل 2: متغير لإبقاء الشاشة مستيقظة
+    let wakeLock = null; 
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -294,7 +295,6 @@
 
     document.addEventListener('contextmenu', event => event.preventDefault());
 
-    // التعديل 3: طلب صلاحية استيقاظ الشاشة
     async function requestWakeLock() {
         if ('wakeLock' in navigator) {
             try {
@@ -317,7 +317,6 @@
     }
 
     function initAudioAndAuth() {
-        // تهيئة جميع الأصوات لخداع المتصفح (Autoplay Policy)
         const sounds = ['alertSound', 'doubleOrderSound', 'cancelSound'];
         sounds.forEach(id => {
             let audio = document.getElementById(id);
@@ -338,7 +337,6 @@
         authAction();
     }
 
-    // التعديل 4: تسجيل الدخول الذكي
     function checkSavedSession() {
         const sessionStr = localStorage.getItem('hut_driver_session');
         if (sessionStr) {
@@ -421,7 +419,7 @@
         if(data.status === "active") {
             driverData = { phone: phone, name: data.name, timestamp: Date.now() }; 
             localStorage.setItem('hut_driver', JSON.stringify(driverData));
-            localStorage.setItem('hut_driver_session', JSON.stringify(driverData)); // حفظ الجلسة
+            localStorage.setItem('hut_driver_session', JSON.stringify(driverData)); 
             showDashboard();
             displayActiveOrders();
         } else if (data.status === "pending" || data.status === "waiting") {
@@ -446,7 +444,6 @@
         document.getElementById('driverNameDisplay').innerText = "كابتن " + driverData.name;
         startSystem();
         
-        // إعادة تفعيل WakeLock إذا غادر المتصفح وعاد
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && isOnline) {
                 requestWakeLock();
@@ -481,7 +478,7 @@
             radarIcon.setAttribute('color', '#3b82f6');
             updateDriverStatusApi('active'); 
             adjustPollingRate(); 
-            requestWakeLock(); // إبقاء الشاشة مضاءة
+            requestWakeLock(); 
         } else {
             badge.className = "status-badge offline";
             badge.innerHTML = `<i data-lucide="coffee" size="14"></i> <span id="onlineStatusText">في استراحة</span>`;
@@ -491,7 +488,7 @@
             radarIcon.setAttribute('color', '#64748b');
             updateDriverStatusApi('inactive'); 
             adjustPollingRate(); 
-            releaseWakeLock(); // السماح للشاشة بالانطفاء
+            releaseWakeLock(); 
         }
         lucide.createIcons();
     }
@@ -516,7 +513,7 @@
     }
 
     function startSystem() {
-        if (isOnline) requestWakeLock(); // تفعيل استيقاظ الشاشة عند البدء
+        if (isOnline) requestWakeLock(); 
         adjustPollingRate(); 
         updateStats(); 
         setInterval(updateStats, 20000); 
@@ -533,7 +530,6 @@
     }
 
     function forceRemoveActiveOrder(msg, orderId) {
-        // تشغيل صوت الإلغاء المميز
         let cancelAudio = document.getElementById('cancelSound');
         cancelAudio.currentTime = 0; cancelAudio.play().catch(e => {});
 
@@ -625,7 +621,6 @@
             if(activeOrders.find(o => String(o.id) === String(data.id))) return;
             currentOrderData = data; 
             
-            // تشغيل الصوت المناسب بناءً على وجود طلبات مسبقة
             let audioId = activeOrders.length > 0 ? 'doubleOrderSound' : 'alertSound';
             let audio = document.getElementById(audioId);
             
